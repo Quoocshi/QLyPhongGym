@@ -326,3 +326,133 @@ ALTER TABLE CHALLENGE_PARTICIPATION
 ADD CONSTRAINT FK_CHALLENGE_PARTICIPATION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
 ALTER TABLE CHALLENGE_PARTICIPATION  
 ADD CONSTRAINT FK_CHALLENGE_PARTICIPATION_CHALLENGE FOREIGN KEY (MaChallenge) REFERENCES CHALLENGE(MaChallenge);
+
+--Trigger đối với khách hàng
+-- Kiểm tra tính duy nhất của MaKH
+CREATE OR REPLACE TRIGGER trg_check_unique_makh
+BEFORE INSERT ON CUSTOMER
+FOR EACH ROW
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_count FROM CUSTOMER 
+  WHERE :new.MAKH = MAKH;
+  IF v_count > 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'Mã khách hàng phải là duy nhất');
+    END IF;
+END
+
+-- Số điện thoại (SDT) phải có độ dài 10 ký tự và chỉ chứa chữ số.
+CREATE OR REPLACE TRIGGER trg_check_phone_number
+BEFORE INSERT OR UPDATE ON CUSTOMER
+FOR EACH ROW
+BEGIN
+  IF NOT REGEXP_LIKE(:NEW.SODIENTHOAI, '\d{10}$') THEN 
+    RAISE_APPLICATION_ERROR(-20002,'Số điện thoại phải có 10 ký tự và chỉ chứa chữ số');
+  END IF;
+END
+
+--  Email phải có định dạng hợp lệ (chứa ký tự '@' và '.').
+CREATE OR REPLACE TRIGGER trg_check_email
+BEFORE INSERT OR UPDATE ON CUSTOMER
+FOR EACH ROW
+BEGIN
+  IF NOT REGEXP_LIKE(:NEW.EMAIL,'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}') THEN 
+    RAISE_APPLICATION_ERROR(-20003,'Email phải chứa ký tự '@' và '.'');
+  END IF;
+END
+-- ^[A-Za-z0-9._%+-]: kiểm tra ký tự đầu có thuộc phạm vi các ký tự này không
+-- +: cho phép lặp lại với các ký tự sau
+-- \.: là dấu '.' vì trogn regexp_like, '.' có nghĩa là bất kỳ ký tự nào ngoại trừ ký tự xuống dòng
+-- {2,} tối thiểu 2 ký tự, tối đa vô hạn
+
+-- Ngày sinh không được lớn hơn ngày hiện tại.
+CREATE OR REPLACE TRIGGER trg_check_birth_day
+BEFORE INSERT OR UPDATE ON CUSTOMER
+FOR EACH ROW
+BEGIN
+  IF :NEW.NGAYSINH > TRUNC(CURRENT_DATE) THEN 
+    RAISE_APPLICATION_ERROR(-20004,'Ngày sinh không được lớn hon ngày hiện tại');
+  END IF;
+END
+
+-- Mỗi khách hàng chỉ có thể đăng ký một gói tập đang hoạt động tại một thời điểm.
+CREATE OR REPLACE TRIGGER trg_check_active_subscription
+BEFORE INSERT OR UPDATE ON SUBSCRIPTION
+FOR EACH ROW
+DECLARE
+  CURSOR active_sub IS
+  SELECT MaDK FROM SUBSCRIPTION s
+  WHERE s.MAKH = :NEW.MAKH AND s.TINHTRANG = 'Active';
+ v_active SUBSCRIPTION.MADK%TYPE; 
+BEGIN
+  OPEN active_sub;
+  FETCH active_sub INTO v_active;
+  IF active_sub%FOUND THEN 
+    RAISE_APPLICATION_ERROR(-20005,'Mỗi khách hàng chỉ có thể đăng ký một gói tập đang hoạt động tại một thời điểm.');
+  END IF;
+  CLOSE active_sub;
+END
+
+--Một khách hàng không thể đặt nhiều buổi tập với cùng một huấn luyện viên trong cùng một khung giờ.
+CREATE OR REPLACE TRIGGER trg_check_active_subscription
+BEFORE INSERT OR UPDATE ON SUBSCRIPTION
+FOR EACH ROW
+DECLARE
+  CURSOR active_sub IS
+  SELECT MaDK FROM SUBSCRIPTION s
+  WHERE s.MAKH = :NEW.MAKH AND s.TINHTRANG = 'Active';
+ v_active SUBSCRIPTION.MADK%TYPE; 
+BEGIN
+  OPEN active_sub;
+  FETCH active_sub INTO v_active;
+  IF active_sub%FOUND THEN 
+    RAISE_APPLICATION_ERROR(-20005,'Mỗi khách hàng chỉ có thể đăng ký một gói tập đang hoạt động tại một thời điểm.');
+  END IF;
+  CLOSE active_sub;
+END
+
+-- Một khách hàng không thể đặt nhiều buổi tập với cùng một huấn luyện viên trong cùng một khung giờ.
+CREATE OR REPLACE TRIGGER trg_check_duplicate_schedule
+BEFORE INSERT OR UPDATE ON SCHEDULE
+FOR EACH ROW
+DECLARE
+  CURSOR duplicate_schedule IS
+  SELECT MAKH FROM SCHEDULE s1
+  WHERE s1.MAKH = :NEW.MAKH AND s1.CATAP = :NEW AND s1.NGAYTAP = :NEW.NGAYTAP;
+ v_duplicate SCHEDULE.MALICH%TYPE; 
+BEGIN
+  OPEN duplicate_schedule ;
+  FETCH duplicate_schedule  INTO v_duplicate;
+  IF duplicate_schedule %FOUND THEN 
+    RAISE_APPLICATION_ERROR(-20006,'Một khách hàng không thể đặt nhiều buổi tập với cùng một huấn luyện viên trong cùng một khung giờ.');
+  END IF;
+  CLOSE duplicate_schedule;
+END
+
+--Mỗi khách hàng chỉ có thể tham gia tối đa 3 buổi tập mỗi ngày và 15 buổi tập mỗi tuần.
+CREATE OR REPLACE TRIGGER trg_check_workout_limit
+BEFORE INSERT OR UPDATE ON SCHEDULE
+COMPOUND TRIGGER
+  v_daily_count NUMBER;
+  v_weekly_count NUMBER;
+BEFORE EACH ROW IS
+BEGIN
+  SELECT COUNT(*) INTO v_daily_count;
+  FROM SCHEDULE S 
+  WHERE S.MAKH = :NEW.MAKH AND S.NGAYTAP = :NEW.NGAYTAP
+  IF V_DAILY_COUNT > 3 THEN 
+    RAISE_APPLICATION_ERROR(-20007,'Mỗi khách hàng chỉ có thể tham gia tối đa 3 buổi tập mỗi ngày');
+END BEFORE EACH ROW;
+
+AFTER EACH ROW IS
+BEGIN 
+  SELECT COUNT(*) INTO v_weekly_count;
+  FROM SCHEDULE s
+  WHERE MaKH = :NEW.MaKH 
+  AND NgayTap BETWEEN TRUNC(:NEW.NgayTap, 'IW') --TRUNC(DATE,'IW'): trả về ngày đầu tuần của tuần chứa DATE
+  AND :NEW.NgayTap;
+  IF V_DAILY_COUNT > 15 THEN 
+    RAISE_APPLICATION_ERROR(-20008,'Mỗi khách hàng chỉ có thể tham gia tối đa 15 buổi tập mỗi tuần');
+END AFTER EACH ROW;
+END TRG_CHECK_WORKOUT_LIMIT;
