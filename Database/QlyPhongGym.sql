@@ -331,6 +331,7 @@ INSERT INTO "USER" (
     SYSDATE,
     0
 );
+select * from "USER";
 select * from ACCOUNT;
 INSERT INTO ACCOUNT (
     USER_ID,
@@ -341,7 +342,7 @@ INSERT INTO ACCOUNT (
     UPDATED_AT,
     IS_DELETED
 ) VALUES (
-2,
+3,
     'nguyenvana',
     '$2b$12$qnLJGfjP2zKU/hInqlOLaebcfOh6iKCZoEpRe.DGBFc5qpZUQbfyq',
     'ACTIVE',
@@ -359,7 +360,7 @@ INSERT INTO "USER" (
     UPDATED_AT,
     IS_DELETED
 ) VALUES (
-    3, -- USER_ID mới cho adminuser
+    2, -- USER_ID mới cho adminuser
     'Admin User',
     'admin@example.com',
     SYSDATE,
@@ -380,7 +381,7 @@ INSERT INTO ACCOUNT (
     IS_DELETED
 ) VALUES (
     2, -- ID kế tiếp
-    3, -- USER_ID giả định tiếp theo
+    2, -- USER_ID giả định tiếp theo
     'adminuser',
     '$2b$12$EnQjJqMSKDPmS2N2Cw2MeOQ0mr/sntChzGJkPWI6QZ6VSn6xu7j5a', -- password "456"
     'ACTIVE',
@@ -468,7 +469,7 @@ INSERT INTO ACCOUNT_ASSIGN_ROLE_GROUP (
     UPDATED_AT,
     IS_DELETED
 ) VALUES (
-    6, -- ACCOUNT_ID của nguyenvana
+    8, -- ACCOUNT_ID của nguyenvana
     2, -- ROLE_GROUP_ID = 2 là USER
     SYSDATE,
     SYSDATE,
