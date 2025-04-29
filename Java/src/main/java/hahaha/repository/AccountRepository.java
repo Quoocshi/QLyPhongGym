@@ -9,6 +9,6 @@ import hahaha.model.Account;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    @Query("SELECT a FROM Account a WHERE a.username = ?1")
+    @Query("SELECT a FROM Account a WHERE a.username = ?1 AND a.isDeleted = 0")
     Optional<Account> findByUsername(String username);
 }

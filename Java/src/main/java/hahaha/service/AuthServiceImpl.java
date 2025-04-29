@@ -1,14 +1,16 @@
 package hahaha.service;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import hahaha.model.Account;
+import hahaha.repository.AccountAssignRoleGroupRepository;
 import hahaha.repository.AccountRepository;
+import hahaha.repository.RoleGroupRepository;
 
 @Service
 public class AuthServiceImpl implements UserDetailsService {
@@ -16,19 +18,41 @@ public class AuthServiceImpl implements UserDetailsService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("🧪 username nhập từ form: '" + username + "'");
-        Account acc = accountRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    System.out.println("⚠ Không tìm thấy user: " + username);
-                    return new UsernameNotFoundException("Không tìm thấy user");
-                });
+    @Autowired
+    private AccountAssignRoleGroupRepository assignRoleGroupRepository;
 
-        return User.builder()
-                .username(acc.getUsername())
-                .password(acc.getPasswordHash())
-                .roles("USER")
-                .build();
+    @Autowired
+    private RoleGroupRepository roleGroupRepository;
+
+    @Override
+public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    Account acc = accountRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
+
+    System.out.println("===== DEBUG LOAD USER =====");
+    System.out.println("Account username: " + acc.getUsername());
+    System.out.println("Account passwordHash: " + acc.getPasswordHash());
+    System.out.println("============================");
+
+    Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
+    if (roleGroupId == null) {
+        throw new UsernameNotFoundException("User không có role.");
     }
+
+    String roleName = roleGroupRepository.findRoleNameByRoleGroupId(roleGroupId);
+    if (roleName == null) {
+        throw new UsernameNotFoundException("Không tìm thấy role name.");
+    }
+
+    System.out.println("Role name tìm thấy: " + roleName);
+
+    return User.builder()
+            .username(acc.getUsername())
+            .password(acc.getPasswordHash()) // Phải đúng hash từ DB
+            .authorities("ROLE_" + roleName)
+            .build();
+}
+
+    
+
 }
