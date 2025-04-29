@@ -15,12 +15,13 @@ public class DemoApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
+        
     }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Bat dau tim user 'nguyenvana'...");
-		Thread.sleep(2000); // ✨ CHỜ 2 GIÂY
+		Thread.sleep(2000); 
 
         accountRepository.findByUsername("nguyenvana").ifPresentOrElse(
             account -> {

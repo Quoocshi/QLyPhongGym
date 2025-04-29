@@ -25,24 +25,34 @@ public class AuthServiceImpl implements UserDetailsService {
     private RoleGroupRepository roleGroupRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account acc = accountRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
+public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    Account acc = accountRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
 
-        Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
-        if (roleGroupId == null) {
-            throw new UsernameNotFoundException("User không có role.");
-        }
+    System.out.println("===== DEBUG LOAD USER =====");
+    System.out.println("Account username: " + acc.getUsername());
+    System.out.println("Account passwordHash: " + acc.getPasswordHash());
+    System.out.println("============================");
 
-        String roleName = roleGroupRepository.findRoleNameByRoleGroupId(roleGroupId);
-        if (roleName == null) {
-            throw new UsernameNotFoundException("Không tìm thấy role name.");
-        }
-
-        return User.builder()
-                .username(acc.getUsername())
-                .password(acc.getPasswordHash())
-                .roles(roleName)
-                .build();
+    Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
+    if (roleGroupId == null) {
+        throw new UsernameNotFoundException("User không có role.");
     }
+
+    String roleName = roleGroupRepository.findRoleNameByRoleGroupId(roleGroupId);
+    if (roleName == null) {
+        throw new UsernameNotFoundException("Không tìm thấy role name.");
+    }
+
+    System.out.println("Role name tìm thấy: " + roleName);
+
+    return User.builder()
+            .username(acc.getUsername())
+            .password(acc.getPasswordHash()) // Phải đúng hash từ DB
+            .authorities("ROLE_" + roleName)
+            .build();
+}
+
+    
+
 }
