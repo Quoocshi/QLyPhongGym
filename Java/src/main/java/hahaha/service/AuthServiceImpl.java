@@ -29,11 +29,6 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
     Account acc = accountRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
 
-    System.out.println("===== DEBUG LOAD USER =====");
-    System.out.println("Account username: " + acc.getUsername());
-    System.out.println("Account passwordHash: " + acc.getPasswordHash());
-    System.out.println("============================");
-
     Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
     if (roleGroupId == null) {
         throw new UsernameNotFoundException("User không có role.");
@@ -48,7 +43,7 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
 
     return User.builder()
             .username(acc.getUsername())
-            .password(acc.getPasswordHash()) // Phải đúng hash từ DB
+            .password(acc.getPasswordHash()) 
             .authorities("ROLE_" + roleName)
             .build();
 }
