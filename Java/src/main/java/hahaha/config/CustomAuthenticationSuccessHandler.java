@@ -14,26 +14,27 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                          HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
-
+        String username = authentication.getName();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String redirectUrl = "/home"; // mặc định nếu không match
-
+    
+        String redirectUrl = "/home/" + username; 
+    
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
             if (role.equals("ROLE_ADMIN")) {
-                redirectUrl = "/admin";
+                redirectUrl = "/admin/" + username;
                 break;
             } else if (role.equals("ROLE_USER")) {
-                redirectUrl = "/home";
+                redirectUrl = "/home/" + username;
                 break;
             }
         }
-
+    
         response.sendRedirect(redirectUrl);
     }
+    
 }
