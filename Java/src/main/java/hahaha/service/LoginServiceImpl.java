@@ -13,7 +13,7 @@ import hahaha.repository.AccountRepository;
 import hahaha.repository.RoleGroupRepository;
 
 @Service
-public class AuthServiceImpl implements UserDetailsService {
+public class LoginServiceImpl implements UserDetailsService {
 
     @Autowired
     private AccountRepository accountRepository;
