@@ -23,10 +23,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
             if ("ROLE_ADMIN".equals(role)) {
-                redirectUrl = "/admin";
+                redirectUrl = "/admin/home";
                 break;
             } else if ("ROLE_USER".equals(role)) {
-                redirectUrl = "/home";
+                redirectUrl = "/user/home";
                 break;
             }
         }

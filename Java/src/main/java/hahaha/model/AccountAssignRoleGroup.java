@@ -57,6 +57,11 @@ public class AccountAssignRoleGroup {
     public Integer getIsDeleted() {
         return isDeleted;
     }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+    
 }
     
         

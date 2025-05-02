@@ -103,3 +103,56 @@ window.onclick = function(event) {
         }
     }
 }
+
+const registerModal = document.getElementById('registerModal');
+
+const registerButton = document.getElementById('registerButton');
+
+const closeLogin = document.querySelector('.close');
+const closeRegister = document.querySelector('.close-register');
+
+const switchToRegister = document.querySelector('.login-footer a');
+const switchToLogin = document.getElementById('switchToLogin');
+
+// Mở modal
+loginButton.onclick = () => loginModal.style.display = 'flex';
+registerButton.onclick = () => registerModal.style.display = 'flex';
+
+// Đóng modal
+closeLogin.onclick = () => loginModal.style.display = 'none';
+closeRegister.onclick = () => registerModal.style.display = 'none';
+
+// Chuyển modal
+switchToRegister.onclick = (e) => {
+    e.preventDefault();
+    loginModal.style.display = 'none';
+    registerModal.style.display = 'flex';
+};
+switchToLogin.onclick = (e) => {
+    e.preventDefault();
+    registerModal.style.display = 'none';
+    loginModal.style.display = 'flex';
+};
+
+// Đóng khi click bên ngoài
+window.onclick = function(event) {
+    if (event.target === loginModal) loginModal.style.display = 'none';
+    if (event.target === registerModal) registerModal.style.display = 'none';
+};
+
+// ✅ Validate password khớp nhau
+function validateRegisterForm() {
+    const password = document.getElementById("reg-password").value;
+    const confirm = document.getElementById("reg-confirm").value;
+    const errorBox = document.getElementById("registerError");
+
+    if (password !== confirm) {
+        errorBox.textContent = "Mật khẩu xác nhận không khớp.";
+        errorBox.style.display = "block";
+        return false;
+    }
+
+    errorBox.style.display = "none";
+    return true;
+}
+

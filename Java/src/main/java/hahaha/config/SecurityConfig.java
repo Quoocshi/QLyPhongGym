@@ -17,15 +17,15 @@ public class SecurityConfig {
         http
             //.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/home").hasRole("USER")
+                .requestMatchers( "/login","/register","/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/")
+                .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .successHandler(customAuthenticationSuccessHandler()) // nếu bạn có
+                .successHandler(customAuthenticationSuccessHandler()) 
                 .permitAll()
             )
             .logout(logout -> logout
