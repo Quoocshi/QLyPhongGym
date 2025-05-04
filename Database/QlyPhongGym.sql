@@ -6,288 +6,288 @@ GRANT CONNECT, RESOURCE, DBA TO QLYPHONGGYM;
 
 --Sử dụng Schema
 ALTER SESSION SET CURRENT_SCHEMA = QLYPHONGGYM;
--- --Tạo bảng CUSTOMER
--- CREATE TABLE CUSTOMER (
---   MaKH VARCHAR2(10) PRIMARY KEY,
---   HoTen VARCHAR2(50) NOT NULL,
---   NgaySinh DATE ,
---   GioiTinh VARCHAR2(10),
---   Email  VARCHAR2(50) NOT NULL,
---   SoDienThoai VARCHAR2(15) NOT NULL,
---   DiaChi VARCHAR2(100),
---   ReferralCode VARCHAR2(20) UNIQUE
--- );
---
--- --Tạo bảng PACKAGE
--- CREATE TABLE PACKAGE (
---   MaGoi VARCHAR2(10) PRIMARY KEY,
---   TenGoi  VARCHAR2(50) NOT NULL,
---   LoaiGoi VARCHAR2(20) CHECK (LoaiGoi IN ('Cardio', 'Gym', 'Yoga', 'Combo')),
---   GiaTien NUMBER(10,2) NOT NULL,
---   ThoiHan NUMBER(3) NOT NULL
--- );
--- drop table CUSTOMER
--- --Tạo bảng WORKOUT_AREA
--- CREATE TABLE WORKOUT_AREA (
---   MaKhuVuc  VARCHAR2(10) PRIMARY KEY,
---   TenKhuVuc VARCHAR2(50) NOT NULL,
---   SucChuaToiDa NUMBER(3) NOT NULL
--- );
---
--- --Tạo bảng SCHEDULE
--- CREATE TABLE SCHEDULE (
---   MaLich  VARCHAR2(10) PRIMARY KEY,
---   MaKH  VARCHAR2(10) NOT NULL,
---   MaGoi VARCHAR2(10) NOT NULL,
---   NgayTap DATE NOT NULL,
---   CaTap NUMBER(1) CHECK(CaTap BETWEEN 1 AND 5),
---   PhongTap VARCHAR2(20) NOT NULL,
---   MaPT VARCHAR2(10) NOT NULL
--- );
---
--- --Tạo bảng PT
--- CREATE TABLE PT (
---   MaPT  VARCHAR2(10) PRIMARY KEY,
---   HoTenPT VARCHAR2(50) NOT NULL,
---   ChuyenMon VARCHAR2(50),
---   LichLamViec VARCHAR2(50),
---   SoDienThoaiPT VARCHAR2(15) UNIQUE,
---   EmailPT VARCHAR2(50) UNIQUE
--- );
---
--- --Tạo bảng STAFF
--- CREATE TABLE STAFF  (
---   MaNV  VARCHAR2(10) PRIMARY KEY,
---   HoTenNV VARCHAR2(50) NOT NULL,
---   ViTri VARCHAR2(30) NOT NULL,
---   LichLamViec VARCHAR2(50),
---   SoDienThoaiNV VARCHAR2(15) UNIQUE,
---   EmailNV VARCHAR2(50) UNIQUE
--- );
---
--- --Tạo bảng PAYMENT
--- CREATE TABLE PAYMENT  (
---   MaGD  VARCHAR2(15) PRIMARY KEY,
---   MaKH  VARCHAR2(10) NOT NULL,
---   SoTien  NUMBER(10,2) NOT NULL,
---   PhuongThucTT VARCHAR2(20) CHECK(PhuongThucTT IN ('Tien Mat', 'The', 'Vi Dien Tu')),
---   NgayTT DATE NOT NULL
--- );
---
--- --Tạo bảng REWARD
--- CREATE TABLE REWARD (
---   MaUuDai VARCHAR2(10)  PRIMARY KEY,
---   MaKH  VARCHAR2(10)  NOT NULL,
---   DiemTichLuy NUMBER(5) NOT NULL,
---   MoTaUuDai VARCHAR2(100)
--- );
---
--- --Tạo bảng ATTENDANCE
--- CREATE TABLE ATTENDANCE (
---   MaDiemDanh VARCHAR2(10) PRIMARY KEY,
---   MaKH VARCHAR2(10) NOT NULL,
---   NgayDiemDanh DATE NOT NULL,
---   TrangThai VARCHAR2(20)  CHECK (TrangThai IN ('Đã điểm danh', 'Vắng mặt'))
--- );
---
--- --Tạo bảng EQUIPMENT
--- CREATE TABLE EQUIPMENT (
---   MaTB  VARCHAR2(10) PRIMARY KEY,
---   TenTB VARCHAR2(50) NOT NULL,
---   TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Tốt', 'Cần bảo trì', 'Hỏng')),
---   MaKhuVuc  VARCHAR2(10)  NOT NULL
--- );
---
--- --Tạo bảng CLASS
--- CREATE TABLE CLASS (
---   MaLop VARCHAR2(10) PRIMARY KEY,
---   TenLop  VARCHAR2(50)  NOT NULL,
---   MaPT  VARCHAR2(10)  NOT NULL,
---   GioBatDau DATE NOT NULL,
---   GioKetThuc DATE NOT NULL,
---   SoLuongToiDa  NUMBER(3) NOT NULL
--- );
---
--- --Tạo bảng SERVICE
--- CREATE TABLE SERVICE (
---   MaDV  VARCHAR2(10)  PRIMARY KEY,
---   TenDV VARCHAR2(50)  NOT NULL,
---   GiaDV NUMBER(10,2)  NOT NULL,
---   MoTaDV  VARCHAR2(100)
--- );
---
--- --Tạo bảng SUBSCRIPTION
--- CREATE TABLE SUBSCRIPTION  (
---   MaDK VARCHAR2(10) PRIMARY KEY,
---   MaKH  VARCHAR2(10)  NOT NULL,
---   MaDV  VARCHAR2(10)  NOT NULL,
---   NgayDK  DATE  NOT NULL,
---   TinhTrang VARCHAR2(20)  CHECK (TinhTrang IN ('Active', 'Expired'))
--- );
---
--- --Tạo bảng MEMBERSHIP
--- CREATE TABLE MEMBERSHIP (
---   MaHV  VARCHAR2(10) PRIMARY KEY,
---   MaKH  VARCHAR2(10) NOT NULL,
---   LoaiHV  VARCHAR2(20)  CHECK (LoaiHV IN ('Silver', 'Gold', 'Platinum')),
---   NgayBatDau  DATE NOT NULL,
---   NgayKetThuc DATE
--- );
---
--- --Tạo bảng DISCOUNT
--- CREATE TABLE DISCOUNT (
---   MaGiamGia  VARCHAR2(10) PRIMARY KEY,
---   TenMa  VARCHAR2(50) NOT NULL,
---   PhanTram  NUMBER(3) CHECK (PhanTram BETWEEN 0 AND 100),
---   HanSuDung DATE  NOT NULL,
---   DieuKien  VARCHAR2(100)
--- );
---
--- --Tạo bảng BOOKING
--- CREATE TABLE BOOKING (
---   MaBooking VARCHAR2(10) PRIMARY KEY,
---   MaKH  VARCHAR2(10) NOT NULL,
---   MaDV  VARCHAR2(10) NOT NULL,
---   NgayDat DATE NOT NULL,
---   TrangThai VARCHAR2(20)  CHECK (TrangThai IN ('Đã xác nhận', 'Chờ xử lý', 'Đã hủy'))
--- );
---
--- --Tạo bảng NOTIFICATION
--- CREATE TABLE  NOTIFICATION (
---   MaTBao VARCHAR2(10) PRIMARY KEY,
---   MaKH  VARCHAR2(10)  NOT NULL,
---   TieuDe  VARCHAR2(50) NOT NULL,
---   NoiDung VARCHAR2(255) NOT NULL,
---   NgayGui DATE NOT NULL
--- );
---
--- --Tạo bảng FEEDBACK
--- CREATE TABLE FEEDBACK (
---   MaFB VARCHAR2(10) PRIMARY KEY,
---   MaKH VARCHAR2(10) NOT NULL,
---   NoiDung VARCHAR2(255) NOT NULL,
---   NgayGui DATE NOT NULL,
---   DanhGia NUMBER(1) CHECK (DanhGia BETWEEN 1 AND 5)
--- );
---
--- --Tạo bảng MAINTENANCE
--- CREATE TABLE MAINTENANCE (
---   MaBT  VARCHAR2(10)  PRIMARY KEY,
---   MaTB  VARCHAR2(10)  NOT NULL,
---   NgayBaoTri DATE NOT NULL,
---   TrangThaiBT VARCHAR2(20)  CHECK (TrangThaiBT IN ('Đang xử lý', 'Hoàn thành')),
---   MoTaBT  VARCHAR2(255)
--- );
---
--- --Tạo bảng PROMOTION
--- CREATE TABLE PROMOTION (
---   MaKM  VARCHAR2(10)  PRIMARY KEY,
---   TenKM VARCHAR2(50)  NOT NULL,
---   MoTaKM  VARCHAR2(255),
---   NgayBatDau  DATE  NOT NULL,
---   NgayKetThuc DATE  NOT NULL,
---   PhanTramGiam  NUMBER(3) CHECK (PhanTramGiam BETWEEN 0 AND 100)
--- );
---
--- --Tạo bảng PT_ATTENDANCE
--- CREATE TABLE PT_ATTENDANCE (
---   MaDDPT  VARCHAR2(10)  PRIMARY KEY,
---   MaPT  VARCHAR2(10)  NOT NULL,
---   NgayDiemDanh  DATE  NOT NULL,
---   TrangThai VARCHAR2(20)  CHECK (TrangThai IN ('Có mặt', 'Vắng mặt', 'Nghỉ phép')),
---   GhiChu  VARCHAR2(100)
--- );
---
--- --Tạo bảng STAFF_ATTENDANCE
--- CREATE TABLE STAFF_ATTENDANCE (
---   MaDDNV VARCHAR2(10) PRIMARY KEY,
---   MANV  VARCHAR2(10)  NOT NULL,
---   NgayDiemDanh DATE NOT NULL,
---   TrangThai VARCHAR2(20)  CHECK (TrangThai IN ('Có mặt', 'Vắng mặt', 'Nghỉ phép')),
---   GhiChu  VARCHAR2(100)
--- );
---
--- --Tạo bảng CHALLENGE
--- CREATE TABLE CHALLENGE (
---   MaChallenge VARCHAR2(10)  PRIMARY KEY,
---   TenChallenge  VARCHAR2(50)  NOT NULL,
---   MoTa  VARCHAR2(100) ,
---   NgayBatDau  DATE  NOT NULL,
---   NgayKetThuc DATE  NOT NULL,
---   DiemThuong  NUMBER(5) NOT NULL
--- );
---
--- --Tạo bảng CHALLENGE_PARTICIPATION
--- CREATE TABLE CHALLENGE_PARTICIPATION (
---   MaThamGia VARCHAR2(10) PRIMARY KEY,
---   MaKH VARCHAR2(10) NOT NULL,
---   MaChallenge VARCHAR2(10)  NOT NULL,
---   TinhTrang VARCHAR2(20)  CHECK (TinhTrang IN ('Đang tham gia', 'Hoàn thành', 'Không hoàn thành')),
---   NgayHoanThanh DATE
--- );
---
--- -- Tạo bảng SALARY
--- CREATE TABLE SALARY(
---   MaLuong VARCHAR2(10) PRIMARY KEY,
---   MaNV  VARCHAR2(10),
---   MaPT  VARCHAR2(10),
---   ThoiGianNhanLuong DATE NOT NULL,
---   LuongCoDinh DECIMAL(12,2) NOT NULL,
---   HoaHong DECIMAL(12,2) DEFAULT(0),
---   Thuong  DECIMAL(12,2) DEFAULT(0),
---   TruLuong  DECIMAL(12,2) DEFAULT(0),
---   TongLuong DECIMAL(12,2) NOT NULL
--- );
---
--- -- Tạo bảng SHIFT
--- CREATE TABLE SHIFT(
---   MaCaTap VARCHAR2(10) PRIMARY KEY,
---   GioBatDau DATE NOT NULL,
---   GioKetThuc DATE NOT NULL,
---   MaKhuVuc VARCHAR2(10)
--- );
--- --Tạo Bảng USER
--- CREATE TABLE USER_ (
---     USER_ID NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
---     FULL_NAME VARCHAR2(100) NOT NULL,
---     EMAIL VARCHAR2(150) UNIQUE NOT NULL,
---     PASSWORD VARCHAR2(255) NOT NULL,
---     CREATED_AT DATE DEFAULT SYSDATE,
---     IS_DELETE CHAR(1) DEFAULT 'N'
--- );
--- SELECT * FROM USER_ u
--- ALTER TABLE USER_ DROP COLUMN PASSWORD
--- INSERT INTO USER_ (FULL_NAME, EMAIL)
--- VALUES ('Nguyễn Văn A', 'a@example.com');
---
--- INSERT INTO USER_ (FULL_NAME, EMAIL)
--- VALUES ('Trần Thị B', 'b@example.com');
---
--- INSERT INTO ACCOUNT (USER_ID, USERNAME, PASSWORD_HASH, STATUS)
--- VALUES (
---     (SELECT USER_ID FROM USER_ WHERE EMAIL = 'a@example.com'),
---     'nguyenvana',
---     '$2a$10$9ku2CQcThZuD9Jmzl3fVXOzERZRfiut8vCEdg9KnGX0HSKX9MF9zu',
---     'ACTIVE'
--- );
--- SELECT * FROM ACCOUNT a;
--- SELECT * FROM ACCOUNT WHERE USERNAME = 'nguyenvana';
---
---
--- --Tạo bảng USER_ACCOUNT
--- CREATE TABLE ACCOUNT (
---     ACCOUNT_ID NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
---     USER_ID NUMBER NOT NULL,
---     USERNAME VARCHAR2(50) UNIQUE NOT NULL,
---     PASSWORD_HASH VARCHAR2(200) NOT NULL,
---     STATUS VARCHAR2(20) DEFAULT 'ACTIVE',
---     CREATED_AT DATE DEFAULT SYSDATE,
---     CONSTRAINT FK_ACCOUNT_USER FOREIGN KEY (USER_ID) REFERENCES USER_(USER_ID)
--- );
--- ALTER TABLE ACCOUNT MODIFY USERNAME NVARCHAR2(50);
+
+-- Bảng CUSTOMER
+CREATE TABLE CUSTOMER (
+    MaKH VARCHAR2(10) PRIMARY KEY,
+    HoTen VARCHAR2(50) NOT NULL,
+    NgaySinh DATE,
+    GioiTinh VARCHAR2(10),
+    Email VARCHAR2(50) NOT NULL,
+    SoDienThoai VARCHAR2(15),
+    DiaChi VARCHAR2(100),
+    ReferralCode VARCHAR2(20) UNIQUE
+);
+
+
+-- Bảng PACKAGE
+CREATE TABLE PACKAGE (
+    MaGoi VARCHAR2(10) PRIMARY KEY,
+    TenGoi VARCHAR2(50) NOT NULL,
+    LoaiGoi VARCHAR2(20) CHECK (LoaiGoi IN ('Cardio', 'Gym', 'Yoga', 'Combo')),
+    GiaTien NUMBER(10,2) NOT NULL,
+    ThoiHan NUMBER(3) NOT NULL
+);
+
+CREATE TABLE WORKOUT_AREA (
+    MaKhuVuc VARCHAR2(10) PRIMARY KEY,
+    TenKhuVuc VARCHAR2(50) NOT NULL,
+    SucChuaToiDa NUMBER(3) NOT NULL
+);
+
+-- Bảng SCHEDULE
+CREATE TABLE SCHEDULE (
+    MaLich VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    MaGoi VARCHAR2(10),
+    MaPT VARCHAR2(10),
+    NgayTap DATE NOT NULL,
+    MaCaTap VARCHAR2(10),
+    CONSTRAINT FK_SCHEDULE_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH),
+    CONSTRAINT FK_SCHEDULE_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi),
+    CONSTRAINT FK_SCHEDULE_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT),
+    CONSTRAINT FK_SCHEDULE_SHIFT FOREIGN KEY (MaCaTap) REFERENCES SHIFT(MaCaTap)
+);
+
+-- Bảng PT
+CREATE TABLE PT (
+    MaPT VARCHAR2(10) PRIMARY KEY,
+    HoTenPT VARCHAR2(50) NOT NULL,
+    ChuyenMon VARCHAR2(50),
+    SoDienThoaiPT VARCHAR2(15) UNIQUE,
+    EmailPT VARCHAR2(50) UNIQUE
+);
+
+-- Bảng STAFF
+CREATE TABLE STAFF (
+    MaNV VARCHAR2(10) PRIMARY KEY,
+    HoTenNV VARCHAR2(50) NOT NULL,
+    ViTri VARCHAR2(30) NOT NULL,
+    SoDienThoaiNV VARCHAR2(15) UNIQUE,
+    EmailNV VARCHAR2(50) UNIQUE,
+    LichLamViec VARCHAR2(50),
+    Ca VARCHAR2(10) CHECK (Ca IN ('Sáng', 'Tối'))
+);
+
+-- Bảng PAYMENT
+CREATE TABLE PAYMENT (
+    MaGD VARCHAR2(15) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    SoTien NUMBER(10,2) NOT NULL,
+    PhuongThucTT VARCHAR2(20) CHECK (PhuongThucTT IN ('Tiền Mặt', 'Thẻ', 'Ví Điện Tử')),
+    NgayTT DATE NOT NULL,
+    MaGoi VARCHAR2(10),
+    MaDV VARCHAR2(10),
+    CONSTRAINT FK_PAYMENT_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH),
+    CONSTRAINT FK_PAYMENT_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi),
+    CONSTRAINT FK_PAYMENT_SERVICE FOREIGN KEY (MaDV) REFERENCES SERVICE(MaDV)
+);
+
+-- Bảng REWARD (Chương trình ưu đãi & tích điểm)
+CREATE TABLE REWARD (
+    MaUuDai VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    DiemTichLuy NUMBER(5) NOT NULL,
+    MoTaUuDai VARCHAR2(100) NOT NULL,
+    CONSTRAINT FK_REWARD_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH)
+);
+
+-- Bảng ATTENDANCE (Theo dõi điểm danh)
+CREATE TABLE ATTENDANCE (
+    MaDDKH VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    NgayDiemDanh DATE NOT NULL,
+    TGDiemDanh TIMESTAMP NOT NULL,
+    TrangThai VARCHAR2(20) CHECK (TrangThai IN ('Đã điểm danh', 'Vắng mặt')),
+    CONSTRAINT FK_ATTENDANCE_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH)
+);
+
+-- Bảng EQUIPMENT (Thiết bị tập luyện)
+CREATE TABLE EQUIPMENT (
+    MaTB VARCHAR2(10) PRIMARY KEY,
+    TenTB VARCHAR2(50) NOT NULL,
+    TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Tốt', 'Cần bảo trì', 'Hỏng')),
+    MaKhuVuc VARCHAR2(10),
+    CONSTRAINT FK_EQUIPMENT_WORKOUT_AREA FOREIGN KEY (MaKhuVuc) REFERENCES WORKOUT_AREA(MaKhuVuc)
+);
+
+-- Bảng CLASS (Lớp học nhóm)
+CREATE TABLE CLASS (
+    MaLop VARCHAR2(10) PRIMARY KEY,
+    TenLop VARCHAR2(50) NOT NULL,
+    MaPT VARCHAR2(10),
+    SoLuongToiDa NUMBER(3) NOT NULL,
+    CONSTRAINT FK_CLASS_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT)
+);
+
+-- Bảng SERVICE (Dịch vụ bổ sung)
+CREATE TABLE SERVICE (
+    MaDV VARCHAR2(10) PRIMARY KEY,
+    TenDV VARCHAR2(50) NOT NULL,
+    GiaDV NUMBER(10,2) NOT NULL,
+    MoTaDV VARCHAR2(100)
+);
+
+-- Bảng SUBSCRIPTION (Đăng ký dịch vụ)
+CREATE TABLE SUBSCRIPTION (
+    MaDK VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    MaDV VARCHAR2(10),
+    NgayDK DATE NOT NULL,
+    NgayHetHan DATE NOT NULL,
+    TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Active', 'Expired')),
+    MaGoi VARCHAR2(10),
+    CONSTRAINT FK_SUBSCRIPTION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH),
+    CONSTRAINT FK_SUBSCRIPTION_SERVICE FOREIGN KEY (MaDV) REFERENCES SERVICE(MaDV),
+    CONSTRAINT FK_SUBSCRIPTION_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi)
+);
+
+-- Bảng MEMBERSHIP (Hội viên VIP)
+CREATE TABLE MEMBERSHIP (
+    MaHV VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    LoaiHV VARCHAR2(20) CHECK (LoaiHV IN ('Standard', 'Silver', 'Gold', 'Platinum')),
+    NgayBatDau DATE NOT NULL,
+    NgayKetThuc DATE,
+    TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Active', 'Pause')),
+    CONSTRAINT FK_MEMBERSHIP_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH)
+);
+
+-- Bảng DISCOUNT (Mã giảm giá)
+CREATE TABLE DISCOUNT (
+    MaGiamGia VARCHAR2(10) PRIMARY KEY,
+    TenMa VARCHAR2(50) NOT NULL,
+    PhanTram NUMBER(3) CHECK (PhanTram BETWEEN 0 AND 100),
+    HanSuDung DATE NOT NULL,
+    DieuKien VARCHAR2(100)
+);
+
+-- Bảng BOOKING (Đặt lịch dịch vụ)
+CREATE TABLE BOOKING (
+    MaBooking VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    MaDV VARCHAR2(10),
+    NgayDat DATE NOT NULL,
+    TrangThai VARCHAR2(20) CHECK (TrangThai IN ('Đã xác nhận', 'Chờ xử lý', 'Đã hủy')),
+    MaGoi VARCHAR2(10),
+    ThoiGianHuy TIMESTAMP,
+    CONSTRAINT FK_BOOKING_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH),
+    CONSTRAINT FK_BOOKING_SERVICE FOREIGN KEY (MaDV) REFERENCES SERVICE(MaDV),
+    CONSTRAINT FK_BOOKING_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi)
+);
+
+-- Bảng NOTIFICATION (Thông báo đến khách hàng)
+CREATE TABLE NOTIFICATION (
+    MaTBao VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    TieuDe VARCHAR2(30) NOT NULL,
+    NoiDung VARCHAR2(255) NOT NULL,
+    NgayGui DATE NOT NULL,
+    SoTienHoan DECIMAL(12,2),
+    CONSTRAINT FK_NOTIFICATION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH)
+);
+
+-- Bảng FEEDBACK (Phản hồi của khách hàng)
+CREATE TABLE FEEDBACK (
+    MaFB VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    NoiDung VARCHAR2(255) NOT NULL,
+    NgayGui DATE NOT NULL,
+    DanhGia NUMBER(1) CHECK (DanhGia BETWEEN 1 AND 5),
+    CONSTRAINT FK_FEEDBACK_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH)
+);
+
+-- Bảng MAINTENANCE (Bảo trì thiết bị)
+CREATE TABLE MAINTENANCE (
+    MaBT VARCHAR2(10) PRIMARY KEY,
+    MaTB VARCHAR2(10),
+    NgayBaoTri DATE NOT NULL,
+    TrangThaiBT VARCHAR2(20) CHECK (TrangThaiBT IN ('Đang xử lý', 'Hoàn thành')),
+    MoTaBT VARCHAR2(255),
+    MaNV VARCHAR2(10),
+    CONSTRAINT FK_MAINTENANCE_EQUIPMENT FOREIGN KEY (MaTB) REFERENCES EQUIPMENT(MaTB),
+    CONSTRAINT FK_MAINTENANCE_STAFF FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV)
+);
+
+-- Bảng PROMOTION (Chương trình khuyến mãi thêm buổi tập)
+CREATE TABLE PROMOTION (
+    MaKM VARCHAR2(10) PRIMARY KEY,
+    TenKM VARCHAR2(50) NOT NULL,
+    MoTaKM NUMBER(2) NOT NULL,  -- Số ngày được tặng thêm
+    NgayBatDau DATE NOT NULL,
+    NgayKetThuc DATE NOT NULL
+);
+
+-- Bảng PT_ATTENDANCE (Điểm danh huấn luyện viên cá nhân)
+CREATE TABLE PT_ATTENDANCE (
+    MaDDPT VARCHAR2(10) PRIMARY KEY,
+    MaPT VARCHAR2(10),
+    NgayDiemDanh DATE NOT NULL,
+    TrangThai VARCHAR2(20) CHECK (TrangThai IN ('Có mặt', 'Vắng mặt', 'Nghỉ phép')),
+    GhiChu VARCHAR2(100),
+    CONSTRAINT FK_PT_ATTENDANCE_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT)
+);
+
+-- Bảng STAFF_ATTENDANCE (Điểm danh nhân viên)
+CREATE TABLE STAFF_ATTENDANCE (
+    MaDDNV VARCHAR2(10) PRIMARY KEY,
+    MaNV VARCHAR2(10),
+    NgayDiemDanh DATE NOT NULL,
+    TrangThai VARCHAR2(20) CHECK (TrangThai IN ('Có mặt', 'Vắng mặt', 'Nghỉ phép')),
+    GhiChu VARCHAR2(100),
+    CONSTRAINT FK_STAFF_ATTENDANCE FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV)
+);
+
+-- Bảng CHALLENGE (Chương trình thử thách)
+CREATE TABLE CHALLENGE (
+    MaChallenge VARCHAR2(10) PRIMARY KEY,
+    TenChallenge VARCHAR2(50) NOT NULL,
+    MoTa VARCHAR2(1000) NOT NULL,
+    NgayBatDau DATE NOT NULL,
+    NgayKetThuc DATE NOT NULL,
+    DiemThuong NUMBER(5) NOT NULL
+);
+
+-- Bảng CHALLENGE_PARTICIPATION (Tham gia thử thách)
+CREATE TABLE CHALLENGE_PARTICIPATION (
+    MaThamGia VARCHAR2(10) PRIMARY KEY,
+    MaKH VARCHAR2(10),
+    MaChallenge VARCHAR2(10),
+    TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Đang tham gia', 'Hoàn thành', 'Không hoàn thành')),
+    NgayHoanThanh DATE,
+    CONSTRAINT FK_CHALLENGE_PARTICIPATION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH),
+    CONSTRAINT FK_CHALLENGE_PARTICIPATION_CHALLENGE FOREIGN KEY (MaChallenge) REFERENCES CHALLENGE(MaChallenge)
+);
+
+-- Bảng SALARY (Quản lý lương nhân viên & PT)
+CREATE TABLE SALARY (
+    MaLuong VARCHAR2(10) PRIMARY KEY,
+    MaNV VARCHAR2(10),
+    MaPT VARCHAR2(10),
+    ThoiGianNhanLuong DATE NOT NULL,
+    LuongCoDinh DECIMAL(12,2) NOT NULL,
+    HoaHong DECIMAL(12,2) DEFAULT 0,  -- Chỉ áp dụng cho PT
+    Thuong DECIMAL(12,2) DEFAULT 0,    -- Thưởng nếu đạt KPI
+    TruLuong DECIMAL(12,2) DEFAULT 0,  -- Trừ lương nếu vi phạm
+    TongLuong DECIMAL(12,2) NOT NULL,  -- Tổng lương thực nhận
+    CONSTRAINT FK_SALARY_STAFF FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV),
+    CONSTRAINT FK_SALARY_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT)
+);
+
+-- Bảng SHIFT (Quản lý ca tập luyện)
+CREATE TABLE SHIFT (
+    MaCaTap VARCHAR2(10) PRIMARY KEY,
+    GioBatDau VARCHAR2(5) CHECK (REGEXP_LIKE(GioBatDau, '^\d{2}:\d{2}$')),
+    GioKetThuc VARCHAR2(5) CHECK (REGEXP_LIKE(GioKetThuc, '^\d{2}:\d{2}$')),
+    MaKhuVuc VARCHAR2(10),
+    CONSTRAINT FK_SHIFT_WORKOUT_AREA FOREIGN KEY (MaKhuVuc) REFERENCES WORKOUT_AREA(MaKhuVuc)
+);
+
+
+--------------------------------------------------------------Các Bảng Dùng Cho Login Và Phân Quyền----------------------------------------------------------------------------------------------
 
 -- 1. Tạo bảng USER
-CREATE TABLE "USER" (
+CREATE TABLE USER_ (
     USER_ID      NUMBER(10) GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     FULL_NAME    VARCHAR2(100) NOT NULL,
     EMAIL        VARCHAR2(150) UNIQUE NOT NULL,
@@ -295,15 +295,6 @@ CREATE TABLE "USER" (
     UPDATED_AT   DATE DEFAULT SYSDATE,
     IS_DELETED   NUMBER(1) DEFAULT 0 CHECK (IS_DELETED IN (0,1))
 );
-select * from "USER";
-select * from ACCOUNT;
-SELECT '[' || USERNAME || ']' AS CHECK_USERNAME, IS_DELETED
-FROM ACCOUNT;
-SELECT *
-FROM ACCOUNT
-WHERE USERNAME = 'nguyenvana'
-AND IS_DELETED = 0;
-
 
 -- 2. Tạo bảng ACCOUNT
 CREATE TABLE ACCOUNT (
@@ -315,85 +306,9 @@ CREATE TABLE ACCOUNT (
     CREATED_AT    DATE DEFAULT SYSDATE,
     UPDATED_AT    DATE DEFAULT SYSDATE,
     IS_DELETED    NUMBER(1) DEFAULT 0 CHECK (IS_DELETED IN (0,1)),
-    CONSTRAINT FK_ACCOUNT_USER FOREIGN KEY (USER_ID) REFERENCES "USER"(USER_ID)
+    CONSTRAINT FK_ACCOUNT_USER FOREIGN KEY (USER_ID) REFERENCES USER_(USER_ID)
 );
 
-INSERT INTO "USER" (
-    FULL_NAME,
-    EMAIL,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-    'Nguyen Van A',
-    'nguyenvana@example.com',
-    SYSDATE,
-    SYSDATE,
-    0
-);
-select * from "USER";
-select * from ACCOUNT;
-INSERT INTO ACCOUNT (
-    USER_ID,
-    USERNAME,
-    PASSWORD_HASH,
-    STATUS,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-3,
-    'nguyenvana',
-    '$2b$12$qnLJGfjP2zKU/hInqlOLaebcfOh6iKCZoEpRe.DGBFc5qpZUQbfyq',
-    'ACTIVE',
-    SYSDATE,
-    SYSDATE,
-    0
-);
-
--- Thêm user admin vào bảng "USER"
-INSERT INTO "USER" (
-    USER_ID,
-    FULL_NAME,
-    EMAIL,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-    2, -- USER_ID mới cho adminuser
-    'Admin User',
-    'admin@example.com',
-    SYSDATE,
-    SYSDATE,
-    0
-);
--- Insert tài khoản adminuser với mật khẩu "456"
-update ACCOUNT set PASSWORD_HASH = '$2a$10$.EuUq4ZX5I5.mzHsjzq46.Ws4CZc2piUEc54J4k8MqYez0q9p/wo6'
-where USER_ID = 2;
-select * from ACCOUNT;
-INSERT INTO ACCOUNT (
-    ACCOUNT_ID,
-    USER_ID,
-    USERNAME,
-    PASSWORD_HASH,
-    STATUS,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-    2, -- ID kế tiếp
-    2, -- USER_ID giả định tiếp theo
-    'adminuser',
-    '$2b$12$EnQjJqMSKDPmS2N2Cw2MeOQ0mr/sntChzGJkPWI6QZ6VSn6xu7j5a', -- password "456"
-    'ACTIVE',
-    SYSDATE,
-    SYSDATE,
-    0
-);
-select * from ACCOUNT;
-select * from "USER";
-update ACCOUNT set IS_DELETED = 1 where ACCOUNT_ID = 35;
-update "USER" set IS_DELETED = 1 where USER_ID = 23;
 -- 3. Tạo bảng FUNCTION
 CREATE TABLE FUNCTION (
     FUNCTION_ID   NUMBER(10) GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
@@ -427,17 +342,6 @@ CREATE TABLE ROLE_GROUP (
     IS_DELETED NUMBER(1) DEFAULT 0 CHECK (IS_DELETED IN (0,1))
 );
 
--- 1.1 Insert ADMIN role
-INSERT INTO ROLE_GROUP (ROLE_GROUP_ID, NAME_ROLE_GROUP, CREATED_AT, UPDATED_AT, IS_DELETED)
-VALUES (1, 'ADMIN', SYSDATE, SYSDATE, 0);
-
--- 1.2 Insert USER role
-INSERT INTO ROLE_GROUP (ROLE_GROUP_ID, NAME_ROLE_GROUP, CREATED_AT, UPDATED_AT, IS_DELETED)
-VALUES (2, 'USER', SYSDATE, SYSDATE, 0);
-
-select * from ACCOUNT;
-select * from ROLE_GROUP;
-select * from ACCOUNT_ASSIGN_ROLE_GROUP;
 -- 6. Tạo bảng ROLE_GROUP_ASSIGN_ROLE
 CREATE TABLE ROLE_GROUP_ASSIGN_ROLE (
     ROLE_GROUP_ID NUMBER(10) NOT NULL,
@@ -461,39 +365,6 @@ CREATE TABLE ACCOUNT_ASSIGN_ROLE_GROUP (
     CONSTRAINT FK_ACCOUNT FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ACCOUNT_ID),
     CONSTRAINT FK_ROLE_GROUP_ASSIGN FOREIGN KEY (ROLE_GROUP_ID) REFERENCES ROLE_GROUP(ROLE_GROUP_ID)
 );
-select * from "USER";
-select * from ACCOUNT;
-select * from ROLE_GROUP;
-select * from ACCOUNT_ASSIGN_ROLE_GROUP;
--- Gán role USER cho nguyenvana
-INSERT INTO ACCOUNT_ASSIGN_ROLE_GROUP (
-    ACCOUNT_ID,
-    ROLE_GROUP_ID,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-    8, -- ACCOUNT_ID của nguyenvana
-    2, -- ROLE_GROUP_ID = 2 là USER
-    SYSDATE,
-    SYSDATE,
-    0
-);
-
--- Gán role ADMIN cho adminuser
-INSERT INTO ACCOUNT_ASSIGN_ROLE_GROUP (
-    ACCOUNT_ID,
-    ROLE_GROUP_ID,
-    CREATED_AT,
-    UPDATED_AT,
-    IS_DELETED
-) VALUES (
-    2, -- ACCOUNT_ID của adminuser
-    1, -- ROLE_GROUP_ID = 1 là ADMIN
-    SYSDATE,
-    SYSDATE,
-    0
-);
 
 -- 8. Tạo bảng ACCOUNT_ASSIGN_ROLE
 CREATE TABLE ACCOUNT_ASSIGN_ROLE (
@@ -506,17 +377,8 @@ CREATE TABLE ACCOUNT_ASSIGN_ROLE (
     CONSTRAINT FK_ACCOUNT_ROLE FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ACCOUNT_ID),
     CONSTRAINT FK_ROLE_ASSIGN FOREIGN KEY (ROLE_ID) REFERENCES ROLE(ROLE_ID)
 );
--- Them FUNCTION
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (1, 'Reward Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (2, 'Financial Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (3, 'Account Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (4, 'Staff Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (5, 'Customer Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (6, 'Package Management');
-INSERT INTO FUNCTION (FUNCTION_ID, NAME_FUNCTION) VALUES (7, 'Area&Equip Management');
 
-select * from FUNCTION
-
+-- 9. Tạo bảng ACCOUNT_TOKEN
 CREATE TABLE ACCOUNT_TOKEN (
     TOKEN_ID      NUMBER(20) GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     ACCOUNT_ID    NUMBER(10) NOT NULL,
@@ -527,218 +389,179 @@ CREATE TABLE ACCOUNT_TOKEN (
     CONSTRAINT FK_TOKEN_ACCOUNT FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ACCOUNT_ID)
 );
 
-
---Thêm thuộc tính
---  Bảng STAFF
-ALTER TABLE STAFF
-ADD Luong NUMBER(10,2) NOT NULL;
-ALTER TABLE STAFF
-ADD Ca VARCHAR2(10) CHECK (Ca IN ('Sáng', 'Tối'));
---  Bảng MAINTENANCE 
-ALTER TABLE MAINTENANCE
-ADD MaNV VARCHAR2(10);
-
---  Bảng SUBSCRIPTION
-ALTER TABLE SUBSCRIPTION
-ADD MaGoi VARCHAR2(10);
-ALTER TABLE SUBSCRIPTION
-ADD NgayHetHan DATE NOT NULL;
-
---  Bảng BOOKING
-ALTER TABLE BOOKING
-ADD MaGoi VARCHAR2(10);
-ALTER TABLE BOOKING
-ADD MaKhuVuc VARCHAR2(10);
-
---  Bảng REWARD
-ALTER TABLE REWARD
-ADD MoTaReward VARCHAR2(255);
-
--- Bảng SCHEDULE
-ALTER TABLE SCHEDULE
-ADD MaCaTap VARCHAR2(10);
-
--- Bảng MEMBERSHIP
-ALTER TABLE MEMBERSHIP
-ADD LoaiHV VARCHAR2(20) CHECK (LoaiHV IN ('Standard', 'Silver', 'Gold', 'Platinum'));
-ALTER TABLE MEMBERSHIP
-ADD TinhTrang VARCHAR2(20) CHECK (TinhTrang IN ('Active', 'Pause'));
-
--- Bảng NOTIFICATION 
-ALTER TABLE NOTIFICATION
-ADD SoTienHoan DECIMAL(12,2);
-
--- Bảng ATTENDANCE
-ALTER TABLE ATTENDANCE
-ADD TGDiemDanh DATE;
-
--- Bảng STAFF_ATTENDANCE
-ALTER TABLE STAFF_ATTENDANCE
-ADD TGDiemDanhStaff DATE;
-
--- Bảng PT_ATTENDANCE
-ALTER TABLE PT_ATTENDANCE
-ADD TGDiemDanhPT DATE;
-
--- Bảng PAYMENT
-ALTER TABLE PAYMENT
-ADD MaGoi VARCHAR2(20);
-
--- Xóa thuộc tính
--- Bảng SCHEDULE
-ALTER TABLE SCHEDULE DROP COLUMN CaTap;
-ALTER TABLE SCHEDULE DROP COLUMN PhongTap;
--- Bảng PT
-ALTER TABLE PT DROP COLUMN LichLamViec;
---Bảng CLASS
-ALTER TABLE CLASS DROP COLUMN GioBatDau;
-ALTER TABLE CLASS DROP COLUMN GioKetThuc;
--- Bảng MEMBERSHIP
-ALTER TABLE MEMBERSHIP DROP COLUMN LoaiHV; 
--- Bảng PROMOTION 
-ALTER TABLE PROMOTION DROP COLUMN PhanTramGiam;
--- Bảng ATTENDANCE
-ALTER TABLE ATTENDANCE DROP COLUMN TGDiemdanh;
--- Bảng PT_ATTENDANCE
-ALTER TABLE PT_ATTENDANCE DROP COLUMN TGDiemdanhPT;
--- Bảng STAFF_ATTENDANCE
-ALTER TABLE STAFF_ATTENDANCE DROP COLUMN TGDiemdanhStaff;
-
--- Sửa thuộc tính
--- Bảng PROMOTION 
-ALTER TABLE PROMOTION 
-MODIFY MoTaKM SMALLINT;
--- Bảng MEMBERSHIP
-ALTER TABLE MEMBERSHIP
-MODIFY LoaiHV CHECK (LoaiHV IN ('Standard', 'VIP'));
--- Bảng SUBSCRIPTION
-ALTER TABLE SUBSCRIPTION
-MODIFY MaGoi NOT NULL;
--- Bảng NOTIFICATION
-ALTER TABLE NOTIFICATION
-MODIFY MaTBao VARCHAR2(30);
--- Thêm ràng buộc khóa ngoại
---  Bảng SCHEDULE 
-ALTER TABLE SCHEDULE
-ADD CONSTRAINT FK_SCHEDULE_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE SCHEDULE
-ADD CONSTRAINT FK_SCHEDULE_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi);
-ALTER TABLE SCHEDULE
-ADD CONSTRAINT FK_SCHEDULE_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT);
-ALTER TABLE SCHEDULE
-ADD CONSTRAINT FK_SCHEDULE_SHIFT FOREIGN KEY (MaCaTap) REFERENCES SHIFT(MaCaTap);
-
---  Bảng PAYMENT
-ALTER TABLE PAYMENT
-ADD CONSTRAINT FK_PAYMENT_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE PAYMENT
-ADD CONSTRAINT FK_PAYMENT_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi);
---  Bảng REWARD
-ALTER TABLE REWARD
-ADD CONSTRAINT FK_REWARD_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE REWARD
-ADD CONSTRAINT FK_REWARD_DISCOUNT FOREIGN KEY (MoTaReward) REFERENCES DISCOUNT(MaGiamGia);
-ALTER TABLE REWARD
-ADD CONSTRAINT FK_REWARD_PROMOTION FOREIGN KEY (MoTaReward) REFERENCES PROMOTION(MaKM);
---  Bảng ATTENDANCE
-ALTER TABLE ATTENDANCE
-ADD CONSTRAINT FK_ATTENDANCE_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-
---  Bảng EQUIPMENT 
-ALTER TABLE EQUIPMENT 
-ADD CONSTRAINT FK_EQUIPMENT_WORKOUT_AREA FOREIGN KEY (MaKhuVuc) REFERENCES WORKOUT_AREA(MaKhuVuc);
-
---  Bảng CLASS
-ALTER TABLE CLASS
-ADD CONSTRAINT FK_CLASS_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT);
-
---  Bảng SUBSCRIPTION
-ALTER TABLE SUBSCRIPTION 
-ADD CONSTRAINT FK_SUBSCRIPTION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE SUBSCRIPTION 
-ADD CONSTRAINT FK_SUBSCRIPTION_SERVICE FOREIGN KEY (MaDV) REFERENCES SERVICE(MaDV);
-ALTER TABLE SUBSCRIPTION 
-ADD CONSTRAINT FK_SUBSCRIPTION_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi);
-
---  Bảng MEMBERSHIP 
-ALTER TABLE MEMBERSHIP 
-ADD CONSTRAINT FK_MEMBERSHIP_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-
---  Bảng BOOKING
-ALTER TABLE BOOKING 
-ADD CONSTRAINT FK_BOOKING_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE BOOKING 
-ADD CONSTRAINT FK_BOOKING_SERVICE FOREIGN KEY (MaDV) REFERENCES SERVICE(MaDV);
-ALTER TABLE BOOKING 
-ADD CONSTRAINT FK_BOOKING_PACKAGE FOREIGN KEY (MaGoi) REFERENCES PACKAGE(MaGoi);
-ALTER TABLE BOOKING 
-ADD CONSTRAINT FK_BOOKING_WORKOUT_AREA FOREIGN KEY (MaKhuVuc) REFERENCES WORKOUT_AREA(MaKhuVuc);
-
---  Bảng NOTIFICATION 
-ALTER TABLE NOTIFICATION  
-ADD CONSTRAINT FK_NOTIFICATION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-
---  Bảng FEEDBACK  
-ALTER TABLE FEEDBACK   
-ADD CONSTRAINT FK_FEEDBACK_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-
---  Bảng MAINTENANCE   
-ALTER TABLE MAINTENANCE    
-ADD CONSTRAINT FK_MAINTENANCE_EQUIPMENT FOREIGN KEY (MaTB) REFERENCES EQUIPMENT(MaTB);
-ALTER TABLE MAINTENANCE 
-ADD CONSTRAINT FK_MAINTENANCE_STAFF FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV);
---  Bảng PT_ATTENDANCE
-ALTER TABLE PT_ATTENDANCE
-ADD CONSTRAINT FK_PT_ATTENDANCE_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT);
-
---  Bảng STAFF_ATTENDANCE 
-ALTER TABLE STAFF_ATTENDANCE 
-ADD CONSTRAINT FK_STAFF_ATTENDANCE_STAFF FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV);
-
---  Bảng CHALLENGE_PARTICIPATION  
-ALTER TABLE CHALLENGE_PARTICIPATION  
-ADD CONSTRAINT FK_CHALLENGE_PARTICIPATION_CUSTOMER FOREIGN KEY (MaKH) REFERENCES CUSTOMER(MaKH);
-ALTER TABLE CHALLENGE_PARTICIPATION  
-ADD CONSTRAINT FK_CHALLENGE_PARTICIPATION_CHALLENGE FOREIGN KEY (MaChallenge) REFERENCES CHALLENGE(MaChallenge);
-
--- Bảng SALARY
-ALTER TABLE SALARY
-ADD CONSTRAINT FK_SALARY_STAFF FOREIGN KEY (MaNV) REFERENCES STAFF(MaNV);
-ALTER TABLE SALARY
-ADD CONSTRAINT FK_PT_SALARY_PT FOREIGN KEY (MaPT) REFERENCES PT(MaPT);
--- Bảng SHIFT
-ALTER TABLE SHIFT
-ADD CONSTRAINT FK_SHIFT_WORKOUT_AREA FOREIGN KEY (MaKhuVuc) REFERENCES WORKOUT_AREA(MaKhuVuc);
+--------------------------------------------------------------TRIGGER-----------------------------------------------------------------------------------
 
 
+--Hoàn tiền 50% trong 7 ngày đầu, sau đó không hoàn phí.
+CREATE OR REPLACE TRIGGER trg_refund_and_notification
+AFTER INSERT OR UPDATE ON PAYMENT
+DECLARE
+  CURSOR c_payment IS
+    SELECT p.MaKH, p.SoTien, p.NgayTT, s.NgayDK
+    FROM PAYMENT p
+    JOIN SUBSCRIPTION s ON p.MaKH = s.MaKH
+    WHERE p.NgayTT >= s.NgayDK;  -- Chỉ xử lý giao dịch có Subscription hợp lệ
 
--- Function
--- Đếm gói tập đã dki của khách hàng
-DROP FUNCTION CountSubPackage
-
-CREATE OR REPLACE FUNCTION CountSubPackage(p_MaKH VARCHAR2)
-RETURN NUMBER
-IS
-  v_count NUMBER;
+  v_days_diff NUMBER;
+  v_refund_amount NUMBER(10,2);
 BEGIN
-  SELECT COUNT(*)
-  INTO v_count
-  FROM SUBSCRIPTION s
-  WHERE s.MaKH = p_MaKH;
-  
-  RETURN v_count;
+  FOR rec IN c_payment LOOP
+    -- Tính số ngày từ ngày đăng ký đến ngày thanh toán
+    v_days_diff := TRUNC(rec.NgayTT - rec.NgayDK);
+
+    -- Xác định số tiền hoàn lại
+    IF v_days_diff <= 7 THEN
+      v_refund_amount := rec.SoTien * 0.5;
+    ELSE
+      v_refund_amount := 0;
+    END IF;
+
+    -- Ghi nhận thông báo hoàn tiền
+    INSERT INTO NOTIFICATION (MaTBao, MaKH, TieuDe, NoiDung, SoTienHoan, NgayGui)
+    VALUES (
+      'NT' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+      rec.MaKH,
+      'Thông báo hoàn tiền',
+      'Số tiền hoàn lại: ' || TO_CHAR(v_refund_amount) || ' VND',
+      v_refund_amount,
+      SYSDATE
+    );
+  END LOOP;
 END;
 /
-SELECT * FROM SERVICE s;
-SELECT * FROM SUBSCRIPTION s;
-SELECT * FROM PACKAGE p;
-SELECT * FROM BOOKING b;
-SELECT * FROM SCHEDULE s;
-SELECT * FROM ATTENDANCE a;
-/
--- Kiểm tra thông tin gói tập
-DROP FUNCTION BookPackage
 
+--Nếu khách hàng chưa thanh toán gói tập cũ, họ không thể đăng ký gói mới.
+CREATE OR REPLACE TRIGGER trg_check_unpaid_package
+BEFORE INSERT OR UPDATE ON SUBSCRIPTION
+FOR EACH ROW
+DECLARE
+  CURSOR unpaid_pkg IS
+  SELECT S.MADK FROM SUBSCRIPTION s
+  WHERE S.MAKH = :NEW.MAKH AND S.TINHTRANG = 'Active'
+  AND NOT EXISTS(
+    SELECT 1
+    FROM PAYMENT p
+    WHERE P.MAKH = :NEW.MAKH
+  );
+  v_unpaid SUBSCRIPTION.MADK%TYPE;
+BEGIN
+  OPEN UNPAID_PKG;
+  FETCH UNPAID_PKG INTO V_UNPAID;
+  IF UNPAID_PKG%FOUND THEN
+  RAISE_APPLICATION_ERROR(-20009,'Không thể đăng ký gói mới khi chưa thanh toán gói cũ.');
+  END IF;
+  CLOSE UNPAID_PKG;
+END;
+
+
+--Mỗi khách hàng chỉ có thể đăng ký một gói tập đang hoạt động tại một thời điểm.
+CREATE OR REPLACE TRIGGER trg_check_active_subscription
+BEFORE INSERT OR UPDATE ON SUBSCRIPTION
+FOR EACH ROW
+DECLARE
+  CURSOR active_sub IS
+  SELECT MaDK FROM SUBSCRIPTION s
+  WHERE s.MAKH = :NEW.MAKH AND s.TINHTRANG = 'Active';
+ v_active SUBSCRIPTION.MADK%TYPE; 
+BEGIN
+  OPEN active_sub;
+  FETCH active_sub INTO v_active;
+  IF active_sub%FOUND THEN 
+    RAISE_APPLICATION_ERROR(-20005,'Mỗi khách hàng chỉ có thể đăng ký một gói tập đang hoạt động tại một thời điểm.');
+  END IF;
+  CLOSE active_sub;
+END;
+
+
+--Nếu khách hàng hủy buổi tập trong vòng 1 giờ trước khi bắt đầu, hệ thống sẽ thông báo vi phạm
+CREATE OR REPLACE TRIGGER trg_late_cancellation_violation
+FOR UPDATE ON BOOKING
+COMPOUND TRIGGER
+    -- Biến toàn cục dùng chung cho tất cả các dòng trong giao dịch
+    TYPE Violation_Record IS RECORD (
+        MaKH    BOOKING.MaKH%TYPE,
+        NoiDung NOTIFICATION.NoiDung%TYPE,
+        NgayGui TIMESTAMP
+    );
+    TYPE Violation_Table IS TABLE OF Violation_Record;
+    v_Violations Violation_Table := Violation_Table();
+
+    v_CurrentTime TIMESTAMP;  -- Lưu giá trị thời gian hiện tại chỉ 1 lần
+
+BEFORE STATEMENT IS
+BEGIN
+    -- Lấy thời gian hiện tại một lần thay vì gọi lại trong mỗi row
+    v_CurrentTime := SYSDATE;
+END BEFORE STATEMENT;
+
+AFTER EACH ROW IS
+BEGIN
+    -- Kiểm tra nếu trạng thái mới là 'Hủy' và thời gian còn lại <= 1 giờ
+    IF :NEW.TrangThai = 'Đã Hủy' AND (:NEW.NGAYDAT - v_CurrentTime) * 24 <= 1 THEN
+        -- Lưu thông tin vào bộ nhớ thay vì INSERT trực tiếp (tránh nhiều lần ghi)
+        v_Violations.EXTEND;
+        v_Violations(v_Violations.LAST) := Violation_Record(:NEW.MaKH, 'Vi phạm hủy muộn', v_CurrentTime);
+    END IF;
+END AFTER EACH ROW;
+
+AFTER STATEMENT IS
+BEGIN
+    -- Chèn tất cả thông báo vi phạm vào NOTIFICATION sau khi xử lý xong
+    FORALL i IN 1 .. v_Violations.COUNT
+        INSERT INTO NOTIFICATION (MaKH, NoiDung, NgayGui)
+        VALUES (v_Violations(i).MaKH, v_Violations(i).NoiDung, v_Violations(i).NgayGui);
+END AFTER STATEMENT;
+END;
+
+
+
+------------------------------------------------------------------------------FUNCTION------------------------------------------------------------------------------------------------
+
+-- Tìm mã giảm giá có phần trăm cao nhất
+CREATE OR REPLACE FUNCTION GetBestDiscount
+RETURN NUMBER IS 
+		v_MaxDiscount NUMBER;
+BEGIN
+		SELECT MAX(PhanTram) INTO v_MaxDiscount 
+		FROM DISCOUNT 
+		WHERE HanSuDung >= SYSDATE;
+		RETURN v_MaxDisCount;
+		
+		EXCEPTION WHEN NO_DATA_FOUND THEN
+		RETURN 0;
+END;
+
+
+-- Tính tổng doanh thu trong một ngày
+CREATE OR REPLACE FUNCTION GetDailyRevenue(p_Date DATE)
+RETURN NUMBER IS 
+		v_TotalRevenue NUMBER;
+BEGIN
+		SELECT COALESCE(SUM(SoTien), 0) INTO v_TotalRevenue
+		FROM PAYMENT 
+		WHERE TRUNC(NgayTT) = TRUNC(p_Date);
+		
+		RETURN v_TotalRevenue;
+END;
+
+
+-- Lấy ngày check-in gần nhất của khách hàng
+CREATE OR REPLACE FUNCTION GetLastCheckInDate (p_MaKH VARCHAR2)
+RETURN DATE IS 
+		v_LastCheckIn DATE;
+BEGIN
+		SELECT MAX(NgayDiemDanh) INTO v_LastCheckIn
+		FROM ATTENDANCE 
+		WHERE MaKH = p_MaKH;
+		
+		RETURN v_LastCheckIn;
+		
+		EXCEPTION WHEN NO_DATA_FOUND THEN 
+		RETURN NULL;
+END;
+
+
+-- Kiểm tra thông tin gói tập
 CREATE OR REPLACE FUNCTION BookPackage(p_MaGoi VARCHAR2)
 RETURN VARCHAR2
 IS
@@ -753,28 +576,8 @@ BEGIN
   RETURN 'Không tìm thấy gói tập';
 END;
 
---Đếm số lịch tập của khách hàng vào 1 ngày cụ thể
-DROP FUNCTION GetCustomerSchedule
-
-CREATE OR REPLACE FUNCTION CountCustomerSchedule(p_MaKH VARCHAR2, p_Ngay DATE)
-RETURN NUMBER
-IS
-  v_count NUMBER;
-BEGIN
-  SELECT COUNT(*)
-  INTO v_count
-  FROM SCHEDULE
-  WHERE MaKH = p_MaKH
-    AND NgayTap = p_Ngay;
-  
-  RETURN v_count;
-END;
-/
-
 
 -- Lấy hồ sơ khách hàng
-DROP FUNCTION GetCustomerProfile
-
 CREATE OR REPLACE FUNCTION GetCustomerProfile(p_maKH VARCHAR2)
 RETURN VARCHAR2
 IS
@@ -787,12 +590,10 @@ BEGIN
     WHERE MaKH = p_maKH;
   RETURN v_profile;
 END;
-/
 
---Kiểm tra điểm tích lũy
-DROP FUNCTION GetCustomerPoint
 
-CREATE OR REPLACE FUNCTION GetCustomerPoint (p_KhachHang VARCHAR2)
+-- Kiểm tra điểm tích lũy
+CREATE OR REPLACE FUNCTION GetCustomerPoint (p_KhachHang NVARCHAR2)
 RETURN NUMBER
 IS
   v_point NUMBER;
@@ -804,21 +605,9 @@ BEGIN
   RETURN V_POINT;
 END;
 
--- Đếm số lượng pt hiện có
-CREATE OR REPLACE FUNCTION GetTotalPT
-RETURN NUMBER
-IS
-  v_count NUMBER;
-BEGIN
-  SELECT COUNT(*)
-  INTO v_count
-  FROM PT;
-  
-  RETURN v_count;
-END;
-/
 
---Tính phần trăm số buổi tập khách tham gia so với tổng buổi tập có lịch
+
+-- Tính phần trăm số buổi tập khách tham gia so với tổng buổi tập có lịch
 CREATE OR REPLACE FUNCTION GetAttendancePercentage(p_maKH VARCHAR2)
 RETURN NUMBER
 IS
@@ -839,52 +628,28 @@ BEGIN
     RETURN ROUND((v_attended / v_total) * 100, 2);
   END IF;
 END;
-/
 
---Top khách hàng có số buổi tập cao nhất
-DROP FUNCTION GetTopCustomerAttendance
-CREATE OR REPLACE FUNCTION GetTopCustomerAttendance
-RETURN VARCHAR2
-IS
-  v_topCustomer VARCHAR2(50);
+
+-- Xem Thiết bị cần bảo trì
+CREATE OR REPLACE FUNCTION Get_Maintenance_Equipment(
+    p_MaKhuVuc VARCHAR2
+) RETURN NUMBER AS
+    v_Count NUMBER;
 BEGIN
-  SELECT HoTen
-  INTO v_topCustomer
-  FROM (
-  SELECT C.HOTEN, COUNT(A.MADIEMDANH) AS Attendance_count
-  FROM CUSTOMER c
-  JOIN ATTENDANCE a ON c.MaKH = a.MaKH
-  WHERE a.TrangThai = 'Đã điểm danh'
-  GROUP BY c.HoTen
-  ORDER BY COUNT(a.MaDiemDanh) DESC
-  )
-  WHERE ROWNUM = 1;
-  
-  RETURN v_topCustomer;
-EXCEPTION
-  WHEN NO_DATA_FOUND THEN
-    RETURN 'Không có dữ liệu';
+    SELECT COUNT(*) INTO v_Count
+    FROM EQUIPMENT
+    WHERE MaKhuVuc = p_MaKhuVuc
+    AND TinhTrang = 'Hư hỏng';
+
+    RETURN v_Count;
 END;
 /
 
---Tính tổng doanh thu từ khách hàng VIP
-CREATE OR REPLACE FUNCTION GetRevenueFromVIP
-RETURN NUMBER
-IS
-  v_total NUMBER;
-BEGIN
-  SELECT NVL(SUM(p.SoTien), 0)
-  INTO v_total
-  FROM PAYMENT p
-  JOIN MEMBERSHIP m ON p.MaKH = m.MaKH
-  WHERE m.LoaiHV = 'VIP';
-  
-  RETURN v_total;
-END;
-/
 
---Procedure
---Hiển thị danh sách gói tập của khách hàng
+-----------------------------------------------------------------------------------PROCEDURE--------------------------------------------------------------------------------------------
+
+
+-- Hiển thị danh sách gói tập của khách hàng
 CREATE OR REPLACE PROCEDURE ShowCustomerPackages(
   p_maKH IN VARCHAR2,
   p_cursor OUT SYS_REFCURSOR
@@ -899,40 +664,8 @@ BEGIN
 END;
 /
 
---Hiển thị lịch tập của khách hàng trong 1 tháng
-CREATE OR REPLACE PROCEDURE ShowScheduleByCustomer(
-  p_maKH IN VARCHAR2,
-  p_month IN NUMBER,
-  p_cursor OUT SYS_REFCURSOR
-)
-IS
-BEGIN
-  OPEN p_cursor FOR
-    SELECT s.MaLich, s.NgayTap, s.MaCaTap, pt.HoTenPT
-    FROM SCHEDULE s
-    JOIN PT pt ON s.MaPT = pt.MaPT
-    WHERE s.MaKH = p_maKH
-     AND EXTRACT(MONTH FROM s.NgayTap) = p_month;
-END;
-/
-SELECT * FROM SCHEDULE s
 
-
---Hiển thị danh sách khách hàng sắp hết hạn gói tập
-CREATE OR REPLACE PROCEDURE ShowExpiringSubscriptions(
-  p_days IN NUMBER,
-  p_cursor OUT SYS_REFCURSOR
-)
-IS
-BEGIN
-  OPEN p_cursor FOR
-    SELECT MaDK, MaKH, MaGoi, NgayHetHan
-    FROM SUBSCRIPTION
-    WHERE NgayHetHan BETWEEN SYSDATE AND (SYSDATE + p_days);
-END;
-
-SELECT * FROM SUBSCRIPTION s
---Sửa thông tin gói tập
+-- Sửa thông tin gói tập
 CREATE OR REPLACE PROCEDURE UpdatePackageInfo(
   p_maGoi IN VARCHAR2,
   p_tenGoi IN VARCHAR2,
@@ -957,4 +690,113 @@ BEGIN
   
   COMMIT;
 END;
-/
+
+
+-- Thêm nhân viên
+CREATE OR REPLACE PROCEDURE AddStaff (
+		p_MaNv IN VARCHAR2,
+		p_HoTenNV IN VARCHAR2,
+		p_ViTri IN VARCHAR2,
+		p_LichLamViec IN VARCHAR2,
+	  p_SoDienThoaiNV IN VARCHAR2, 
+	  p_EmailNV IN VARCHAR2,
+	  p_Luong IN NUMBER,
+	  p_Ca IN VARCHAR2
+) IS
+BEGIN
+		INSERT INTO STAFF(MaNV, HoTenNV, ViTri, LichLamViec, SoDienThoaiNV, EmailNV, Luong, Ca)
+		VALUES (p_MaNv, p_HoTenNV, p_ViTri, p_LichLamViec, p_SoDienThoaiNV, p_EmailNV, p_Luong, p_Ca);
+		
+		COMMIT;
+		DBMS_OUTPUT.PUT_LINE('Thêm nhân viên thành công: ' || p_HoTenNV);
+		
+EXCEPTION 
+		WHEN OTHERS THEN
+				 ROLLBACK;
+				 DBMS_OUTPUT.PUT_LINE('Lỗi khi thêm nhân viên: ' || SQLERRM);
+END;	
+
+
+
+-- Thêm khách hàng
+CREATE OR REPLACE PROCEDURE AddCustomer (
+		p_MaKH IN VARCHAR2,
+	  p_HoTen IN VARCHAR2,
+	  p_NgaySinh IN DATE,
+	  p_GioiTinh IN VARCHAR2,
+	  p_Email IN VARCHAR2,
+	  p_SoDienThoai IN VARCHAR2,
+	  p_DiaChi IN VARCHAR2,
+	  p_ReferralCode IN VARCHAR2
+) IS
+BEGIN
+		INSERT INTO CUSTOMER(MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode)
+		VALUES (p_MaKH, p_HoTen, p_NgaySinh, p_GioiTinh, p_Email, p_SoDienThoai, p_DiaChi, p_ReferralCode);
+		
+		COMMIT;
+		DBMS_OUTPUT.PUT_LINE('Thêm khách hàng thành công: ' || p_HoTen);
+		
+EXCEPTION 
+		WHEN OTHERS THEN
+				 ROLLBACK;
+				 DBMS_OUTPUT.PUT_LINE('Lỗi khi thêm khách hàng: ' || SQLERRM);
+END;	
+
+
+
+-- Thêm gói tập 
+CREATE OR REPLACE PROCEDURE AddPackage (
+		p_MaGoi IN VARCHAR2,
+	  p_TenGoi IN VARCHAR2,
+	  p_LoaiGoi IN VARCHAR2,
+	  p_GiaTien IN NUMBER,
+	  p_ThoiHan IN NUMBER
+) IS
+BEGIN
+		INSERT INTO PACKAGE(MaGoi, TenGoi, LoaiGoi, GiaTien, ThoiHan)
+		VALUES (p_MaGoi, p_TenGoi, p_LoaiGoi, p_GiaTien, p_ThoiHan);
+		
+		COMMIT;
+		DBMS_OUTPUT.PUT_LINE('Thêm gói tập thành công: ' || p_TenGoi);
+		
+EXCEPTION 
+		WHEN OTHERS THEN
+				 ROLLBACK;
+				 DBMS_OUTPUT.PUT_LINE('Lỗi khi thêm gói tập: ' || SQLERRM);
+END;						
+
+
+-- Cập nhật thông tin khách hàng
+CREATE OR REPLACE PROCEDURE UpdateCustomerInfor (
+		p_MaKH IN VARCHAR2,
+	  p_HoTen IN VARCHAR2,
+	  p_NgaySinh IN DATE,
+	  p_GioiTinh IN VARCHAR2,
+	  p_Email IN VARCHAR2,
+	  p_SoDienThoai IN VARCHAR2,
+	  p_DiaChi IN VARCHAR2,
+	  p_ReferralCode IN VARCHAR2
+) IS
+BEGIN
+		UPDATE CUSTOMER
+		SET HoTen = p_HoTen,
+				NgaySinh = p_NgaySinh,
+				GioiTinh = p_GioiTinh,
+				Email = p_Email,
+				SoDienThoai = p_SoDienThoai,
+				DiaChi = p_DiaChi,
+				ReferralCode = p_ReferralCode
+		WHERE MaKH = p_MaKH;
+		
+		IF SQL%ROWCOUNT = 0 THEN
+			 DBMS_OUTPUT.PUT_LINE('Không tìm thấy khách hàng: ' || p_MaKH);
+		ELSE
+			 COMMIT;
+			 DBMS_OUTPUT.PUT_LINE('Cập nhật thông tin khách hàng thành công: ' || p_HoTen);
+		END IF;
+		
+EXCEPTION 
+		WHEN OTHERS THEN
+				 ROLLBACK;
+				 DBMS_OUTPUT.PUT_LINE('Lỗi khi cập nhật khách hàng: ' || SQLERRM);
+END;		
