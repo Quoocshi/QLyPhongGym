@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import hahaha.model.Account;
 import hahaha.repository.AccountRepository;
 
 @SpringBootApplication
@@ -23,16 +24,16 @@ public class DemoApplication implements CommandLineRunner {
         System.out.println("Bat dau tim user 'nguyenvana'...");
 		Thread.sleep(2000); 
 
-        accountRepository.findByUsername("nguyenvana").ifPresentOrElse(
-            account -> {
+        Account acc = accountRepository.findAccountByUsername("nguyenvana");
+        
+            if(acc != null){
                 System.out.println("Tim thay user:");
-                System.out.println("- Username: " + account.getUsername());
-                System.out.println("- Status: " + account.getStatus());
-            },
-            () -> {
+                System.out.println("- Username: " + acc.getUsername());
+                System.out.println("- Status: " + acc.getStatus());
+            }
+            else {
                 System.out.println("Khong tim thay user 'nguyenvana' trong database.");
             }
-        );
 
     }
 }
