@@ -11,6 +11,7 @@ import hahaha.model.Account;
 import hahaha.repository.AccountAssignRoleGroupRepository;
 import hahaha.repository.AccountRepository;
 import hahaha.repository.RoleGroupRepository;
+import hahaha.repository.UserGymRepository;
 
 @Service
 public class LoginServiceImpl implements UserDetailsService {
@@ -23,12 +24,25 @@ public class LoginServiceImpl implements UserDetailsService {
 
     @Autowired
     private RoleGroupRepository roleGroupRepository;
+@Autowired
+private UserGymRepository userGymRepository;
 
-    @Override
-public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Account acc = accountRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
+@Override
+public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    Account acc = null;
+    //login có thể là username hoặc email
+    if (login.contains("@")) {
+        // Nếu người dùng nhập email
+        Long userId = userGymRepository.findUserIdByEmail(login);
+        if (userId == null) {
+            throw new UsernameNotFoundException("Không tìm thấy người dùng với email: " + login);
+        }
 
+        acc = accountRepository.findByUserId(userId);
+    } else {
+        // Nếu người dùng nhập username
+        acc = accountRepository.findAccountByUsername(login);
+    }
     Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
     if (roleGroupId == null) {
         throw new UsernameNotFoundException("User không có role.");
@@ -38,8 +52,6 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
     if (roleName == null) {
         throw new UsernameNotFoundException("Không tìm thấy role name.");
     }
-
-    System.out.println("Role name tìm thấy: " + roleName);
 
     return User.builder()
             .username(acc.getUsername())

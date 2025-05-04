@@ -42,15 +42,18 @@ public String register(@ModelAttribute("account") Account account, Model model,
     try {
         System.out.println(">>> Đăng ký với username: " + account.getUsername());
 
-        if (accountRepository.findByUsername(account.getUsername()).isPresent()) {
-            model.addAttribute("errorMessage", "Tên đăng nhập đã tồn tại.");
-            return "login";
-        }
+       if (accountRepository.findAccountByUsername(account.getUsername()) != null) {
+        model.addAttribute("errorMessage", "Tên đăng nhập đã tồn tại.");
+        model.addAttribute("showRegisterModal", true);
+    return "login";
+}
 
-        if (userRepository.existsByEmail(email)) {
-            model.addAttribute("errorMessage", "Email đã tồn tại.");
-            return "login";
-        }
+    if (userRepository.existsByEmail(email)) {
+        model.addAttribute("errorMessage", "Email đã tồn tại.");
+        model.addAttribute("showRegisterModal", true);
+        return "login";
+    }
+
 
         // Bước 1: Tạo USER
         UserGym user = new UserGym();

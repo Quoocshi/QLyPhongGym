@@ -155,4 +155,13 @@ function validateRegisterForm() {
     errorBox.style.display = "none";
     return true;
 }
+// ✅ Nếu server trả về yêu cầu hiển thị lại modal đăng ký (thông qua Thymeleaf)
+document.addEventListener("DOMContentLoaded", function () {
+    // Biến này sẽ được Thymeleaf render từ server
+    const showRegisterModal = /*[[${showRegisterModal}]]*/ false;
+
+    if (showRegisterModal) {
+        registerModal.style.display = "flex";
+    }
+});
 
