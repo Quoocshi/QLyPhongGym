@@ -14,7 +14,7 @@ import hahaha.repository.RoleGroupRepository;
 import hahaha.repository.UserGymRepository;
 
 @Service
-public class LoginServiceImpl implements UserDetailsService {
+public class LoginService implements UserDetailsService {
 
     @Autowired
     private AccountRepository accountRepository;
