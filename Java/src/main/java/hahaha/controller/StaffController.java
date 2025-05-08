@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin")
-public class AdminController {
-
-    @GetMapping("/home/{id}/{username}")
-    public String adminPage(Model model, @PathVariable Long id, @PathVariable String username) {
+@RequestMapping("/staff")
+public class StaffController {
+    
+        @GetMapping("/home/{id}/{username}")
+        public String staffPage(Model model, @PathVariable Long id, @PathVariable String username) {
         model.addAttribute("userId", id);
         model.addAttribute("username", username);
-        return "admin"; 
-    }
+            return "staff"; 
+        }
+
 }
