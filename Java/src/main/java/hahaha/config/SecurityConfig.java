@@ -15,13 +15,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            //.csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers( "/login","/register","/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/staff/**").hasRole("STAFF")
-                .requestMatchers("/user/**").hasRole("USER")
-                .anyRequest().authenticated()
+                // .requestMatchers( "/login","/register","/css/**", "/js/**", "/images/**").permitAll()
+                // .requestMatchers("/admin/**").hasRole("ADMIN")
+                // .requestMatchers("/staff/**").hasRole("STAFF")
+                // .requestMatchers("/user/**").hasRole("USER")
+                // .anyRequest().authenticated()
+                .requestMatchers("/customer/**").permitAll()
+                .anyRequest().permitAll()
             )
             .formLogin(form -> form
                 .loginPage("/login")
