@@ -2,11 +2,13 @@ package hahaha.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name ="PACKAGE")
-public class Package {
+public class GymPackage {
+    @Id
     @Column(name = "MAGOI", nullable = false)
     private String maGoi;
     @Column(name = "TENGOI", nullable = false)

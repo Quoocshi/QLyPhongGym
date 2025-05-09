@@ -4,16 +4,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import hahaha.repository.PackageRepository;
+import hahaha.model.GymPackage;
+import hahaha.repository.GymPackageRepository;
 
-public class PackageServiceImpl implements PackageService {
+public class GymPackageServiceImpl implements PackageService {
     @Autowired
-    PackageRepository packageRepository;
+    GymPackageRepository packageRepository;
     @Override
-    public List<Package> getAllPackages() {
+    public List<GymPackage> getAllPackages() {
         return packageRepository.findAll();
     }
-
     @Override
     public void createPackage() {
     }

@@ -18,13 +18,18 @@ CREATE TABLE CUSTOMER (
     DiaChi VARCHAR2(100),
     ReferralCode VARCHAR2(20) UNIQUE
 );
+select * from CUSTOMER;
+INSERT INTO CUSTOMER (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode)
+VALUES ('KH001', 'Nguyen Van A', TO_DATE('1990-05-15', 'YYYY-MM-DD'), 'Nam', 'nguyenvana@example.com', '0987654321', '123 Nguyen Trai, Hanoi', 'REF001');
 
+INSERT INTO CUSTOMER (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode)
+VALUES ('KH002', 'Tran Thi B', TO_DATE('1992-08-20', 'YYYY-MM-DD'), 'Nu', 'tranthib@example.com', '0912345678', '456 Le Loi, HCMC', 'REF002');
 
 -- Bảng PACKAGE
 CREATE TABLE PACKAGE (
     MaGoi VARCHAR2(10) PRIMARY KEY,
     TenGoi VARCHAR2(50) NOT NULL,
-    LoaiGoi VARCHAR2(20) CHECK (LoaiGoi IN ('Cardio', 'Gym', 'Yoga', 'Zumba')),
+    LoaiGoi VARCHAR2(20) CHECK (LoaiGoi IN ('Cardio', 'Gym', 'Yoga', 'Zumba', 'Bơi')),
     GiaTien NUMBER(10,2) NOT NULL,
     ThoiHan NUMBER(3) NOT NULL
 );
@@ -402,7 +407,6 @@ CREATE TABLE ACCOUNT_TOKEN (
     IS_REVOKED    CHAR(1) DEFAULT 'N' CHECK (IS_REVOKED IN ('Y', 'N')),
     CONSTRAINT FK_TOKEN_ACCOUNT FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ACCOUNT_ID)
 );
-
 --------------------------------------------------------------TRIGGER-----------------------------------------------------------------------------------
 
 
