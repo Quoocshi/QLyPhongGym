@@ -54,4 +54,9 @@ public class CustomerServiceImpl implements CustomerService{
         return false;
     }
 
+    @Override
+    public Customer findById(String id) {
+        return customerRepository.findById(id).get();
+    }
+
 }

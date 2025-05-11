@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 
 import hahaha.model.Account;
 import hahaha.repository.AccountRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -43,6 +45,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập");
             return;
         }
+        Cookie userSessionCookie = new Cookie("USER_SESSION", username);
+        userSessionCookie.setHttpOnly(true); // Chỉ server mới có thể đọc được
+        userSessionCookie.setMaxAge(60 * 60); // 1 giờ
+        userSessionCookie.setPath("/"); // Cookie có hiệu lực cho toàn bộ ứng dụng
+        response.addCookie(userSessionCookie);
+         // Lưu trạng thái người dùng vào HttpSession (tùy chọn)
+        HttpSession session = request.getSession();
+        session.setAttribute("USER_SESSION", username);
 
         response.sendRedirect(redirectUrl);
     }
