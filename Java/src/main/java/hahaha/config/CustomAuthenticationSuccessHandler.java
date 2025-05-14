@@ -27,15 +27,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String redirectUrl = null; 
         String username = authentication.getName();
-        Account acc = accountRepository.findAccountByUsername(username);
-        Long userID = acc.getUserId();
+        Account acc = accountRepository.findAccountByUserName(username);
+        Long accountId = acc.getAccountId();
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
             if (null != role) {
                 switch (role) {
-                    case "ROLE_ADMIN" -> redirectUrl = "/admin/home/"+ userID + "/" + username;
-                    case "ROLE_USER" -> redirectUrl = "/user/home/" + userID + "/" + username;
-                    case "ROLE_STAFF" -> redirectUrl = "/staff/home/" + userID + "/" + username;
+                    case "ROLE_ADMIN" -> redirectUrl = "/admin/home/"+ accountId + "/" + username;
+                    case "ROLE_USER" -> redirectUrl = "/user/home/" + accountId + "/" + username;
+                    case "ROLE_STAFF" -> redirectUrl = "/staff/home/" + accountId + "/" + username;
                     default -> {
                     }
                 }

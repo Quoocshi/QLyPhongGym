@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import hahaha.model.GymPackage;
-import hahaha.repository.GymPackageRepository;
+import hahaha.repository.PackageRepository;
 
-public class GymPackageServiceImpl implements PackageService {
+public class PackageServiceImpl implements PackageService {
     @Autowired
-    GymPackageRepository packageRepository;
+    PackageRepository packageRepository;
     @Override
     public List<GymPackage> getAllPackages() {
         return packageRepository.findAll();

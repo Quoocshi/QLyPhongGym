@@ -8,10 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import hahaha.model.Account;
-import hahaha.repository.AccountAssignRoleGroupRepository;
 import hahaha.repository.AccountRepository;
 import hahaha.repository.RoleGroupRepository;
-import hahaha.repository.UserGymRepository;
 
 @Service
 public class LoginService implements UserDetailsService {
@@ -20,12 +18,7 @@ public class LoginService implements UserDetailsService {
     private AccountRepository accountRepository;
 
     @Autowired
-    private AccountAssignRoleGroupRepository assignRoleGroupRepository;
-
-    @Autowired
     private RoleGroupRepository roleGroupRepository;
-@Autowired
-private UserGymRepository userGymRepository;
 
 @Override
 public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
@@ -33,17 +26,21 @@ public UserDetails loadUserByUsername(String login) throws UsernameNotFoundExcep
     //login có thể là username hoặc email
     if (login.contains("@")) {
         // Nếu người dùng nhập email
-        Long userId = userGymRepository.findUserIdByEmail(login);
-        if (userId == null) {
+        Long accountId = accountRepository.findAccountIdByEmail(login);
+        if (accountId == null) {
             throw new UsernameNotFoundException("Không tìm thấy người dùng với email: " + login);
         }
 
-        acc = accountRepository.findByUserId(userId);
+        acc = accountRepository.findByAccountId(accountId);
     } else {
         // Nếu người dùng nhập username
-        acc = accountRepository.findAccountByUsername(login);
+        acc = accountRepository.findAccountByUserName(login);
     }
-    Long roleGroupId = assignRoleGroupRepository.findRoleGroupIdByAccountId(acc.getAccountId());
+    if (acc == null) {
+        throw new UsernameNotFoundException("Không tìm thấy người dùng với username: " + login);
+    }
+
+    Long roleGroupId = accountRepository.findRoleGroupIdByAccountId(acc.getAccountId());
     if (roleGroupId == null) {
         throw new UsernameNotFoundException("User không có role.");
     }
@@ -53,8 +50,11 @@ public UserDetails loadUserByUsername(String login) throws UsernameNotFoundExcep
         throw new UsernameNotFoundException("Không tìm thấy role name.");
     }
 
+    System.out.println(">>> Đăng nhập thành công với username: " + acc.getUserName());
+    System.out.println(">>> Role: ROLE_" + roleName);
+
     return User.builder()
-            .username(acc.getUsername())
+            .username(acc.getUserName())
             .password(acc.getPasswordHash()) 
             .authorities("ROLE_" + roleName)
             .build();

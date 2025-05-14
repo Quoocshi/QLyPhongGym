@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,11 +20,14 @@ public class Account {
     @Column(name = "ACCOUNT_ID")
     private Long accountId;
 
-    @Column(name = "USER_ID", nullable = false)
-    private Long userId;
+    @Column(name = "FULL_NAME", nullable = false)
+    private String fullName;
 
     @Column(name = "USERNAME", nullable = false, unique = true)
-    private String username;
+    private String userName;
+
+    @Column(name = "EMAIL", nullable = false, unique = true)
+    private String email;
 
     @Column(name = "PASSWORD_HASH", nullable = false)
     private String passwordHash;
@@ -39,6 +44,10 @@ public class Account {
     @Column(name = "IS_DELETED")
     private Integer isDeleted;
 
+    @ManyToOne
+    @JoinColumn (name = "ROLE_GROUP_ID", nullable = false, referencedColumnName = "ROLE_GROUP_ID")
+    private RoleGroup roleGroup;
+
     // Getters and Setters
     public Long getAccountId() {
         return accountId;
@@ -48,20 +57,12 @@ public class Account {
         this.accountId = accountId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPasswordHash() {
@@ -102,5 +103,29 @@ public class Account {
 
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public RoleGroup getRoleGroup() {
+        return roleGroup;
+    }
+
+    public void setRoleGroup(RoleGroup roleGroup) {
+        this.roleGroup = roleGroup;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }
