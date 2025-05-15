@@ -294,10 +294,12 @@ select * from ACCOUNT;
 select * from CUSTOMER;
 select * from ACCOUNT_ASSIGN_ROLE_GROUP;
 select * from ROLE_GROUP;
+
 insert into ROLE_GROUP(ROLE_GROUP_ID,name_role_group, created_at, updated_at, is_deleted)
 values (3,'STAFF',current_timestamp,current_timestamp,0);
+COMMIT
 insert into ACCOUNT(ROLE_GROUP_ID,FULL_NAME,EMAIL,username, password_hash, status, created_at, updated_at, is_deleted)
-values (2,'staff1','staff1@gmail.com','staff1','$2a$12$PHzj0FdE5dnJez2yWuDcGuO8IkwDLukSapOovJc6uUqtRmnPtWktC','ACTIVE',current_timestamp,current_timestamp,0);
+values (3,'staff1','staff1@gmail.com','staff1','$2a$12$PHzj0FdE5dnJez2yWuDcGuO8IkwDLukSapOovJc6uUqtRmnPtWktC','ACTIVE',current_timestamp,current_timestamp,0);
 
 insert into ACCOUNT(ROLE_GROUP_ID,FULL_NAME,EMAIL,username, password_hash, status, created_at, updated_at, is_deleted)
 values (1,'adminuser','adminuser@gmail.com','adminuser','$2a$12$8BXSYs2S3HAQWOYAQ5eSzuVXLyOp7dQ86orVyfTgqG/pamE8dJU4q','ACTIVE',current_timestamp,current_timestamp,0);
@@ -320,10 +322,6 @@ CREATE TABLE ACCOUNT (
     IS_DELETED    NUMBER(1)     DEFAULT 0 CHECK (IS_DELETED IN (0, 1)),
     CONSTRAINT FK_ACCOUNT_ROLE_GROUP FOREIGN KEY (ROLE_GROUP_ID) REFERENCES ROLE_GROUP(ROLE_GROUP_ID)
 );
-
-/
-select * from ROLE_GROUP;
-
 
 -- 3. Tạo bảng FUNCTION
 CREATE TABLE FUNCTION (
