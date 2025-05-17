@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GYM 666 - Đăng nhập</title>
-    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/log&re.css}">
 </head>
 <body>
     <div class="container">
@@ -28,12 +28,12 @@
 
         <main>
             <div class="auth-container">
-                <div class="auth-box register" href="/register">
+                <a th:href="@{/register}" class="auth-box register">
                     <h2>Đăng ký</h2>
-                </div>
-                <div class="auth-box login">
+                </a>
+                <a th:href="@{/login}" class="auth-box login">
                     <h2>Đăng nhập</h2>
-                </div>
+                </a>
             </div>
         </main>
     </div>

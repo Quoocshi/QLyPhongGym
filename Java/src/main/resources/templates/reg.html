@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GYM 666 - Đăng Ký</title>
-    <link rel="stylesheet" th:href="@{/css/re.css}">
+    <link rel="stylesheet" th:href="@{/css/reg.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,7 +17,7 @@
                 <nav>
                     <ul>
                         <li><a href="#">TRANG CHỦ</a></li>
-                        <li><a href="#" class="active">ĐĂNG NHẬP/ĐĂNG KÝ</a></li>
+                        <li><a th:href="@{/log&re}" class="active">ĐĂNG NHẬP/ĐĂNG KÝ</a></li>
                         <li><a href="#">DỊCH VỤ</a></li>
                         <li><a href="#">LIÊN HỆ</a></li>
                     </ul>
@@ -38,43 +38,37 @@
                     <div class="register-form">
                         <h1>Đăng Ký</h1>
                         
-                        <div class="form-group">
-                            <label for="fullname">Tên người dùng</label>
-                            <input type="text" id="fullname" name="fullname">
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="birthdate">Ngày tháng năm sinh</label>
-                                <input type="date" id="birthdate" name="birthdate">
+                        <form th:action="@{/register}" method="post" th:object="${account}" onsubmit="return validatePassword()">
+                            <div class="form-group">
+                                <label for="fullname">Họ và tên</label>
+                                <input type="text" th:field="*{fullName}" placeholder="Họ và tên">
                             </div>
-                            <div class="form-group half">
-                                <label for="gender">Giới tính</label>
-                                <select id="gender" name="gender">
-                                    <option value="" selected disabled>Chọn giới tính</option>
-                                    <option value="male">Nam</option>
-                                    <option value="female">Nữ</option>
-                                    <option value="other">Khác</option>
-                                </select>
+                            
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" th:field="*{userName}" placeholder="Tên đăng nhập">
                             </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="username">Tên tài khoản</label>
-                            <input type="text" id="username" name="username">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">SĐT/Gmail</label>
-                            <input type="email" id="email" name="email">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="password">Mật Khẩu</label>
-                            <input type="password" id="password" name="password">
-                        </div>
-                        
-                        <button class="register-button">Đăng Ký</button>
+                            
+                            <div class="form-group">
+                                <label for="email">Gmail</label>
+                                <input type="email" th:field="*{email}" placeholder="Email">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password">Mật Khẩu</label>
+                                <input type="password" th:field="*{passwordHash}" id="password" placeholder="Mật khẩu">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Xác Nhận Mật Khẩu</label>
+                                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu">
+                                <div id="passwordError" class="error-message" style="display: none; color: red; font-size: 12px; margin-top: 5px;">
+                                    Không trùng khớp mật khẩu
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="register-button">Đăng ký</button>
+                        </form>
                         
                         <div class="alternative-login">
                             <div class="divider">
@@ -95,5 +89,20 @@
             </div>
         </main>
     </div>
+
+    <script>
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorElement = document.getElementById('passwordError');
+
+            if (password !== confirmPassword) {
+                errorElement.style.display = 'block';
+                return false;
+            }
+            errorElement.style.display = 'none';
+            return true;
+        }
+    </script>
 </body>
 </html>
