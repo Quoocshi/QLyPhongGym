@@ -19,6 +19,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a.accountId FROM Account a WHERE a.email = ?1")
     Long findAccountIdByEmail(String email);
 
+    @Query("SELECT a FROM Account a WHERE a.email = ?1 AND a.isDeleted = 0")
+    Account findAccountByEmail(String email);
+
     boolean existsByEmail(String email);
 
 }

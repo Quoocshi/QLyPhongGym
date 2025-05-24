@@ -14,6 +14,6 @@ public class UserController {
     public String homePage(Model model, @PathVariable Long id, @PathVariable String username) {
         model.addAttribute("userId", id);
         model.addAttribute("username", username);
-        return "home"; 
+        return "User/home"; 
     }
 }

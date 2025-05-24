@@ -1,11 +1,10 @@
 package hahaha.config;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -15,45 +14,72 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
     private AccountRepository accountRepository;
+
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         Authentication authentication) throws IOException {
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String redirectUrl = null; 
-        String username = authentication.getName();
-        Account acc = accountRepository.findAccountByUserName(username);
-        Long accountId = acc.getAccountId();
-        for (GrantedAuthority authority : authorities) {
-            String role = authority.getAuthority();
-            if (null != role) {
-                switch (role) {
-                    case "ROLE_ADMIN" -> redirectUrl = "/admin/home/"+ accountId + "/" + username;
-                    case "ROLE_USER" -> redirectUrl = "/user/home/" + accountId + "/" + username;
-                    case "ROLE_STAFF" -> redirectUrl = "/staff/home/" + accountId + "/" + username;
-                    default -> {
-                    }
-                }
-            }
-        }
-        if (redirectUrl == null) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập");
+public void onAuthenticationSuccess(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     Authentication authentication) throws IOException {
+    String username;
+    Account acc;
+
+    if (authentication.getPrincipal() instanceof OAuth2User oAuth2User) {
+        String email = oAuth2User.getAttribute("email");
+        
+        // ⚠️ Thay vì gọi findAccountByEmail (có thể null nếu chưa đồng bộ DB), gọi bằng userName
+        username = email;
+        acc = accountRepository.findAccountByUserName(username);
+        if (acc == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không tìm thấy tài khoản Google.");
             return;
         }
-        Cookie userSessionCookie = new Cookie("USER_SESSION", username);
-        userSessionCookie.setHttpOnly(true); // Chỉ server mới có thể đọc được
-        userSessionCookie.setMaxAge(60 * 60); // 1 giờ
-        userSessionCookie.setPath("/"); // Cookie có hiệu lực cho toàn bộ ứng dụng
-        response.addCookie(userSessionCookie);
-         // Lưu trạng thái người dùng vào HttpSession (tùy chọn)
-        HttpSession session = request.getSession();
-        session.setAttribute("USER_SESSION", username);
-
-        response.sendRedirect(redirectUrl);
+        
+    } else {
+        username = authentication.getName();
+        acc = accountRepository.findAccountByUserName(username);
+        if (acc == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không tìm thấy tài khoản người dùng.");
+            return;
+        }
     }
+
+    Long accountId = acc.getAccountId();
+    String role = acc.getRoleGroup().getNameRoleGroup();
+    
+    String redirectUrl = switch (role) {
+        case "ADMIN" -> "/admin/home/" + accountId + "/" + username;
+        case "USER" -> "/user/home/" + accountId + "/" + username;
+        case "STAFF" -> "/staff/home/" + accountId + "/" + username;
+        default -> null;
+    };
+
+    if (redirectUrl == null) {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
+        return;
+    }
+
+System.out.println("Gán quyền: ROLE_" + role);
+System.out.println("username = " + username);
+System.out.println("accountId = " + accountId);
+System.out.println("role = " + role);
+System.out.println("redirectUrl = " + redirectUrl);
+
+
+    Cookie userSessionCookie = new Cookie("USER_SESSION", username);
+    userSessionCookie.setHttpOnly(true);
+    userSessionCookie.setMaxAge(3600);
+    userSessionCookie.setPath("/");
+    response.addCookie(userSessionCookie);
+
+    HttpSession session = request.getSession();
+    session.setAttribute("USER_SESSION", username);
+
+    response.sendRedirect(redirectUrl);
+}
+
 }
