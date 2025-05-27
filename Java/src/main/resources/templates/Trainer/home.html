@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang quản trị - GYM LỎ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="main-content">
+        <div class="header">
+            <div class="logo">GYM LỎ</div>
+            <div class="nav">
+                <a href="/">Trang chủ</a>
+                <a href="#">Quản lý người dùng</a>
+                <a href="#">Thống kê</a>
+                <a href="#">Cài đặt</a>
+            </div>
+            <div class="button-group">
+                <div class="login-btn" th:text="${username}"></div>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="register-btn">ĐĂNG XUẤT</button>
+                </form>
+            </div>
+        </div>
+
+        <div style="padding: 40px;">
+            <h1>Chào mừng Trainer <span th:text="${username}"></span> đến trang huấn luyện viên</h1>
+            <p>Bạn có thể thực hiện các tác vụ quản lý tại đây.</p>
+
+            <!-- Ví dụ chức năng -->
+            <ul>
+                <li><a href="#">Xem danh sách người dùng</a></li>
+                <li><a href="#">Thêm phòng tập</a></li>
+                <li><a href="#">Phân quyền tài khoản</a></li>
+                <li><a href="#">Xem báo cáo doanh thu</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

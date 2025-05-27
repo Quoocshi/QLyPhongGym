@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Người Dùng</title>
+    <link rel="stylesheet" th:href="@{/css/user-home.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chào mừng bạn đến GYM 666!</h1>
+        </header>
+
+        <main>
+            <h2>Thông tin tài khoản</h2>
+            <p><strong>ID người dùng:</strong> <span th:text="${userId}"></span></p>
+            <p><strong>Tên người dùng:</strong> <span th:text="${hoTen}"></span></p>
+        </main>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Đăng xuất</button>
+        </form>
+
+        <footer>
+            <p>&copy; 2025 GYM 666. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+v
