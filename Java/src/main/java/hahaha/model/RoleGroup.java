@@ -75,4 +75,12 @@ public class RoleGroup {
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
+    }
 }

@@ -1,8 +1,5 @@
 package hahaha.service;
 
-import java.util.List;
-
-import hahaha.model.KhachHang;
 
 public interface  KhachHangService {
     // List<KhachHang> getAll();

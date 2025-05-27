@@ -17,4 +17,5 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, String> {
 
     KhachHang findByEmail(String email);
 
+    KhachHang findByAccount_AccountId(Long accountId);
 }

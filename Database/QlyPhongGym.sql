@@ -52,6 +52,12 @@ CREATE TABLE BOMON (
     TenBM VARCHAR2(20) NOT NULL
 );
 
+INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM01', 'Gym Fitness');
+INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM02', 'Yoga');
+INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM03', 'Zumba');
+INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM04', 'Crossfit');
+
+
 -- Create DICHVU table
 CREATE TABLE DICHVU (
     MaDV VARCHAR2(10) PRIMARY KEY,
@@ -62,6 +68,32 @@ CREATE TABLE DICHVU (
     MaBM VARCHAR2(10),
     CONSTRAINT FK_DICHVU_BOMON FOREIGN KEY (MaBM) REFERENCES BOMON(MaBM)
 );
+select * from BOMON;
+select * from DICHVU;
+-- Dịch vụ tự do (khách tự tập)
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV01', 'Tập Gym tự do - 1 tháng', 'TuDo', 30, 500000, 'BM01');
+
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV02', 'Tập Gym tự do - 3 tháng', 'TuDo', 90, 1350000, 'BM01');
+
+-- Dịch vụ lớp học
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV03', 'Lớp Yoga', 'Lop', 30, 600000, 'BM02');
+
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV04', 'Lớp Zumba', 'Lop', 30, 550000, 'BM03');
+
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV05', 'Lớp Crossfit nâng cao', 'Lop', 30, 800000, 'BM04');
+
+-- Dịch vụ huấn luyện viên cá nhân (PT)
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV06', 'PT cá nhân - 10 buổi', 'PT', 10, 1500000, 'BM01');
+
+INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM)
+VALUES ('DV07', 'PT Yoga chuyên sâu', 'PT', 8, 1600000, 'BM02');
+
 
 -- Create KHUVUC table
 CREATE TABLE KHUVUC (
@@ -133,6 +165,21 @@ CREATE TABLE LOP (
     CONSTRAINT FK_LOP_BOMON FOREIGN KEY (MaBM) REFERENCES BOMON(MaBM),
     CONSTRAINT FK_LOP_NHANVIEN FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
 );
+select * from BOMON;
+select * from DICHVU;
+select * from LOP;
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('L01', 'Lớp Sáng Gym', 'Lớp luyện tập buổi sáng cho người mới bắt đầu', 25, 'ChuaDay', TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Đăng ký sớm', 'BM01', 'PT001');
+
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('L02', 'Yoga Cơ Bản', 'Lớp Yoga dành cho người mới bắt đầu', 20, 'DaDay', TO_DATE('2025-05-15', 'YYYY-MM-DD'), 'Lớp đã đầy học viên', 'BM02', 'PT001');
+
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('L03', 'Zumba Cuối Tuần', 'Lớp nhảy Zumba vào cuối tuần', 30, 'ChuaDay', TO_DATE('2025-06-10', 'YYYY-MM-DD'), '', 'BM03', 'PT001');
+
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('L04', 'Crossfit Nâng Cao', 'Dành cho học viên đã có nền tảng thể lực', 15, 'ChuaDay', TO_DATE('2025-07-01', 'YYYY-MM-DD'), 'Yêu cầu kiểm tra đầu vào', 'BM04', 'PT001');
+
 
 -- Create VOUCHER table
 CREATE TABLE VOUCHER (
@@ -163,6 +210,7 @@ CREATE TABLE CT_THAMGIA (
     CONSTRAINT FK_THAMGIA_CHUONGTRINH FOREIGN KEY (MaCT) REFERENCES CHUONGTRINHUUDAI(MaCT)
 );
 
+
 -- Create HOADON table
 CREATE TABLE HOADON (
     MaHD VARCHAR2(10) PRIMARY KEY,
@@ -173,6 +221,7 @@ CREATE TABLE HOADON (
     MaKH VARCHAR2(10),
     CONSTRAINT FK_HOADON_KHACHHANG FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH)
 );
+ALTER TABLE HOADON MODIFY NgayLap DATE DEFAULT SYSDATE;
 
 -- Create KH_VC table
 CREATE TABLE KH_VC (
@@ -214,6 +263,9 @@ CREATE TABLE CT_THUEDC (
     CONSTRAINT FK_THUEDC_HOADON FOREIGN KEY (MaHD) REFERENCES HOADON(MaHD),
     CONSTRAINT FK_THUEDC_THIETBI FOREIGN KEY (MaTB) REFERENCES THIETBI(MaTB)
 );
+SELECT constraint_name, table_name, search_condition
+FROM all_constraints
+WHERE constraint_name = 'SYS_C008498';
 
 -- Create CATAP table
 CREATE TABLE CATAP (

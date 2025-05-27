@@ -13,11 +13,15 @@
 
         <main>
             <h2>Thông tin tài khoản</h2>
-            <p><strong>ID người dùng:</strong> <span th:text="${userId}"></span></p>
+            <p><strong>ID người dùng:</strong> <span th:text="${accountId}"></span></p>
             <p><strong>Tên người dùng:</strong> <span th:text="${hoTen}"></span></p>
         </main>
         <form th:action="@{/logout}" method="post">
             <button type="submit">Đăng xuất</button>
+        </form>
+        <form th:action="@{/dich-vu-gym/dang-ky}" method="get">
+            <input type="hidden" name="accountId" th:value="${accountId}" />
+            <button type="submit">Đăng ký dịch vụ</button>
         </form>
 
         <footer>
@@ -26,4 +30,3 @@
     </div>
 </body>
 </html>
-v

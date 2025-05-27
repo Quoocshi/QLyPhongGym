@@ -19,7 +19,7 @@ public class UserController {
     public String homePage(Model model, @PathVariable Long id,@PathVariable String username) {
         Account acc = accountRepository.findByAccountId(id);
         String hoTen = (acc != null && acc.getKhachHang() != null) ? acc.getKhachHang().getHoTen() : "";
-        model.addAttribute("userId", id);
+        model.addAttribute("accountId", id);
         model.addAttribute("username", username);
         model.addAttribute("hoTen", hoTen);
         return "User/home"; 
