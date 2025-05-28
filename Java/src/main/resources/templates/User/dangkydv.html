@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Đăng ký dịch vụ</title>
+    <link rel="stylesheet" th:href="@{/css/dangkydv.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            KHÁCH HÀNG
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#" class="active">Đăng ký dịch vụ</a></li>
+                <li><a href="#">Thuê dụng cụ</a></li>
+                <li><a href="#">Xem lịch tập</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Thanh toán</a></li>
+                <li><a href="#">Dịch vụ của tôi</a></li>
+                <li><a href="#">Theo dõi khu vực</a></li>
+                <li><a href="#">Voucher của tôi</a></li>
+                <li><a href="#">Tài khoản</a></li>
+            </ul>
+        </nav>
+        <button class="logout-btn">ĐĂNG XUẤT</button>
+    </aside>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>DANH SÁCH CÁC DỊCH VỤ PHÒNG GYM</h1>
+        <div class="section-title">Dịch vụ được yêu thích</div>
+        <div class="slider-container">
+            <button class="slider-btn left" onclick="scrollRow('fav-row', -1)">&laquo;</button>
+            <div class="cards-row" id="fav-row">
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=GYM">
+                    <img src="/images/Gymdv.png" alt="Gym">
+                    <div class="service-content">
+                        <div class="service-title">GYM</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=YOGA">
+                    <img src="/images/Yoga.png" alt="Yoga">
+                    <div class="overlay"></div>
+                    <div class="service-content">
+                        <div class="service-title">YOGA</div>
+                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
+                    <img src="/images/Zumba.jpg" alt="Zumba">
+                    <div class="service-content">
+                        <div class="service-title">ZUMBA</div>
+                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
+                    <img src="/images/Cardio.jpg" alt="Cardio">
+                    <div class="service-content">
+                        <div class="service-title">CARDIO</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=BƠI">
+                    <img src="/images/Swim.jpg" alt="Bơi">
+                    <div class="service-content">
+                        <div class="service-title">BƠI</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
+                    <img src="/images/GymdvPT.png" alt="Gym PT">
+                    <div class="service-content">
+                        <div class="service-title">GYM PT</div>
+                        <div class="service-desc">Hình thức tập luyện: PT<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+            </div>
+            <button class="slider-btn right" onclick="scrollRow('fav-row', 1)">&raquo;</button>
+        </div>
+        <div class="section-title">Các dịch vụ phổ biến</div>
+        <div class="slider-container">
+            <button class="slider-btn left" onclick="scrollRow('popular-row', -1)">&laquo;</button>
+            <div class="cards-row" id="popular-row">
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=GYM">
+                    <img src="/images/Gymdv.png" alt="Gym">
+                    <div class="service-content">
+                        <div class="service-title">GYM</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=YOGA">
+                    <img src="/images/Yoga.png" alt="Yoga">
+                    <div class="service-content">
+                        <div class="service-title">YOGA</div>
+                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
+                    <img src="/images/Zumba.jpg" alt="Zumba">
+                    <div class="service-content">
+                        <div class="service-title">ZUMBA</div>
+                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
+                    <img src="/images/Cardio.jpg" alt="Cardio">
+                    <div class="service-content">
+                        <div class="service-title">CARDIO</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=BƠI">
+                    <img src="/images/Swim.jpg" alt="Bơi">
+                    <div class="service-content">
+                        <div class="service-title">BƠI</div>
+                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
+                    <img src="/images/GymdvPT.png" alt="Gym PT">
+                    <div class="service-content">
+                        <div class="service-title">GYM PT</div>
+                        <div class="service-desc">Hình thức tập luyện: PT<br>Thời hạn: 6 tháng</div>
+                        <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
+                    </div>
+                </a>
+            </div>
+            <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

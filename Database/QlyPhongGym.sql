@@ -165,9 +165,11 @@ CREATE TABLE LOP (
     CONSTRAINT FK_LOP_BOMON FOREIGN KEY (MaBM) REFERENCES BOMON(MaBM),
     CONSTRAINT FK_LOP_NHANVIEN FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
 );
+SELECT * FROM KHACHHANG k
 select * from BOMON;
 select * from DICHVU;
 select * from LOP;
+SELECT * FROM ACCOUNT a
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
 VALUES ('L01', 'Lớp Sáng Gym', 'Lớp luyện tập buổi sáng cho người mới bắt đầu', 25, 'ChuaDay', TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Đăng ký sớm', 'BM01', 'PT001');
 
@@ -333,8 +335,8 @@ CREATE TABLE ROLE_GROUP (
     UPDATED_AT DATE DEFAULT SYSDATE,
     IS_DELETED NUMBER(1) DEFAULT 0 CHECK (IS_DELETED IN (0,1))
 );
-insert into ROLE_GROUP(ROLE_GROUP_ID,name_role_group,IS_DELETED)
-values (4,'TRAINER',0);
+insert into ROLE_GROUP(name_role_group)
+values ('TRAINER');
 select * from ACCOUNT;
 select * from KHACHHANG;
 select * from ROLE_GROUP;
@@ -361,6 +363,7 @@ CREATE TABLE ACCOUNT (
         (MaKH IS NULL AND MaNV IS NULL)
     )
 );
+ALTER TABLE ACCOUNT DROP COLUMN FULL_NAME
 -- Tài khoản cho nhân viên mã NV001 (pass: 111)
 INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH,STATUS,IS_DELETED)
 VALUES (2, 'NV001', 'nhanvien001', '$2a$12$6ohMVeo1CUR93RcjPNXGDO6akRsdfVJsLBqq87BxJzcLtAijYvFvS','ACTIVE',0);

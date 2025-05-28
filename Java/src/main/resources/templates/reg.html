@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,6 @@
         <main>
             <div class="split-container">
                 <div class="image-side">
-                    <!-- Background image handled in CSS
                 </div>
                 <div class="register-side">
                     <div class="register-form">
@@ -41,7 +40,7 @@
                         <form th:action="@{/register}" method="post" th:object="${registerForm}" onsubmit="return validatePassword()">
 
                             <div class="form-group">
-                                <label for="hoTen">Họ và tên </label>
+                                <label for="hoTen">Họ và tên</label>
                                 <input type="text" th:field="*{hoTen}" placeholder="Họ tên khách hàng" required>
                             </div>
 
@@ -63,7 +62,7 @@
                                 <label for="soDienThoai">Số điện thoại</label>
                                 <input type="text" th:field="*{soDienThoai}" placeholder="Số điện thoại">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="email">Email</label>
                                 <input type="email" th:field="*{email}" placeholder="Email" required>
@@ -96,22 +95,6 @@
 
                             <button type="submit" class="register-button">Đăng ký</button>
                         </form>
-
-                        
-                        <div class="alternative-login">
-                            <div class="divider">
-                                <span>Cách khác</span>
-                            </div>
-                            
-                            <div class="social-login">
-                                <a href="#" class="google-login">
-                                    <img th:src="@{/images/google.png}" alt="Google">Đăng ký với Google
-                                </a>
-                                <a href="#" class="facebook-login">
-                                    <img th:src="@{/images/facebook.png}" alt="Facebook">Đăng ký với Facebook
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -133,63 +116,6 @@
         }
     </script>
 </body>
-</html> -->
+</html> 
 
 <form th:action="@{/register}" method="post" th:object="${registerForm}" onsubmit="return validatePassword()">
-
-                            <div class="form-group">
-                                <label for="hoTen">Họ và tên </label>
-                                <input type="text" th:field="*{hoTen}" placeholder="Họ tên khách hàng" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="gioiTinh">Giới tính</label>
-                                <select th:field="*{gioiTinh}">
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="ngaySinh">Ngày sinh</label>
-                                <input type="date" th:field="*{ngaySinh}">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="soDienThoai">Số điện thoại</label>
-                                <input type="text" th:field="*{soDienThoai}" placeholder="Số điện thoại">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" th:field="*{email}" placeholder="Email" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="diaChi">Địa chỉ</label>
-                                <input type="text" th:field="*{diaChi}" placeholder="Địa chỉ">
-                            </div>
-
-                            <hr>
-
-                            <div class="form-group">
-                                <label for="userName">Tên đăng nhập (UserName)</label>
-                                <input type="text" th:field="*{userName}" placeholder="Tên đăng nhập" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">Mật khẩu</label>
-                                <input type="password" th:field="*{password}" id="password" placeholder="Mật khẩu" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirmPassword">Xác nhận mật khẩu</label>
-                                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
-                                <div id="passwordError" class="error-message" style="display: none; color: red; font-size: 12px;">
-                                    Mật khẩu không khớp
-                                </div>
-                            </div>
-
-                            <button type="submit" class="register-button">Đăng ký</button>
-                        </form>
