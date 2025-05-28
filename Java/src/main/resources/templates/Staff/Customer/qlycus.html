@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý khách hàng</title>
+    <title>Trang chủ nhân viên</title>
     <link rel="stylesheet" th:href="@{/css/qlycus.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -16,17 +16,13 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#">Trang chủ</a></li>
-                <li class="active"><a th:href="@{/quan-ly-khach-hang/danh-sach-khach-hang}">Quản lý khách hàng</a></li>
-                <li><a href="#">Quản lý dịch vụ</a></li>
-                <li><a href="#">Quản lý bộ môn</a></li>
-                <li><a href="#">Quản lý lớp</a></li>
-                <li><a href="#">Quản lý lịch tập</a></li>
-                <li><a href="#">Quản lý CTKM</a></li>
-                <li><a href="#">Quản lý voucher</a></li>
-                <li><a href="#">Quản lý thiết bị</a></li>
+                <li class="active"><a href="#">Trang chủ</a></li>
                 <li><a href="#">Quản lý khu vực</a></li>
-                <li><a href="#">Quản lý nhân viên</a></li>
+                <li><a href="/quan-ly-khach-hang/danh-sach-khach-hang">Quản lý khách hàng</a></li>
+                <li><a href="#">Quản lý thiết bị</a></li>
+                <li><a href="#">Lương</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Tài khoản</a></li>
             </ul>
         </nav>
         <form th:action="@{/logout}" method="post">
