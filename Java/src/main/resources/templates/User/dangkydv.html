@@ -27,16 +27,40 @@
                 <li><a href="#">Tài khoản</a></li>
             </ul>
         </nav>
-        <button class="logout-btn">ĐĂNG XUẤT</button>
+        <a href="/login" class="logout-btn">ĐĂNG XUẤT</a>
     </aside>
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Hidden form to submit payment data -->
+        <form id="payment-form" action="/dich-vu-gym/dang-ky-dv" method="post" style="display: none;">
+            <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div id="dsMaDV-inputs">
+                <!-- Service codes will be added here dynamically -->
+            </div>
+        </form>
+        
+        <!-- Thanh hiển thị dịch vụ đã đăng ký -->
+        <div id="registered-services-bar" style="display:none;">
+            <div class="registered-header">
+                <h3>Dịch vụ đã đăng ký</h3>
+                <div class="header-actions">
+                    <span id="total-amount" class="total-amount">Tổng: 0 VNĐ</span>
+                    <button class="payment-btn" onclick="processPayment()">THANH TOÁN</button>
+                    <button class="toggle-btn" onclick="toggleRegisteredServices()">Ẩn/Hiện</button>
+                </div>
+            </div>
+            <div class="registered-list" id="registered-list">
+                <!-- Danh sách dịch vụ đã đăng ký sẽ được thêm vào đây -->
+            </div>
+        </div>
+        
         <h1>DANH SÁCH CÁC DỊCH VỤ PHÒNG GYM</h1>
         <div class="section-title">Dịch vụ được yêu thích</div>
         <div class="slider-container">
             <button class="slider-btn left" onclick="scrollRow('fav-row', -1)">&laquo;</button>
             <div class="cards-row" id="fav-row">
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=GYM">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=GYM">
                     <img src="/images/Gymdv.png" alt="Gym">
                     <div class="service-content">
                         <div class="service-title">GYM</div>
@@ -44,7 +68,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=YOGA">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=YOGA">
                     <img src="/images/Yoga.png" alt="Yoga">
                     <div class="overlay"></div>
                     <div class="service-content">
@@ -53,7 +77,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
                     <img src="/images/Zumba.jpg" alt="Zumba">
                     <div class="service-content">
                         <div class="service-title">ZUMBA</div>
@@ -61,7 +85,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
                     <img src="/images/Cardio.jpg" alt="Cardio">
                     <div class="service-content">
                         <div class="service-title">CARDIO</div>
@@ -69,7 +93,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=BƠI">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=BƠI">
                     <img src="/images/Swim.jpg" alt="Bơi">
                     <div class="service-content">
                         <div class="service-title">BƠI</div>
@@ -77,7 +101,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn favorite" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
+                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
                     <img src="/images/GymdvPT.png" alt="Gym PT">
                     <div class="service-content">
                         <div class="service-title">GYM PT</div>
@@ -92,7 +116,7 @@
         <div class="slider-container">
             <button class="slider-btn left" onclick="scrollRow('popular-row', -1)">&laquo;</button>
             <div class="cards-row" id="popular-row">
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=GYM">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=GYM">
                     <img src="/images/Gymdv.png" alt="Gym">
                     <div class="service-content">
                         <div class="service-title">GYM</div>
@@ -100,7 +124,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=YOGA">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=YOGA">
                     <img src="/images/Yoga.png" alt="Yoga">
                     <div class="service-content">
                         <div class="service-title">YOGA</div>
@@ -108,7 +132,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
                     <img src="/images/Zumba.jpg" alt="Zumba">
                     <div class="service-content">
                         <div class="service-title">ZUMBA</div>
@@ -116,7 +140,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
                     <img src="/images/Cardio.jpg" alt="Cardio">
                     <div class="service-content">
                         <div class="service-title">CARDIO</div>
@@ -124,7 +148,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=BƠI">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=BƠI">
                     <img src="/images/Swim.jpg" alt="Bơi">
                     <div class="service-content">
                         <div class="service-title">BƠI</div>
@@ -132,7 +156,7 @@
                         <div class="service-price">Giá tiền: 6.999.999 VNĐ</div>
                     </div>
                 </a>
-                <a class="service-btn" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
+                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
                     <img src="/images/GymdvPT.png" alt="Gym PT">
                     <div class="service-content">
                         <div class="service-title">GYM PT</div>
@@ -143,7 +167,9 @@
             </div>
             <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>
         </div>
+        <div id="service-detail-modal" style="display:none;"></div>
     </div>
 </div>
+<script src="/js/dangkydv.js"></script>
 </body>
 </html>
