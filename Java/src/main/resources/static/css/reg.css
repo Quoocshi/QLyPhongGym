@@ -3,7 +3,7 @@ Base Styles
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 body {
@@ -38,6 +38,7 @@ header {
     font-size: 26px;
     font-weight: 700;
     text-decoration: none;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 nav ul {
@@ -54,6 +55,7 @@ nav ul li a {
     text-decoration: none;
     font-size: 14px;
     transition: color 0.3s;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 nav ul li a.active, nav ul li a:hover {
@@ -145,20 +147,17 @@ main {
 
 .register-form h1 {
     color: #B23B41;
-    margin-bottom: 20px;
-    font-size: 24px;
+    margin-bottom: 30px;
+    font-size: 28px;
     text-align: center;
-    margin-top: 5px;
-}
-
-.form-group {
-    margin-bottom: 12px;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 .form-row {
     display: flex;
-    gap: 15px;
+    gap: 25px;
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .form-group.half {
@@ -170,11 +169,12 @@ main {
     margin-bottom: 5px;
     color: #777;
     font-size: 14px;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 .form-group input, .form-group select {
     width: 100%;
-    padding: 10px 15px;
+    padding: 12px 15px;
     border: none;
     border-radius: 20px;
     background-color: #f0f0f0;
@@ -188,7 +188,7 @@ main {
 
 .register-button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 20px;
     background-color: #B23B41;
@@ -196,8 +196,9 @@ main {
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    margin-top: 8px;
+    margin-top: 10px;
     transition: background-color 0.3s;
+    font-family: 'Roboto', sans-serif !important;
 }
 
 .register-button:hover {

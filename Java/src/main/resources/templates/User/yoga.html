@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Đăng ký dịch vụ Yoga</title>
+    <link rel="stylesheet" th:href="@{/css/yoga.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            KHÁCH HÀNG
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#" class="active">Đăng ký dịch vụ</a></li>
+                <li><a href="#">Thuê dụng cụ</a></li>
+                <li><a href="#">Xem lịch tập</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Thanh toán</a></li>
+                <li><a href="#">Dịch vụ của tôi</a></li>
+                <li><a href="#">Theo dõi khu vực</a></li>
+                <li><a href="#">Voucher của tôi</a></li>
+                <li><a href="#">Tài khoản</a></li>
+            </ul>
+        </nav>
+        <button class="logout-btn">ĐĂNG XUẤT</button>
+    </aside>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="yoga-detail-card">
+            <div class="yoga-img-container">
+                <img src="/images/Yoga.png" alt="Yoga">
+                <div class="yoga-overlay"></div>
+                <div class="yoga-title">YOGA</div>
+            </div>
+            <div class="yoga-info">
+                <div class="yoga-desc">
+                    <h2>Thông tin dịch vụ Yoga</h2>
+                    <ul>
+                        <li><b>Hình thức tập luyện:</b> Lớp</li>
+                        <li><b>Thời hạn:</b> 6 tháng</li>
+                        <li><b>Giá tiền:</b> 6.999.999 VNĐ</li>
+                        <li><b>Lịch học:</b> Thứ 2, 4, 6 (18:00 - 19:30)</li>
+                        <li><b>Huấn luyện viên:</b> Nguyễn Thị A</li>
+                        <li><b>Địa điểm:</b> Phòng Yoga tầng 2, GYM 666</li>
+                    </ul>
+                    <p class="yoga-note">Yoga giúp tăng cường sức khỏe, dẻo dai, giảm stress và cải thiện vóc dáng. Phù hợp cho mọi lứa tuổi.</p>
+                </div>
+                <a href="#" class="yoga-register-btn">ĐĂNG KÝ NGAY</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html> 

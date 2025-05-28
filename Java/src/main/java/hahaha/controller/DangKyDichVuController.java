@@ -32,7 +32,7 @@ public class DangKyDichVuController{
         HoaDonService hoaDonService;
     
 
-    @GetMapping("/dang-ky")
+    @GetMapping("/dang-kydv")
     @PreAuthorize("hasRole('USER')")
     public String hienThiDichVuDangKy(@RequestParam("accountId") Long accountId, Model model) {
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
@@ -47,11 +47,11 @@ public class DangKyDichVuController{
         List<DichVu> dichVuChuaDangKy = dichVuRepository.listDichVuKhachHangChuaDangKy(khachHang.getMaKH());
         model.addAttribute("dsDichVu", dichVuChuaDangKy);
         model.addAttribute("maKH", maKH); 
-        return "User/dangky";
+        return "User/dangkydv";
     }
 
     
-    @PostMapping("/dang-ky")
+    @PostMapping("/dang-kyvd")
     @PreAuthorize("hasRole('USER')")
     public String xuLyDangKy(@RequestParam("maKH") String maKH,
                                 @RequestParam("dsMaDV") List<String> dsMaDV) {

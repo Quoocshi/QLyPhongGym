@@ -37,7 +37,7 @@ public class RegisterController {
     @GetMapping()
     public String showRegisterPage(Model model) {
         RegisterForm form = new RegisterForm();
-        form.setHoTen("User2");
+        //form.setHoTen("User2");
         // form.setDiaChi("20/03/2005");
         // form.setEmail("user1@example.com");
         // form.setGioiTinh("Nam");
