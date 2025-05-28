@@ -3,7 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <title>Trang Người Dùng</title>
-    <link rel="stylesheet" th:href="@{/css/user-home.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background: #fff;
+            color: #222;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ffe6f2;
+        }
+        
+        header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #B23B41;
+            margin-bottom: 10px;
+        }
+        
+        main {
+            background: #fff;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 32px;
+        }
+        
+        main h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        main p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        main p strong {
+            color: #B23B41;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin: 32px 0;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        
+        .logout-btn:hover {
+            background: #d84343;
+            transform: translateY(-2px);
+        }
+        
+        .service-btn {
+            background: #ff6b8a;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 107, 138, 0.4);
+        }
+        
+        .service-btn:hover {
+            background: #ff5577;
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -16,13 +123,14 @@
             <p><strong>ID người dùng:</strong> <span th:text="${accountId}"></span></p>
             <p><strong>Tên người dùng:</strong> <span th:text="${hoTen}"></span></p>
         </main>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit">Đăng xuất</button>
-        </form>
-        <form th:action="@{/dich-vu-gym/dang-kydv}" method="get">
-            <input type="hidden" name="accountId" th:value="${accountId}" />
-            <button type="submit">Đăng ký dịch vụ</button>
-        </form>
+        
+        <div class="action-buttons">
+            <a href="/login" class="btn logout-btn">Đăng xuất</a>
+            <form th:action="@{/dich-vu-gym/dang-kydv}" method="get" style="display: inline;">
+                <input type="hidden" name="accountId" th:value="${accountId}" />
+                <button type="submit" class="btn service-btn">Đăng ký dịch vụ</button>
+            </form>
+        </div>
 
         <footer>
             <p>&copy; 2025 GYM 666. All rights reserved.</p>

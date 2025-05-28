@@ -1,6 +1,7 @@
 package hahaha.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +20,29 @@ public class ThanhToanController {
     private HoaDonService hoaDonService;
 
     @GetMapping("/{maHD}")
+    @PreAuthorize("hasRole('USER')")
     public String hienThiThanhToan(@PathVariable String maHD, Model model) {
-        HoaDon hoaDon = hoaDonService.timMaHD(maHD);
-        model.addAttribute("hoaDon", hoaDon);
-        model.addAttribute("dsChiTiet", hoaDon.getDsChiTiet());
-        return "User/thanhtoan"; 
+        try {
+            HoaDon hoaDon = hoaDonService.timMaHD(maHD);
+            model.addAttribute("hoaDon", hoaDon);
+            model.addAttribute("dsChiTiet", hoaDon.getDsChiTiet());
+            return "User/thanhtoan"; 
+        } catch (Exception e) {
+            // Nếu không tìm thấy hóa đơn, redirect về trang đăng ký dịch vụ
+            model.addAttribute("error", "Không tìm thấy hóa đơn: " + maHD);
+            return "redirect:/dich-vu-gym/dang-kydv";
+        }
     }
 
     @PostMapping("/{maHD}")
+    @PreAuthorize("hasRole('USER')")
     public String thucHienThanhToan(@PathVariable String maHD) {
-        hoaDonService.thanhToan(maHD);
-        return "redirect:/thanh-toan/" + maHD + "?success=true";
+        try {
+            hoaDonService.thanhToan(maHD);
+            return "redirect:/thanh-toan/" + maHD + "?success=true";
+        } catch (Exception e) {
+            return "redirect:/thanh-toan/" + maHD + "?error=true";
+        }
     }
 }
 

@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers("/staff/**").hasRole("STAFF")
                 .requestMatchers("/user/**").hasRole("USER")
                 .requestMatchers("/trainer/**").hasRole("TRAINER")
+                .requestMatchers("/dich-vu-gym/**").hasRole("USER")
+                .requestMatchers("/thanh-toan/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

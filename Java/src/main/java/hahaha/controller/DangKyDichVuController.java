@@ -51,7 +51,7 @@ public class DangKyDichVuController{
     }
 
     
-    @PostMapping("/dang-kyvd")
+    @PostMapping("/dang-ky-dv")
     @PreAuthorize("hasRole('USER')")
     public String xuLyDangKy(@RequestParam("maKH") String maKH,
                                 @RequestParam("dsMaDV") List<String> dsMaDV) {
