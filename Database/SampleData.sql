@@ -5,24 +5,11 @@ VALUES ('QL001', 'QUANLY001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'quanl
 INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
 VALUES ('PT001', 'TRAINER001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'trainer001@example.com', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 'Trainer');
 
-
-
-INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
-VALUES ('L01', 'Lớp Sáng Gym', 'Lớp luyện tập buổi sáng cho người mới bắt đầu', 25, 'ChuaDay', TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Đăng ký sớm', 'BM01', 'PT001');
-INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
-VALUES ('L02', 'Yoga Cơ Bản', 'Lớp Yoga dành cho người mới bắt đầu', 20, 'DaDay', TO_DATE('2025-05-15', 'YYYY-MM-DD'), 'Lớp đã đầy học viên', 'BM02', 'PT001');
-INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
-VALUES ('L03', 'Zumba Cuối Tuần', 'Lớp nhảy Zumba vào cuối tuần', 30, 'ChuaDay', TO_DATE('2025-06-10', 'YYYY-MM-DD'), '', 'BM03', 'PT001');
-
-
-
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM01', 'Gym Fitness');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM02', 'Yoga');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM03', 'Zumba');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM04', 'Cardio');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM05', 'Boi'); 
-
-
 
 INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM) VALUES 
 ('GYM',    'GYM',     'TuDo', 6, 6999999, 'BM01');
@@ -38,13 +25,10 @@ INSERT INTO DICHVU (MaDV, TenDV, LoaiDV, ThoiHan, DonGia, MaBM) VALUES
 ('GYMPT',  'GYM PT',  'PT',   6, 6999999, 'BM01');
 
 
-
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
 VALUES ('L01', 'Lớp Sáng Gym', 'Lớp luyện tập buổi sáng cho người mới bắt đầu', 25, 'ChuaDay', TO_DATE('2025-06-01', 'YYYY-MM-DD'), 'Đăng ký sớm', 'BM01', 'PT001');
-
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
 VALUES ('L02', 'Yoga Cơ Bản', 'Lớp Yoga dành cho người mới bắt đầu', 20, 'DaDay', TO_DATE('2025-05-15', 'YYYY-MM-DD'), 'Lớp đã đầy học viên', 'BM02', 'PT001');
-
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
 VALUES ('L03', 'Zumba Cuối Tuần', 'Lớp nhảy Zumba vào cuối tuần', 30, 'ChuaDay', TO_DATE('2025-06-10', 'YYYY-MM-DD'), '', 'BM03', 'PT001');
 
@@ -66,7 +50,14 @@ VALUES (1, 'QL001', 'quanly001', '$2a$12$KYhzg7VUhsCfQVhdyCRmX.BdaphD97R5G9zVRD4
 INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH,STATUS,IS_DELETED)
 VALUES (4, 'PT001', 'trainer001', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK','ACTIVE',0);
 
-
+select * from NHANVIEN;
+select * from LOP;
+select * from BOMON;
+select * from DICHVU;
+select * from ROLE_GROUP;
+select * from ACCOUNT;
+select * from HOADON;
+select  * from KHACHHANG;
 
 BEGIN
    FOR t IN (SELECT table_name FROM user_tables) LOOP
