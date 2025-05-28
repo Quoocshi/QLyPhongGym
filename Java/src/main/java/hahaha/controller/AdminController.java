@@ -14,6 +14,6 @@ public class AdminController {
     public String adminPage(Model model, @PathVariable Long id, @PathVariable String username) {
         model.addAttribute("userId", id);
         model.addAttribute("username", username);
-        return "Admin/admin"; 
+        return "Admin/home"; 
     }
 }
