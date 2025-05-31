@@ -19,6 +19,7 @@
                 <li class="active"><a href="#">Trang chủ</a></li>
                 <li><a href="#">Quản lý khu vực</a></li>
                 <li><a href="/quan-ly-khach-hang/danh-sach-khach-hang">Quản lý khách hàng</a></li>
+                <li><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
                 <li><a href="#">Quản lý thiết bị</a></li>
                 <li><a href="#">Lương</a></li>
                 <li><a href="#">Phản hồi/ Khiếu nại</a></li>
@@ -44,7 +45,7 @@
             <table>
                 <thead>
                 <tr>
-                    <th><input type="checkbox" id="selectAll"></th>
+                    <!-- <th><input type="checkbox" id="selectAll"></th> -->
                     <th>Mã khách hàng</th>
                     <th>Họ và tên</th>
                     <th>Ngày sinh</th>
@@ -57,7 +58,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="customer : ${customers}">
-                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <!-- <td><input type="checkbox" class="row-checkbox"></td> -->
                     <td th:text="${customer.maKH}"></td>
                     <td th:text="${customer.hoTen}"></td>
                     <td th:text="${customer.ngaySinh}"></td>
@@ -65,15 +66,19 @@
                     <td th:text="${customer.email}"></td>
                     <td th:text="${customer.soDienThoai}"></td>
                     <td th:text="${customer.diaChi}"></td>
-                    <td><button class="edit-btn">SỬA</button></td>
+                    <td>
+                        <button class="edit-btn">SỬA</button>
+                        <form th:action="@{/quan-ly-khach-hang/xoa-khach-hang}" method="post" style="display:inline;">
+                            <input type="hidden" name="MaKH" th:value="${customer.maKH}" />
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa khách hàng này?');">XÓA</button>
+                        </form>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="action-btns">
-            <button class="delete-btn">XÓA</button>
-        </div>
     </main>
 </div>
 
