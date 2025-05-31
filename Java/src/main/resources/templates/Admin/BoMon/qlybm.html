@@ -18,8 +18,8 @@
             <ul>
                 <li><a href="#">Trang chủ</a></li>
                 <li><a th:href="@{/quan-ly-khach-hang/danh-sach-khach-hang}">Quản lý khách hàng</a></li>
-                <li class="active"><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
-                <li><a th:href="@{/quan-ly-bo-mon/danh-sach-bo-mon}">Quản lý bộ môn</a></li>
+                <li><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
+                <li class="active" ><a th:href="@{/quan-ly-bo-mon/danh-sach-bo-mon}">Quản lý bộ môn</a></li>
                 <li><a href="#">Quản lý lớp</a></li>
                 <li><a href="#">Quản lý lịch tập</a></li>
                 <li><a href="#">Quản lý CTKM</a></li>
@@ -37,7 +37,7 @@
 
     <!-- Main content -->
     <main class="main-content">
-        <h1>BẢNG DANH SÁCH DỊCH VỤ</h1>
+        <h1>BẢNG DANH SÁCH BỘ MÔN</h1>
 
         <!-- Thông báo -->
         <div th:if="${successMessage}" class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border: 1px solid #c3e6cb; border-radius: 4px;">
@@ -48,42 +48,34 @@
         </div>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Tìm kiếm dịch vụ...">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm bộ môn...">
             <button class="search-btn">&#9906;</button>
         </div>
 
         <!-- Nút thêm dịch vụ -->
         <div class="mb-3" style="margin-bottom: 20px;">
-            <a th:href="@{/quan-ly-dich-vu/them-dich-vu}" class="add-modal-btn">THÊM DỊCH VỤ</a>
+            <a th:href="@{/quan-ly-bo-mon/them-bo-mon}" class="add-modal-btn">THÊM BỘ MÔN</a>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
                 <tr>
-                    <th>Mã Dịch Vụ</th>
-                    <th>Tên DV</th>
-                    <th>Loại DV</th>
-                    <th>Thời Hạn (ngày)</th>
-                    <th>Giá (VNĐ)</th>
-                    <th>Bộ Môn</th>
+                    <th>Mã Bộ Môn</th>
+                    <th>Tên Bộ Môn</th>
                     <th>Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="dichVu : ${dichVuList}">
-                    <td th:text="${dichVu.maDV}"></td>
-                    <td th:text="${dichVu.tenDV}"></td>
-                    <td th:text="${dichVu.loaiDV}"></td>
-                    <td th:text="${dichVu.thoiHan}"></td>
-                    <td th:text="${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')}"></td>
-                    <td th:text="${dichVu.boMon != null ? dichVu.boMon.tenBM : 'N/A'}"></td>
+                <tr th:each="boMon : ${listBoMon}">
+                    <td th:text="${boMon.maBM}"></td>
+                    <td th:text="${boMon.tenBM}"></td>
                     <td>
-                        <a th:href="@{/quan-ly-dich-vu/cap-nhat-dich-vu/{maDV}(maDV=${dichVu.maDV})}" class="edit-btn">SỬA</a>
-                        <form th:action="@{/quan-ly-dich-vu/xoa-dich-vu}" method="post" style="display:inline;">
-                            <input type="hidden" name="maDV" th:value="${dichVu.maDV}" />
+                        <a th:href="@{/quan-ly-bo-mon/cap-nhat-bo-mon/{maBM}(maBM=${boMon.maBM})}" class="edit-btn">SỬA</a>
+                        <form th:action="@{/quan-ly-bo-mon/xoa-bo-mon}" method="post" style="display:inline;">
+                            <input type="hidden" name="maBM" th:value="${boMon.maBM}" />
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa dịch vụ này?');">XÓA</button>
+                            <button type="submit" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa bộ môn này?');">XÓA</button>
                         </form>
                     </td>
                 </tr>
