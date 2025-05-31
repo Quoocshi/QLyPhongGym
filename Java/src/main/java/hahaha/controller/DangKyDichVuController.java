@@ -41,12 +41,15 @@ public class DangKyDichVuController{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
         }
         String maKH = khachHang.getMaKH();
+        String username = khachHang.getAccount().getUserName();
         System.out.println("MaKH la: " + maKH);
 
         //Hiển thị các dịch vụ khách hàng chưa đăng ký
         List<DichVu> dichVuChuaDangKy = dichVuRepository.listDichVuKhachHangChuaDangKy(khachHang.getMaKH());
         model.addAttribute("dsDichVu", dichVuChuaDangKy);
         model.addAttribute("maKH", maKH); 
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("username", username);
         return "User/dangkydv";
     }
 

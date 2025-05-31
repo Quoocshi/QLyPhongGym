@@ -1,4 +1,15 @@
-﻿INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+﻿INSERT INTO KHACHHANG (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode) VALUES
+('KH005', 'Nguyễn Văn Nam', TO_DATE('1990-05-15', 'YYYY-MM-DD'), 'Nam', 'nam.nguyen@gmail.com', '0905123456', '123 Lý Thường Kiệt, Hà Nội', 'REFNAM90');
+INSERT INTO KHACHHANG (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode) VALUES
+('KH002', 'Lê Thị Hồng', TO_DATE('1992-08-22', 'YYYY-MM-DD'), 'Nữ', 'hong.le@gmail.com', '0934789654', '45 Nguyễn Huệ, TP.HCM', 'REFHONG92');
+INSERT INTO KHACHHANG (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode) VALUES
+('KH003', 'John Smith', TO_DATE('1985-03-10', 'YYYY-MM-DD'), 'Male', 'john.smith@example.com', '+14155552671', '25 Wall Street, New York, USA', 'REFJOHN85');
+INSERT INTO KHACHHANG (MaKH, HoTen, NgaySinh, GioiTinh, Email, SoDienThoai, DiaChi, ReferralCode) VALUES
+('KH004', 'Anna Müller', TO_DATE('1994-12-01', 'YYYY-MM-DD'), 'Female', 'anna.mueller@example.de', '+4917612345678', 'Berlin, Germany', 'REFANNA94');
+
+
+
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
 VALUES ('NV001', 'NHANVIEN001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'nhanvien001@example.com', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 'LeTan');
 INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
 VALUES ('QL001', 'QUANLY001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'quanly001@example.com', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 'QuanLy');

@@ -3,138 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <title>Trang Người Dùng</title>
+    <link rel="stylesheet" th:href="@{/css/dangkydv.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
+        .main-content {
+            background-image: url('/images/userhome.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
         }
         
-        body {
-            background: #fff;
-            color: #222;
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
         }
         
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            position: relative;
+            z-index: 2;
             padding: 40px 20px;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #ffe6f2;
-        }
-        
-        header h1 {
-            font-size: 36px;
+        .welcome-title {
+            font-size: 64px;
             font-weight: 700;
-            color: #B23B41;
-            margin-bottom: 10px;
+            color: #fff;
+            margin-bottom: 30px;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+            letter-spacing: 2px;
         }
         
-        main {
-            background: #fff;
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin-bottom: 32px;
+        .welcome-slogan {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 50px;
+            line-height: 1.4;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            font-weight: 500;
+            max-width: 800px;
         }
         
-        main h2 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        
-        main p {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-        
-        main p strong {
-            color: #B23B41;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin: 32px 0;
-        }
-        
-        .btn {
-            padding: 14px 32px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
+        .cta-button {
+            padding: 20px 50px;
+            border-radius: 35px;
+            font-size: 20px;
+            font-weight: 700;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
             text-align: center;
-        }
-        
-        .logout-btn {
-            background: #ff6b6b;
+            background: linear-gradient(45deg, #ff6b8a, #ff8686);
             color: #fff;
+            box-shadow: 0 8px 25px rgba(255, 107, 138, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .logout-btn:hover {
-            background: #d84343;
-            transform: translateY(-2px);
+        .cta-button:hover {
+            background: linear-gradient(45deg, #ff5577, #d84343);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 138, 0.6);
         }
         
-        .service-btn {
-            background: #ff6b8a;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(255, 107, 138, 0.4);
+        .cta-button:active {
+            transform: translateY(-1px);
         }
         
-        .service-btn:hover {
-            background: #ff5577;
-            transform: translateY(-2px);
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 48px;
+            }
+            
+            .welcome-slogan {
+                font-size: 22px;
+            }
+            
+            .cta-button {
+                padding: 16px 40px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Chào mừng bạn đến GYM 666!</h1>
-        </header>
-
-        <main>
-            <h2>Thông tin tài khoản</h2>
-            <p><strong>ID người dùng:</strong> <span th:text="${accountId}"></span></p>
-            <p><strong>Tên người dùng:</strong> <span th:text="${hoTen}"></span></p>
-        </main>
-        
-        <div class="action-buttons">
-            <a href="/login" class="btn logout-btn">Đăng xuất</a>
-            <form th:action="@{/dich-vu-gym/dang-kydv}" method="get" style="display: inline;">
-                <input type="hidden" name="accountId" th:value="${accountId}" />
-                <button type="submit" class="btn service-btn">Đăng ký dịch vụ</button>
-            </form>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            KHÁCH HÀNG
         </div>
-
-        <footer>
-            <p>&copy; 2025 GYM 666. All rights reserved.</p>
-        </footer>
+        <nav>
+            <ul>
+                <li><a href="#" th:href="@{/user/home/{accountId}/{username}(accountId=${accountId}, username=${username})}" class="active">Trang chủ</a></li>
+                <li><a href="#" th:href="@{/dich-vu-gym/dang-kydv(accountId=${accountId})}">Đăng ký dịch vụ</a></li>
+                <li><a href="#">Thuê dụng cụ</a></li>
+                <li><a href="#">Xem lịch tập</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Thanh toán</a></li>
+                <li><a href="#">Dịch vụ của tôi</a></li>
+                <li><a href="#">Theo dõi khu vực</a></li>
+                <li><a href="#">Voucher của tôi</a></li>
+                <li><a href="#">Tài khoản</a></li>
+            </ul>
+        </nav>
+        <a href="/login" class="logout-btn">ĐĂNG XUẤT</a>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="welcome-container">
+            <h1 class="welcome-title">Chào mừng bạn đến GYM 666!</h1>
+            <p class="welcome-slogan">Từ sức mạnh đến sự dẻo dai – Tất cả hội tụ tại đây!</p>
+            <a href="#" th:href="@{/dich-vu-gym/dang-kydv(accountId=${accountId})}" class="cta-button">Đăng ký ngay hôm nay</a>
+        </div>
     </div>
+</div>
 </body>
 </html>
