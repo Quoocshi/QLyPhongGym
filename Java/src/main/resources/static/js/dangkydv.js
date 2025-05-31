@@ -16,12 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('click', function(e) {
             e.preventDefault();
 
-            // Lấy thông tin thẻ
+            // Lấy thông tin thẻ từ data attributes và DOM
+            const maDV = this.dataset.maDv;
             const img = this.querySelector('img').src;
             const title = this.querySelector('.service-title').innerText;
             const desc = this.querySelector('.service-desc').innerHTML;
             const price = this.querySelector('.service-price').innerText;
-            const link = this.href;
 
             // Kiểm tra nếu là dịch vụ "Tự do" (GYM, CARDIO, BƠI)
             if (desc.includes('Tự do')) {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div>${desc}</div>
                             <div>${price}</div>
                         </div>
-                        <a href="#" onclick="registerService('${title}', '${desc}', '${link}')" class="register-btn">ĐĂNG KÝ</a>
+                        <a href="#" onclick="registerService('${title}', '${desc}', '${maDV}')" class="register-btn">ĐĂNG KÝ</a>
                         <button onclick="closeModal()" class="back-btn">Quay lại</button>
                     </div>
                 `;
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const detailDiv = document.createElement('div');
                 detailDiv.className = 'service-detail-inline';
                 detailDiv.innerHTML = `
-                    <a href="#" onclick="registerService('${title}', '${desc}', '${link}')" class="register-btn">ĐĂNG KÝ</a>
+                    <a href="#" onclick="registerService('${title}', '${desc}', '${maDV}')" class="register-btn">ĐĂNG KÝ</a>
                 `;
                 this.appendChild(detailDiv);
             }
@@ -74,36 +74,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Hàm đăng ký dịch vụ
-function registerService(title, desc, link) {
+// Hàm đăng ký dịch vụ (cập nhật để sử dụng maDV)
+function registerService(title, desc, maDV) {
     // Lấy hình thức tập luyện từ mô tả
     const trainingType = desc.match(/Hình thức tập luyện: ([^<]+)/)?.[1] || 'Không xác định';
     
-    // Lấy giá tiền từ mô tả (giả sử tất cả đều 6.999.999 VNĐ)
+    // Lấy giá tiền từ mô tả
     const priceMatch = desc.match(/Giá tiền: ([\d,.]+) VNĐ/);
-    const price = priceMatch ? parseInt(priceMatch[1].replace(/[,.]/g, '')) : 6999999;
+    const price = priceMatch ? parseInt(priceMatch[1].replace(/[,.]/g, '')) : 0;
     
     // Kiểm tra xem dịch vụ đã được đăng ký chưa
-    const existingService = registeredServices.find(service => service.name === title);
+    const existingService = registeredServices.find(service => service.code === maDV);
     if (existingService) {
         alert('Dịch vụ này đã được đăng ký!');
-        return;
-    }
-
-    // Lấy mã dịch vụ từ mapping
-    const serviceCode = serviceCodeMapping[title];
-    if (!serviceCode) {
-        alert('Không tìm thấy mã dịch vụ cho ' + title);
         return;
     }
 
     // Thêm dịch vụ vào danh sách đã đăng ký
     registeredServices.push({
         name: title,
-        code: serviceCode,
+        code: maDV,
         trainingType: trainingType,
-        price: price,
-        link: link
+        price: price
     });
 
     // Cập nhật hiển thị thanh dịch vụ đã đăng ký
@@ -155,10 +147,7 @@ function closeModal() {
 // Hàm cập nhật tổng tiền
 function updateTotalAmount() {
     const total = registeredServices.reduce((sum, service) => sum + service.price, 0);
-    //const totalElement = document.getElementById('total-amount');
     const paymentBtn = document.querySelector('.payment-btn');
-    
-    //totalElement.textContent = `Tổng: ${total.toLocaleString('vi-VN')} VNĐ`;
     
     // Disable nút thanh toán nếu không có dịch vụ nào
     if (registeredServices.length === 0) {
