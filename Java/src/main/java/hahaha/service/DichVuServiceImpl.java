@@ -113,9 +113,9 @@ public class DichVuServiceImpl implements DichVuService {
     public List<BoMon> getAllBoMon() {
         return boMonRepository.findAll();
     }
-
     @Override
     public List<DichVu> getDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH) {
         return dichVuRepository.listDichVuTheoBoMonKhachHangChuaDangKy(maBM, maKH);
     }
+
 } 

@@ -46,6 +46,9 @@
                 <h3>Dịch vụ đã đăng ký</h3>
                 <div class="header-actions">
                     <span id="total-amount"></span>
+
+                    <!-- <span id="total-amount" class="total-amount">Tổng: </span> -->
+
                     <button class="payment-btn" onclick="processPayment()">THANH TOÁN</button>
                     <button class="toggle-btn" onclick="toggleRegisteredServices()">Ẩn/Hiện</button>
                 </div>
@@ -55,6 +58,7 @@
             </div>
         </div>
         
+
         <!-- Header với nút quay lại -->
         <div class="back-to-bo-mon">
             <form th:action="@{/dich-vu-gym/dang-kydv}" method="get" style="display: inline;">
@@ -123,6 +127,7 @@
                                                                '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
                             <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
                         </div>
+
                     </div>
                 </div>
                 <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>

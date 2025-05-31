@@ -147,8 +147,10 @@ function closeModal() {
 // Hàm cập nhật tổng tiền
 function updateTotalAmount() {
     const total = registeredServices.reduce((sum, service) => sum + service.price, 0);
-    const paymentBtn = document.querySelector('.payment-btn');
-    
+// const totalElement = document.getElementById('total-amount');
+const paymentBtn = document.querySelector('.payment-btn');
+// totalElement.textContent = `Tổng: ${total.toLocaleString('vi-VN')} VNĐ`;
+
     // Disable nút thanh toán nếu không có dịch vụ nào
     if (registeredServices.length === 0) {
         paymentBtn.disabled = true;
