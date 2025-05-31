@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
+import hahaha.model.BoMon;
 import hahaha.model.DichVu;
 import hahaha.model.HoaDon;
 import hahaha.model.KhachHang;
 import hahaha.repository.DichVuRepository;
 import hahaha.repository.KhachHangRepository;
+import hahaha.service.DichVuService;
 import hahaha.service.HoaDonService;
 
 @Controller
@@ -30,11 +32,13 @@ public class DangKyDichVuController{
         KhachHangRepository khachHangRepository;
     @Autowired
         HoaDonService hoaDonService;
+    @Autowired
+        DichVuService dichVuService;
     
 
     @GetMapping("/dang-kydv")
     @PreAuthorize("hasRole('USER')")
-    public String hienThiDichVuDangKy(@RequestParam("accountId") Long accountId, Model model) {
+    public String hienThiDanhSachBoMon(@RequestParam("accountId") Long accountId, Model model) {
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
         System.out.println("Account ID nhận vào: " + accountId);
         if (khachHang == null) {
@@ -44,9 +48,44 @@ public class DangKyDichVuController{
         String username = khachHang.getAccount().getUserName();
         System.out.println("MaKH la: " + maKH);
 
-        //Hiển thị các dịch vụ khách hàng chưa đăng ký
-        List<DichVu> dichVuChuaDangKy = dichVuRepository.listDichVuKhachHangChuaDangKy(khachHang.getMaKH());
-        model.addAttribute("dsDichVu", dichVuChuaDangKy);
+        // Lấy danh sách bộ môn
+        List<BoMon> dsBoMon = dichVuService.getAllBoMon();
+        model.addAttribute("dsBoMon", dsBoMon);
+        model.addAttribute("maKH", maKH); 
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("username", username);
+        return "User/chon-bo-mon";
+    }
+    
+    @GetMapping("/dich-vu-theo-bo-mon")
+    @PreAuthorize("hasRole('USER')")
+    public String hienThiDichVuTheoBoMon(@RequestParam("maBM") String maBM,
+                                        @RequestParam("accountId") Long accountId,
+                                        Model model) {
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+        if (khachHang == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
+        }
+        
+        String maKH = khachHang.getMaKH();
+        String username = khachHang.getAccount().getUserName();
+        
+        // Lấy thông tin bộ môn
+        List<BoMon> allBoMon = dichVuService.getAllBoMon();
+        BoMon selectedBoMon = allBoMon.stream()
+            .filter(bm -> bm.getMaBM().equals(maBM))
+            .findFirst()
+            .orElse(null);
+            
+        if (selectedBoMon == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bộ môn");
+        }
+
+        // Lấy dịch vụ theo bộ môn mà khách hàng chưa đăng ký
+        List<DichVu> dsDichVu = dichVuService.getDichVuTheoBoMonKhachHangChuaDangKy(maBM, maKH);
+        
+        model.addAttribute("selectedBoMon", selectedBoMon);
+        model.addAttribute("dsDichVu", dsDichVu);
         model.addAttribute("maKH", maKH); 
         model.addAttribute("accountId", accountId);
         model.addAttribute("username", username);

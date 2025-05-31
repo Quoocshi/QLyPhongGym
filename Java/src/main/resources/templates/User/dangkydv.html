@@ -46,7 +46,9 @@
                 <h3>Dịch vụ đã đăng ký</h3>
                 <div class="header-actions">
                     <span id="total-amount"></span>
+
                     <!-- <span id="total-amount" class="total-amount">Tổng: </span> -->
+
                     <button class="payment-btn" onclick="processPayment()">THANH TOÁN</button>
                     <button class="toggle-btn" onclick="toggleRegisteredServices()">Ẩn/Hiện</button>
                 </div>
@@ -56,118 +58,88 @@
             </div>
         </div>
         
-        <h1>DANH SÁCH CÁC DỊCH VỤ PHÒNG GYM</h1>
-        <div class="section-title">Dịch vụ được yêu thích</div>
-        <div class="slider-container">
-            <button class="slider-btn left" onclick="scrollRow('fav-row', -1)">&laquo;</button>
-            <div class="cards-row" id="fav-row">
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=GYM">
-                    <img src="/images/Gymdv.png" alt="Gym">
-                    <div class="service-content">
-                        <div class="service-title">GYM</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 1.000.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=YOGA">
-                    <img src="/images/Yoga.png" alt="Yoga">
-                    <div class="overlay"></div>
-                    <div class="service-content">
-                        <div class="service-title">YOGA</div>
-                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 1.500.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
-                    <img src="/images/Zumba.jpg" alt="Zumba">
-                    <div class="service-content">
-                        <div class="service-title">ZUMBA</div>
-                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền:1.300.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
-                    <img src="/images/Cardio.jpg" alt="Cardio">
-                    <div class="service-content">
-                        <div class="service-title">CARDIO</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 900.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=BƠI">
-                    <img src="/images/Swim.jpg" alt="Bơi">
-                    <div class="service-content">
-                        <div class="service-title">BƠI</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 800.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn favorite service-card" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
-                    <img src="/images/GymdvPT.png" alt="Gym PT">
-                    <div class="service-content">
-                        <div class="service-title">GYM PT</div>
-                        <div class="service-desc">Hình thức tập luyện: PT<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 2.000.000 VNĐ</div>
-                    </div>
-                </a>
-            </div>
-            <button class="slider-btn right" onclick="scrollRow('fav-row', 1)">&raquo;</button>
+
+        <!-- Header với nút quay lại -->
+        <div class="back-to-bo-mon">
+            <form th:action="@{/dich-vu-gym/dang-kydv}" method="get" style="display: inline;">
+                <input type="hidden" name="accountId" th:value="${accountId}">
+                <button type="submit" class="back-btn-bo-mon">← Quay lại chọn bộ môn</button>
+            </form>
+            <h1 id="selected-bo-mon-title" th:text="'DỊCH VỤ ' + ${selectedBoMon.tenBM}"></h1>
         </div>
-        <div class="section-title">Các dịch vụ phổ biến</div>
-        <div class="slider-container">
-            <button class="slider-btn left" onclick="scrollRow('popular-row', -1)">&laquo;</button>
-            <div class="cards-row" id="popular-row">
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=GYM">
-                    <img src="/images/Gymdv.png" alt="Gym">
-                    <div class="service-content">
-                        <div class="service-title">GYM</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 800.000 VNĐ</div>
+        
+        <!-- Hiển thị dịch vụ nếu có -->
+        <div th:if="${!#lists.isEmpty(dsDichVu)}">
+            <div class="section-title">Dịch vụ được yêu thích</div>
+            <div class="slider-container">
+                <button class="slider-btn left" onclick="scrollRow('fav-row', -1)">&laquo;</button>
+                <div class="cards-row" id="fav-row">
+                    <!-- Hiển thị nửa đầu danh sách dịch vụ -->
+                    <div th:each="dichVu, iterStat : ${dsDichVu}" 
+                         th:if="${iterStat.index < (dsDichVu.size() + 1) / 2}"
+                         class="service-btn favorite service-card" 
+                         th:href="'#'" 
+                         th:data-ma-dv="${dichVu.maDV}">
+                        <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
+                                                      dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
+                                                      dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
+                                                      dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
+                                                      dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
+                                                      dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
+                             th:alt="${dichVu.tenDV}">
+                        <div class="service-content">
+                            <div class="service-title" th:text="${dichVu.tenDV}"></div>
+                            <div class="service-desc" th:utext="'Hình thức tập luyện: ' + 
+                                                               ${dichVu.loaiDV == 'TuDo' ? 'Tự do' : 
+                                                                 dichVu.loaiDV == 'Lop' ? 'Lớp' : 
+                                                                 dichVu.loaiDV == 'PT' ? 'PT' : dichVu.loaiDV} + 
+                                                               '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
+                            <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
+                        </div>
                     </div>
-                </a>
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=YOGA">
-                    <img src="/images/Yoga.png" alt="Yoga">
-                    <div class="service-content">
-                        <div class="service-title">YOGA</div>
-                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 1.500.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=ZUMBA">
-                    <img src="/images/Zumba.jpg" alt="Zumba">
-                    <div class="service-content">
-                        <div class="service-title">ZUMBA</div>
-                        <div class="service-desc">Hình thức tập luyện: Lớp<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 1.300.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=CARDIO">
-                    <img src="/images/Cardio.jpg" alt="Cardio">
-                    <div class="service-content">
-                        <div class="service-title">CARDIO</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 900.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=BƠI">
-                    <img src="/images/Swim.jpg" alt="Bơi">
-                    <div class="service-content">
-                        <div class="service-title">BƠI</div>
-                        <div class="service-desc">Hình thức tập luyện: Tự do<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 800.000 VNĐ</div>
-                    </div>
-                </a>
-                <a class="service-btn service-card" href="/dich-vu-gym/dang-ky?maDV=GYMPT">
-                    <img src="/images/GymdvPT.png" alt="Gym PT">
-                    <div class="service-content">
-                        <div class="service-title">GYM PT</div>
-                        <div class="service-desc">Hình thức tập luyện: PT<br>Thời hạn: 6 tháng</div>
-                        <div class="service-price">Giá tiền: 2.000.000 VNĐ</div>
-                    </div>
-                </a>
+                </div>
+                <button class="slider-btn right" onclick="scrollRow('fav-row', 1)">&raquo;</button>
             </div>
-            <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>
+            
+            <div class="section-title">Các dịch vụ phổ biến</div>
+            <div class="slider-container">
+                <button class="slider-btn left" onclick="scrollRow('popular-row', -1)">&laquo;</button>
+                <div class="cards-row" id="popular-row">
+                    <!-- Hiển thị nửa sau danh sách dịch vụ -->
+                    <div th:each="dichVu, iterStat : ${dsDichVu}" 
+                         th:if="${iterStat.index >= (dsDichVu.size() + 1) / 2}"
+                         class="service-btn service-card" 
+                         th:href="'#'" 
+                         th:data-ma-dv="${dichVu.maDV}">
+                        <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
+                                                      dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
+                                                      dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
+                                                      dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
+                                                      dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
+                                                      dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
+                             th:alt="${dichVu.tenDV}">
+                        <div class="service-content">
+                            <div class="service-title" th:text="${dichVu.tenDV}"></div>
+                            <div class="service-desc" th:utext="'Hình thức tập luyện: ' + 
+                                                               ${dichVu.loaiDV == 'TuDo' ? 'Tự do' : 
+                                                                 dichVu.loaiDV == 'Lop' ? 'Lớp' : 
+                                                                 dichVu.loaiDV == 'PT' ? 'PT' : dichVu.loaiDV} + 
+                                                               '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
+                            <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>
+            </div>
         </div>
+        
+        <!-- Hiển thị thông báo nếu không có dịch vụ -->
+        <div th:if="${#lists.isEmpty(dsDichVu)}" style="text-align: center; padding: 60px; color: #999;">
+            <h3 th:text="'Không có dịch vụ nào trong bộ môn ' + ${selectedBoMon.tenBM}"></h3>
+            <p>Các dịch vụ có thể đã được đăng ký hoặc chưa được cung cấp</p>
+        </div>
+        
         <div id="service-detail-modal" style="display:none;"></div>
     </div>
 </div>

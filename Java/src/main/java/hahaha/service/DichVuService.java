@@ -13,4 +13,6 @@ public interface DichVuService {
     Boolean deleteDichVu(String maDV);
     String generateNextMaDV();
     List<BoMon> getAllBoMon();
+
+    List<DichVu> getDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH);
 } 

@@ -17,4 +17,15 @@ public interface DichVuRepository extends JpaRepository<DichVu, String> {
         )
     """)
     List<DichVu> listDichVuKhachHangChuaDangKy(String maKH);
+    
+    @Query("""
+    SELECT d FROM DichVu d
+    WHERE d.boMon.maBM = :maBM 
+    AND d.maDV NOT IN (
+        SELECT ct.dichVu.maDV
+        FROM ChiTietDangKyDichVu ct
+        WHERE ct.hoaDon.khachHang.maKH = :maKH
+        )
+    """)
+    List<DichVu> listDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH);
 }
