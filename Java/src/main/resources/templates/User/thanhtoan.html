@@ -112,7 +112,7 @@
             <a href="#" class="btn btn-secondary" th:href="@{/user/home/{accountId}/{username}(accountId=${hoaDon.khachHang.account.accountId}, username=${hoaDon.khachHang.account.userName})}">QUAY LẠI</a>
             
             <div th:if="${hoaDon.trangThai.name() == 'ChuaThanhToan'}">
-                <form method="post" th:action="@{/thanh-toan/{maHD}(maHD=${hoaDon.maHD})}" style="display: inline;">
+                <form method="post" th:action="@{/vnpay/pay/{maHD}(maHD=${hoaDon.maHD})}" style="display: inline;">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-primary">THANH TOÁN</button>
                 </form>
