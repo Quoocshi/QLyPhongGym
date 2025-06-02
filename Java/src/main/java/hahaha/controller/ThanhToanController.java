@@ -34,15 +34,15 @@ public class ThanhToanController {
         }
     }
 
-    @PostMapping("/{maHD}")
-    @PreAuthorize("hasRole('USER')")
-    public String thucHienThanhToan(@PathVariable String maHD) {
-        try {
-            hoaDonService.thanhToan(maHD);
-            return "redirect:/thanh-toan/" + maHD + "?success=true";
-        } catch (Exception e) {
-            return "redirect:/thanh-toan/" + maHD + "?error=true";
-        }
-    }
+    // @PostMapping("/{maHD}")
+    // @PreAuthorize("hasRole('USER')")
+    // public String thucHienThanhToan(@PathVariable String maHD) {
+    //     try {
+    //         hoaDonService.thanhToan(maHD);
+    //         return "redirect:/thanh-toan/" + maHD + "?success=true";
+    //     } catch (Exception e) {
+    //         return "redirect:/thanh-toan/" + maHD + "?error=true";
+    //     }
+    // }
 }
 
