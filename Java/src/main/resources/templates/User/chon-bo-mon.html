@@ -32,6 +32,30 @@
     
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Hidden form to submit payment data -->
+        <form id="payment-form" action="/dich-vu-gym/dang-ky-dv" method="post" style="display: none;">
+            <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div id="dsMaDV-inputs">
+                <!-- Service codes will be added here dynamically -->
+            </div>
+        </form>
+        
+        <!-- Thanh hiển thị dịch vụ đã đăng ký -->
+        <div id="registered-services-bar" style="display:none;">
+            <div class="registered-header">
+                <h3>Dịch vụ đã đăng ký</h3>
+                <div class="header-actions">
+                    <span id="total-amount"></span>
+                    <button class="payment-btn" onclick="processPayment()">THANH TOÁN</button>
+                    <button class="toggle-btn" onclick="toggleRegisteredServices()">Ẩn/Hiện</button>
+                </div>
+            </div>
+            <div class="registered-list" id="registered-list">
+                <!-- Danh sách dịch vụ đã đăng ký sẽ được thêm vào đây -->
+            </div>
+        </div>
+        
         <h1>CHỌN BỘ MÔN</h1>
         <p style="text-align: center; font-size: 18px; color: #666; margin-bottom: 40px;">
             Vui lòng chọn bộ môn để xem các dịch vụ có sẵn
@@ -102,5 +126,6 @@
 }
 </style>
 
+<script src="/js/dangkydv.js"></script>
 </body>
 </html> 

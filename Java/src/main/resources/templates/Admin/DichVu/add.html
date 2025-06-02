@@ -16,7 +16,7 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#" id="adminHomeLink">Trang chủ</a></li>
                 <li><a th:href="@{/quan-ly-khach-hang/danh-sach-khach-hang}">Quản lý khách hàng</a></li>
                 <li class="active"><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
                 <li><a href="#">Quản lý bộ môn</a></li>
@@ -101,6 +101,24 @@
 
     </main>
 </div>
+
+<script>
+// Tự động tạo link admin home
+document.addEventListener('DOMContentLoaded', function() {
+    const adminHomeLink = document.getElementById('adminHomeLink');
+    
+    // Thử lấy từ session storage hoặc tạo link mặc định
+    const savedUserId = sessionStorage.getItem('adminUserId');
+    const savedUsername = sessionStorage.getItem('adminUsername');
+    
+    if (savedUserId && savedUsername) {
+        adminHomeLink.href = `/admin/home/${savedUserId}/${savedUsername}`;
+    } else {
+        // Fallback: redirect về login để lấy lại thông tin
+        adminHomeLink.href = '/login';
+    }
+});
+</script>
 
 </body>
 </html> 

@@ -16,7 +16,7 @@
         </div>
         <nav>
             <ul>
-                <li class="active"><a href="#">Trang chủ</a></li>
+                <li class="active"><a href="#" id="adminHomeLink">Trang chủ</a></li>
                 <li><a th:href="@{/quan-ly-khach-hang/danh-sach-khach-hang}">Quản lý khách hàng</a></li>
                 <li><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
                 <li><a th:href="@{/quan-ly-bo-mon/danh-sach-bo-mon}">Quản lý bộ môn</a></li>
@@ -37,5 +37,40 @@
 
     
 </div>
+
+<script>
+// Tự động tạo link admin home từ thông tin model hoặc session
+document.addEventListener('DOMContentLoaded', function() {
+    const adminHomeLink = document.getElementById('adminHomeLink');
+    
+    // Lấy thông tin từ Thymeleaf model nếu có
+    const userId = /*[[${userId}]]*/ null;
+    const username = /*[[${username}]]*/ null;
+    
+    if (userId && username) {
+        // Lưu vào sessionStorage để các trang khác sử dụng
+        sessionStorage.setItem('adminUserId', userId);
+        sessionStorage.setItem('adminUsername', username);
+        adminHomeLink.href = `/admin/home/${userId}/${username}`;
+    } else {
+        // Fallback: thử lấy từ sessionStorage
+        const savedUserId = sessionStorage.getItem('adminUserId');
+        const savedUsername = sessionStorage.getItem('adminUsername');
+        
+        if (savedUserId && savedUsername) {
+            adminHomeLink.href = `/admin/home/${savedUserId}/${savedUsername}`;
+        } else {
+            // Fallback cuối: thử lấy từ URL hiện tại nếu đang ở trang admin home
+            const currentPath = window.location.pathname;
+            const adminHomeMatch = currentPath.match(/\/admin\/home\/(\d+)\/(.+)/);
+            if (adminHomeMatch) {
+                sessionStorage.setItem('adminUserId', adminHomeMatch[1]);
+                sessionStorage.setItem('adminUsername', adminHomeMatch[2]);
+                adminHomeLink.href = `/admin/home/${adminHomeMatch[1]}/${adminHomeMatch[2]}`;
+            }
+        }
+    }
+});
+</script>
 </body>
 </html>
