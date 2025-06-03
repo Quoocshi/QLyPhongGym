@@ -1,3 +1,93 @@
+CREATE OR REPLACE PROCEDURE WaitSeconds(p_seconds IN NUMBER) IS
+    v_start_time NUMBER := DBMS_UTILITY.get_time;
+BEGIN
+    LOOP
+        EXIT WHEN (DBMS_UTILITY.get_time - v_start_time) >= (p_seconds * 100);
+    END LOOP;
+END;
+
+CREATE OR REPLACE PROCEDURE CreateHoaDonProc (
+    p_MaKH IN VARCHAR2,
+    p_DsMaDV IN VARCHAR2,
+    p_MaHD   OUT VARCHAR2  -- thêm tham số OUT
+) AS
+    v_MaHD VARCHAR2(10);
+    v_MaxHD NUMBER;
+    v_TongTien NUMBER := 0;
+    v_MaCTDK VARCHAR2(10);
+    v_SoCTDK NUMBER;
+    v_MaDV VARCHAR2(10);
+    v_TenDV VARCHAR2(50);
+    v_DonGia NUMBER;
+    v_ThoiHan NUMBER;
+    v_NextPos PLS_INTEGER := 1;
+    v_CommaPos PLS_INTEGER;
+BEGIN
+    -- Tạo mã hóa đơn
+    SELECT NVL(MAX(TO_NUMBER(SUBSTR(MaHD, 3))), 0) + 1 INTO v_MaxHD FROM HOADON;
+    p_MaHD := 'HD' || LPAD(v_MaxHD, 3, '0');
+    WaitSeconds(5);
+ -- Delay 5 giây mỗi dịch vụ
+    -- Insert into HOADON
+    INSERT INTO HOADON (MaHD, MaKH, NgayLap, TrangThai, TongTien)
+    VALUES (p_MaHD, p_MaKH, SYSDATE, 'ChuaThanhToan', 0);
+
+    -- Get max ChiTiet number
+    SELECT NVL(MAX(TO_NUMBER(SUBSTR(MaCTDK, 3))), 0) + 1 INTO v_SoCTDK FROM CT_DKDV;
+
+    -- Loop over comma-separated MaDV
+    LOOP
+        v_CommaPos := INSTR(p_DsMaDV || ',', ',', v_NextPos);
+        EXIT WHEN v_CommaPos = 0;
+        v_MaDV := TRIM(SUBSTR(p_DsMaDV, v_NextPos, v_CommaPos - v_NextPos));
+        v_NextPos := v_CommaPos + 1;
+
+        BEGIN
+            -- Try to get DICHVU
+            SELECT TenDV, DonGia, ThoiHan INTO v_TenDV, v_DonGia, v_ThoiHan
+            FROM DICHVU WHERE MaDV = v_MaDV;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- Dịch vụ mẫu nếu không có
+                v_TenDV := CASE UPPER(v_MaDV)
+                             WHEN 'GYM' THEN 'GYM - 6 tháng - Tự do'
+                             WHEN 'YOGA' THEN 'Lớp YOGA - 6 tháng - Lớp B1'
+                             WHEN 'ZUMBA' THEN 'Lớp ZUMBA - 6 tháng - Lớp A1'
+                             WHEN 'CARDIO' THEN 'CARDIO - 6 tháng - Tự do'
+                             WHEN 'BƠI' THEN 'BƠI - 6 tháng - Tự do'
+                             WHEN 'GYMPT' THEN 'GYM PT - 6 tháng - Cá nhân'
+                             ELSE v_MaDV || ' - 6 tháng'
+                           END;
+                v_DonGia := 6999999;
+                v_ThoiHan := 180;
+        END;
+
+        -- Tạo mã CT_DK
+        v_MaCTDK := 'CT' || LPAD(v_SoCTDK, 3, '0');
+
+        -- Thêm vào bảng CT_DKDV
+        INSERT INTO CT_DKDV (MaCTDK, NgayBD, NgayKT, MaHD, MaDV)
+        VALUES (
+            v_MaCTDK,
+            SYSDATE,
+            SYSDATE + v_ThoiHan,
+            p_MaHD,
+            v_MaDV
+        );
+
+        v_TongTien := v_TongTien + v_DonGia;
+        v_SoCTDK := v_SoCTDK + 1;
+    END LOOP;
+
+    -- Cập nhật tổng tiền cho hóa đơn
+    UPDATE HOADON SET TongTien = v_TongTien WHERE MaHD = p_MaHD;
+
+--     COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Tạo hóa đơn thành công với mã: ' || p_MaHD);
+END;
+/
+
+
 --ACCOUNT
 -- 1. Hàm tìm Account theo userName
 CREATE OR REPLACE FUNCTION find_account_by_username(p_username IN VARCHAR2)

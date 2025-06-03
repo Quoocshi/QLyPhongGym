@@ -1,6 +1,9 @@
 package hahaha.service;
 
+import java.sql.Connection;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -65,10 +68,14 @@ public class DichVuServiceImpl implements DichVuService {
             return false;
         }
     }
-
+    @Autowired
+    private DataSource dataSource;
     @Override
     public Boolean deleteDichVu(String maDV) {
-        try {
+        try (Connection conn = dataSource.getConnection()){
+            Thread.sleep(15000);
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             // Kiểm tra dịch vụ có tồn tại không
             if (!dichVuRepository.existsById(maDV)) {
                 System.err.println("Dịch vụ không tồn tại: " + maDV);

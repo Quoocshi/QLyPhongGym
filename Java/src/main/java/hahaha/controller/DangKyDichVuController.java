@@ -97,14 +97,30 @@ public class DangKyDichVuController{
     }
 
     
+    // @PostMapping("/dang-ky-dv")
+    // @PreAuthorize("hasRole('USER')")
+    // public String xuLyDangKy(@RequestParam("maKH") String maKH,
+    //                             @RequestParam("dsMaDV") List<String> dsMaDV) {
+    //     KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
+    //     HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDV);
+    //     return "redirect:/thanh-toan/" + hoaDon.getMaHD();
+    // }
+
     @PostMapping("/dang-ky-dv")
-    @PreAuthorize("hasRole('USER')")
-    public String xuLyDangKy(@RequestParam("maKH") String maKH,
-                                @RequestParam("dsMaDV") List<String> dsMaDV) {
-        KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
-        HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDV);
-        return "redirect:/thanh-toan/" + hoaDon.getMaHD();
-    }
+@PreAuthorize("hasRole('USER')")
+public String xuLyDangKy(@RequestParam("maKH") String maKH,
+                         @RequestParam("dsMaDV") List<String> dsMaDV) {
+    KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
+    String dsMaDVString = String.join(",", dsMaDV);
+
+    // Gọi service và nhận mã hóa đơn mới
+    String maHD = hoaDonService.createHoaDon(kh, dsMaDVString);
+
+    // Redirect đến trang thanh toán
+    return "redirect:/thanh-toan/" + maHD;
+}
+
+
 
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
