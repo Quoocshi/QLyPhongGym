@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import hahaha.model.BoMon;
+import hahaha.model.ChiTietDangKyDichVu;
 import hahaha.model.DichVu;
 import hahaha.model.HoaDon;
 import hahaha.model.KhachHang;
+import hahaha.repository.ChiTietDangKyDichVuRepository;
 import hahaha.repository.DichVuRepository;
 import hahaha.repository.KhachHangRepository;
 import hahaha.service.DichVuService;
@@ -34,6 +36,8 @@ public class DangKyDichVuController{
         HoaDonService hoaDonService;
     @Autowired
         DichVuService dichVuService;
+    @Autowired
+        ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
     
 
     @GetMapping("/dang-kydv")
@@ -100,6 +104,29 @@ public class DangKyDichVuController{
         KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
         HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDV);
         return "redirect:/thanh-toan/" + hoaDon.getMaHD();
+    }
+
+    @GetMapping("/dich-vu-cua-toi")
+    @PreAuthorize("hasRole('USER')")
+    public String hienThiDichVuCuaToi(@RequestParam("accountId") Long accountId, Model model) {
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+        if (khachHang == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
         }
+        
+        String maKH = khachHang.getMaKH();
+        String username = khachHang.getAccount().getUserName();
+        
+        // Lấy danh sách dịch vụ đã đăng ký của khách hàng
+        List<ChiTietDangKyDichVu> dsDichVuDaDangKy = chiTietDangKyDichVuRepository.findByHoaDon_KhachHang_MaKHOrderByNgayBDDesc(maKH);
+        
+        model.addAttribute("dsDichVuDaDangKy", dsDichVuDaDangKy);
+        model.addAttribute("maKH", maKH);
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("username", username);
+        model.addAttribute("khachHang", khachHang);
+        
+        return "User/dvcuatoi";
+    }
 }
 

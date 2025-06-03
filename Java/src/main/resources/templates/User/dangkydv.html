@@ -21,13 +21,16 @@
                 <li><a href="#">Xem lịch tập</a></li>
                 <li><a href="#">Phản hồi/ Khiếu nại</a></li>
                 <li><a href="#">Thanh toán</a></li>
-                <li><a href="#">Dịch vụ của tôi</a></li>
+                <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${accountId})}">Dịch vụ của tôi</a></li>
                 <li><a href="#">Theo dõi khu vực</a></li>
                 <li><a href="#">Voucher của tôi</a></li>
                 <li><a href="#">Tài khoản</a></li>
             </ul>
         </nav>
-        <a href="/login" class="logout-btn">ĐĂNG XUẤT</a>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">ĐĂNG XUẤT</button>
+        </form>
     </aside>
     <!-- Main Content -->
     <div class="main-content">
