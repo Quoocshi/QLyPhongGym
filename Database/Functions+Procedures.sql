@@ -5,7 +5,7 @@ BEGIN
         EXIT WHEN (DBMS_UTILITY.get_time - v_start_time) >= (p_seconds * 100);
     END LOOP;
 END;
-
+--Trường hợp chưa xử lý lost update
 CREATE OR REPLACE PROCEDURE CreateHoaDonProc (
     p_MaKH IN VARCHAR2,
     p_DsMaDV IN VARCHAR2,
@@ -86,6 +86,74 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Tạo hóa đơn thành công với mã: ' || p_MaHD);
 END;
 /
+--Sau khi xử lý lost update
+CREATE OR REPLACE PROCEDURE CreateHoaDonProc (
+    p_MaKH IN VARCHAR2,
+    p_DsMaDV IN VARCHAR2,
+    p_MaHD   OUT VARCHAR2
+) AS
+    v_MaHD VARCHAR2(10);
+    v_MaxHD NUMBER;
+    v_TongTien NUMBER := 0;
+    v_MaCTDK VARCHAR2(10);
+    v_SoCTDK NUMBER;
+    v_MaDV VARCHAR2(10);
+    v_TenDV VARCHAR2(50);
+    v_DonGia NUMBER;
+    v_ThoiHan NUMBER;
+    v_NextPos PLS_INTEGER := 1;
+    v_CommaPos PLS_INTEGER;
+BEGIN
+    -- Đặt điểm khôi phục
+    SAVEPOINT before_insert;
+
+    -- Sinh mã hóa đơn có delay (mô phỏng lost update)
+    SELECT NVL(MAX(TO_NUMBER(SUBSTR(MaHD, 3))), 0) + 1 INTO v_MaxHD FROM HOADON;
+    p_MaHD := 'HD' || LPAD(v_MaxHD, 3, '0');
+    WaitSeconds(5); -- Tạo điều kiện lost update
+
+    BEGIN
+        INSERT INTO HOADON (MaHD, MaKH, NgayLap, TrangThai, TongTien)
+        VALUES (p_MaHD, p_MaKH, SYSDATE, 'ChuaThanhToan', 0);
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            ROLLBACK TO before_insert;
+            RAISE_APPLICATION_ERROR(-20001, 'Ma hoa don bi trung do dong thoi thao tac. Vui long thu lai');
+    END;
+
+    SELECT NVL(MAX(TO_NUMBER(SUBSTR(MaCTDK, 3))), 0) + 1 INTO v_SoCTDK FROM CT_DKDV;
+
+    LOOP
+        v_CommaPos := INSTR(p_DsMaDV || ',', ',', v_NextPos);
+        EXIT WHEN v_CommaPos = 0;
+        v_MaDV := TRIM(SUBSTR(p_DsMaDV, v_NextPos, v_CommaPos - v_NextPos));
+        v_NextPos := v_CommaPos + 1;
+
+        BEGIN
+            SELECT TenDV, DonGia, ThoiHan INTO v_TenDV, v_DonGia, v_ThoiHan
+            FROM DICHVU WHERE MaDV = v_MaDV;
+--         EXCEPTION
+--             WHEN NO_DATA_FOUND THEN
+--                 v_TenDV := v_MaDV || ' - 6 tháng';
+--                 v_DonGia := 6999999;
+--                 v_ThoiHan := 180;
+        END;
+
+        v_MaCTDK := 'CT' || LPAD(v_SoCTDK, 3, '0');
+
+        INSERT INTO CT_DKDV (MaCTDK, NgayBD, NgayKT, MaHD, MaDV)
+        VALUES (v_MaCTDK, SYSDATE, SYSDATE + v_ThoiHan, p_MaHD, v_MaDV);
+
+        v_TongTien := v_TongTien + v_DonGia;
+        v_SoCTDK := v_SoCTDK + 1;
+    END LOOP;
+
+    UPDATE HOADON SET TongTien = v_TongTien WHERE MaHD = p_MaHD;
+
+    DBMS_OUTPUT.PUT_LINE('Tạo hóa đơn thành công với mã: ' || p_MaHD);
+END;
+/
+
 
 
 --ACCOUNT

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import hahaha.model.BoMon;
 import hahaha.model.ChiTietDangKyDichVu;
@@ -107,18 +108,22 @@ public class DangKyDichVuController{
     // }
 
     @PostMapping("/dang-ky-dv")
-@PreAuthorize("hasRole('USER')")
-public String xuLyDangKy(@RequestParam("maKH") String maKH,
-                         @RequestParam("dsMaDV") List<String> dsMaDV) {
-    KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
-    String dsMaDVString = String.join(",", dsMaDV);
+    @PreAuthorize("hasRole('USER')")
+    public String xuLyDangKy(@RequestParam("maKH") String maKH,
+                            @RequestParam("dsMaDV") List<String> dsMaDV,
+                            RedirectAttributes redirectAttrs) {
+        KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
+        String dsMaDVString = String.join(",", dsMaDV);
 
-    // Gọi service và nhận mã hóa đơn mới
-    String maHD = hoaDonService.createHoaDon(kh, dsMaDVString);
+        try {
+            String maHD = hoaDonService.createHoaDon(kh, dsMaDVString);
+            return "redirect:/thanh-toan/" + maHD;
+        } catch (RuntimeException e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+            return "redirect:/dich-vu-gym/dang-kydv?accountId=" + kh.getAccount().getAccountId();
+        }
+    }
 
-    // Redirect đến trang thanh toán
-    return "redirect:/thanh-toan/" + maHD;
-}
 
 
 
