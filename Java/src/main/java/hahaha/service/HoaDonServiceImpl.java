@@ -1,7 +1,12 @@
 package hahaha.service;
 
-import java.util.ArrayList;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,58 +27,93 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Autowired private DichVuRepository dichVuRepository;
     @Autowired private ChiTietDangKyDichVuRepository chiTietRepository;
     @Autowired private ChiTietDangKyDichVuService chiTietService;
+    @Autowired private DataSource dataSource;
 
     @Override
     public HoaDon createHoaDon(KhachHang khachHang, List<String> dsMaDV) {
-        HoaDon hoaDon = new HoaDon();
-        hoaDon.setMaHD(generateNextMaHD());
-        hoaDon.setKhachHang(khachHang);
-        hoaDon.setTrangThai(TrangThaiHoaDon.ChuaThanhToan);
-        hoaDon.setNgayLap(java.time.LocalDateTime.now());
-
-        List<ChiTietDangKyDichVu> dsChiTiet = new ArrayList<>();
-        double tongGia = 0;
-
-        Integer base = chiTietRepository.findMaxChiTietDangKyDichVuNumber();
-        base = (base != null) ? base + 1 : 1;
+        // Chuyển đổi danh sách mã dịch vụ thành chuỗi cách nhau bởi dấu phẩy
+        String dsMaDVString = String.join(",", dsMaDV);
         
-        for (String maDV : dsMaDV) {
-            try {
-                DichVu dv = dichVuRepository.findById(maDV).orElse(null);
-                if (dv != null) {
-                    ChiTietDangKyDichVu ct = chiTietService.taoChiTiet(dv, hoaDon, base++);
-                    dsChiTiet.add(ct);
-                    tongGia += dv.getDonGia();
+        try (Connection connection = dataSource.getConnection()) {
+            // Gọi stored procedure
+            String sql = "{call proc_dang_ky_dich_vu_tong_hop(?, ?, ?, ?, ?, ?)}";
+            
+            try (CallableStatement stmt = connection.prepareCall(sql)) {
+                // Set input parameters
+                stmt.setString(1, khachHang.getMaKH());  // p_ma_kh
+                stmt.setString(2, dsMaDVString);         // p_list_ma_dv
+                
+                // Register output parameters
+                stmt.registerOutParameter(3, Types.VARCHAR);  // p_ma_hd
+                stmt.registerOutParameter(4, Types.NUMERIC);  // p_tong_tien
+                stmt.registerOutParameter(5, Types.VARCHAR);  // p_result
+                stmt.registerOutParameter(6, Types.VARCHAR);  // p_error_msg
+                
+                // Execute procedure
+                stmt.execute();
+                
+                // Get results
+                String maHD = stmt.getString(3);
+                double tongTien = stmt.getDouble(4);
+                String result = stmt.getString(5);
+                String errorMsg = stmt.getString(6);
+                
+                if ("SUCCESS".equals(result)) {
+                    // Lấy hóa đơn đã tạo từ database
+                    return hoaDonRepository.findById(maHD).orElseThrow(
+                        () -> new RuntimeException("Không tìm thấy hóa đơn vừa tạo: " + maHD)
+                    );
                 } else {
-                    // Tạo dịch vụ mẫu nếu không tìm thấy trong database
-                    DichVu dvMau = new DichVu();
-                    dvMau.setMaDV(maDV);
-                    dvMau.setTenDV(getMockServiceName(maDV));
-                    dvMau.setDonGia(6999999.0);
-                    dvMau.setThoiHan(180); // 6 tháng
-                    
-                    ChiTietDangKyDichVu ct = new ChiTietDangKyDichVu();
-                    ct.setMaCTDK(chiTietService.generateMaCTDKFromNumber(base++));
-                    ct.setDichVu(dvMau);
-                    ct.setHoaDon(hoaDon);
-                    ct.setNgayBD(java.time.LocalDateTime.now());
-                    ct.setNgayKT(java.time.LocalDateTime.now().plusDays(dvMau.getThoiHan()));
-                    
-                    dsChiTiet.add(ct);
-                    tongGia += dvMau.getDonGia();
+                    throw new RuntimeException("Lỗi đăng ký dịch vụ: " + errorMsg);
                 }
-            } catch (Exception e) {
-                System.err.println("Error processing service: " + maDV + ", " + e.getMessage());
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi kết nối database: " + e.getMessage(), e);
         }
-
-        hoaDon.setDsChiTiet(dsChiTiet);
-        hoaDon.setTongTien(tongGia);
-
-        hoaDonRepository.save(hoaDon); 
-        return hoaDon;
     }
 
+    @Override
+    public HoaDon timMaHD(String maHD) {
+        return hoaDonRepository.findById(maHD).orElseThrow();
+    }
+
+    @Override
+    public void thanhToan(String maHD) {
+        try (Connection connection = dataSource.getConnection()) {
+            String sql = "{call proc_thanh_toan_hoa_don(?, ?, ?)}";
+            
+            try (CallableStatement stmt = connection.prepareCall(sql)) {
+                // Set input parameter
+                stmt.setString(1, maHD);  // p_ma_hd
+                
+                // Register output parameters
+                stmt.registerOutParameter(2, Types.VARCHAR);  // p_result
+                stmt.registerOutParameter(3, Types.VARCHAR);  // p_error_msg
+                
+                // Execute procedure
+                stmt.execute();
+                
+                // Get results
+                String result = stmt.getString(2);
+                String errorMsg = stmt.getString(3);
+                
+                if (!"SUCCESS".equals(result)) {
+                    throw new RuntimeException("Lỗi thanh toán: " + errorMsg);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi kết nối database: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String generateNextMaHD(){
+        Integer max = hoaDonRepository.findMaxMaHoaDonNumber();
+        int next = (max != null) ? max + 1 : 1;
+        return String.format("HD%03d", next);
+    }
+
+    // Deprecated methods - không còn sử dụng khi đã có procedure
     private String getMockServiceName(String maDV) {
         switch (maDV.toUpperCase()) {
             case "GYM": return "GYM - 6 tháng - Tự do";
@@ -85,25 +125,4 @@ public class HoaDonServiceImpl implements HoaDonService {
             default: return maDV + " - 6 tháng";
         }
     }
-
-    @Override
-    public HoaDon timMaHD(String maHD) {
-        return hoaDonRepository.findById(maHD).orElseThrow();
-    }
-
-    @Override
-    public void thanhToan(String maHD) {
-        HoaDon hd = hoaDonRepository.findById(maHD).orElseThrow();
-        hd.setTrangThai(TrangThaiHoaDon.DaThanhToan);
-        hd.setNgayTT(java.time.LocalDateTime.now());
-        hoaDonRepository.save(hd);
-    }
-
-    @Override
-    public String generateNextMaHD(){
-        Integer max = hoaDonRepository.findMaxMaHoaDonNumber();
-        int next = (max != null) ? max + 1 : 1;
-        return String.format("HD%03d", next);
-    }
-
 }

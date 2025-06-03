@@ -1,4 +1,4 @@
---ACCOUNT
+﻿--ACCOUNT
 -- 1. Hàm tìm Account theo userName
 CREATE OR REPLACE FUNCTION find_account_by_username(p_username IN VARCHAR2)
 RETURN SYS_REFCURSOR
@@ -267,5 +267,87 @@ EXCEPTION
         RETURN NULL;
     WHEN TOO_MANY_ROWS THEN
         RETURN NULL; -- Không xảy ra do ROLE_GROUP_ID là khóa chính
+END;
+/
+--hoadon
+CREATE OR REPLACE FUNCTION FindMaxMaHoaDonNumber
+RETURN NUMBER AS
+    v_max_number NUMBER;
+BEGIN
+    SELECT MAX(TO_NUMBER(SUBSTR(MaHD, 3)))
+    INTO v_max_number
+    FROM HOADON
+    WHERE MaHD LIKE 'HD%';
+    RETURN v_max_number;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    WHEN VALUE_ERROR THEN
+        RETURN NULL;
+END;
+/
+
+--khachhang
+CREATE OR REPLACE FUNCTION FindMaxMaKHNumber
+RETURN NUMBER AS
+    v_max_number NUMBER;
+BEGIN
+    SELECT MAX(TO_NUMBER(SUBSTR(MaKH, 3)))
+    INTO v_max_number
+    FROM KHACHHANG
+    WHERE MaKH LIKE 'KH%';
+    RETURN v_max_number;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    WHEN VALUE_ERROR THEN
+        RETURN NULL;
+END;
+/
+
+CREATE OR REPLACE FUNCTION FindMaxReferralCodeNumber
+RETURN NUMBER AS
+    v_max_number NUMBER;
+BEGIN
+    SELECT MAX(TO_NUMBER(SUBSTR(ReferralCode, 4)))
+    INTO v_max_number
+    FROM KHACHHANG
+    WHERE ReferralCode LIKE 'REF%';
+    RETURN v_max_number;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    WHEN VALUE_ERROR THEN
+        RETURN NULL;
+END;
+/
+
+--rolegroup
+CREATE OR REPLACE FUNCTION FindRoleNameByRoleGroupId (p_role_group_id IN NUMBER)
+RETURN VARCHAR2 AS
+    v_role_name VARCHAR2(100);
+BEGIN
+    SELECT NAME_ROLE_GROUP
+    INTO v_role_name
+    FROM ROLE_GROUP
+    WHERE ROLE_GROUP_ID = p_role_group_id
+    AND IS_DELETED = 0;
+    RETURN v_role_name;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+    WHEN TOO_MANY_ROWS THEN
+        RETURN NULL; -- Không xảy ra do ROLE_GROUP_ID là khóa chính
+END;
+/
+
+---------------------------------------------------------------------------------------PROCEDURE------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE FindAllWithActiveAccount (p_cursor OUT SYS_REFCURSOR) AS
+BEGIN
+    OPEN p_cursor FOR
+        SELECT k.*
+        FROM KHACHHANG k
+        JOIN ACCOUNT a ON k.MaKH = a.MaKH
+        WHERE a.IS_DELETED = 0;
 END;
 /
