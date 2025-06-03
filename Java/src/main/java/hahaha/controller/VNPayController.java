@@ -124,12 +124,122 @@ public class VNPayController {
     @GetMapping("/return")
     public String ketQuaThanhToan(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         System.out.println("🎯 VNPay ĐÃ GỌI CALLBACK /vnpay/return");
+        
+        // Lấy tất cả parameters từ VNPay
         Map<String, String> vnpParams = new HashMap<>();
         request.getParameterMap().forEach((key, values) -> vnpParams.put(key, values[0]));
-
-        String maHD = vnpParams.get("vnp_OrderInfo").replace("Thanh toan don hang:", "");
-        hoaDonService.thanhToan(maHD);
         
-        return "redirect:/thanh-toan/" + maHD + "?success=true" ;
+        // Log các parameters để debug
+        System.out.println("📋 VNPay Parameters:");
+        vnpParams.forEach((key, value) -> System.out.println(key + ": " + value));
+        
+        // Lấy mã hóa đơn từ vnp_OrderInfo
+        String maHD = vnpParams.get("vnp_OrderInfo");
+        if (maHD != null && maHD.startsWith("Thanh toan don hang:")) {
+            maHD = maHD.replace("Thanh toan don hang:", "");
+        }
+        
+        // Kiểm tra các thông tin quan trọng từ VNPay
+        String vnpResponseCode = vnpParams.get("vnp_ResponseCode");
+        String vnpTransactionStatus = vnpParams.get("vnp_TransactionStatus");
+        String vnpSecureHash = vnpParams.get("vnp_SecureHash");
+        
+        System.out.println("🔍 Kiểm tra kết quả thanh toán:");
+        System.out.println("Response Code: " + vnpResponseCode);
+        System.out.println("Transaction Status: " + vnpTransactionStatus);
+        System.out.println("Mã hóa đơn: " + maHD);
+        
+        // Xác thực chữ ký (signature) từ VNPay
+        boolean isValidSignature = validateVNPaySignature(vnpParams, vnpSecureHash);
+        
+        if (!isValidSignature) {
+            System.err.println("❌ Chữ ký không hợp lệ từ VNPay!");
+            redirectAttributes.addFlashAttribute("error", "Giao dịch không hợp lệ!");
+            return "redirect:/thanh-toan/" + maHD + "?error=invalid_signature";
+        }
+        
+        // Kiểm tra kết quả thanh toán
+        // vnp_ResponseCode = "00" AND vnp_TransactionStatus = "00" => Thành công
+        if ("00".equals(vnpResponseCode) && "00".equals(vnpTransactionStatus)) {
+            try {
+                // Chỉ cập nhật trạng thái khi thanh toán thành công
+                hoaDonService.thanhToan(maHD);
+                System.out.println("✅ Cập nhật trạng thái thanh toán thành công cho hóa đơn: " + maHD);
+                redirectAttributes.addFlashAttribute("success", "Thanh toán thành công!");
+                return "redirect:/thanh-toan/" + maHD + "?success=true";
+            } catch (Exception e) {
+                System.err.println("❌ Lỗi khi cập nhật trạng thái thanh toán: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xử lý thanh toán!");
+                return "redirect:/thanh-toan/" + maHD + "?error=update_failed";
+            }
+        } else {
+            // Thanh toán thất bại
+            String errorMessage = getVNPayErrorMessage(vnpResponseCode);
+            System.out.println("❌ Thanh toán thất bại: " + errorMessage);
+            redirectAttributes.addFlashAttribute("error", "Thanh toán thất bại: " + errorMessage);
+            return "redirect:/thanh-toan/" + maHD + "?error=payment_failed";
+        }
+    }
+    
+    // Phương thức xác thực chữ ký từ VNPay
+    private boolean validateVNPaySignature(Map<String, String> vnpParams, String vnpSecureHash) {
+        try {
+            // Loại bỏ vnp_SecureHash khỏi danh sách parameters
+            Map<String, String> paramsToValidate = new HashMap<>(vnpParams);
+            paramsToValidate.remove("vnp_SecureHash");
+            
+            // Sắp xếp parameters theo thứ tự alphabet
+            List<String> fieldNames = new ArrayList<>(paramsToValidate.keySet());
+            Collections.sort(fieldNames);
+            
+            // Tạo chuỗi hash data
+            StringBuilder hashData = new StringBuilder();
+            for (String fieldName : fieldNames) {
+                String fieldValue = paramsToValidate.get(fieldName);
+                if (fieldValue != null && fieldValue.length() > 0) {
+                    hashData.append(fieldName).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+                    hashData.append('&');
+                }
+            }
+            
+            // Xóa ký tự '&' cuối cùng
+            if (hashData.length() > 0) {
+                hashData.setLength(hashData.length() - 1);
+            }
+            
+            // Tạo secure hash và so sánh
+            String calculatedHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
+            
+            System.out.println("🔐 Hash validation:");
+            System.out.println("Received hash: " + vnpSecureHash);
+            System.out.println("Calculated hash: " + calculatedHash);
+            
+            return calculatedHash.equalsIgnoreCase(vnpSecureHash);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi xác thực chữ ký: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Phương thức chuyển đổi mã lỗi VNPay thành thông báo
+    private String getVNPayErrorMessage(String responseCode) {
+        switch (responseCode) {
+            case "00": return "Giao dịch thành công";
+            case "07": return "Trừ tiền thành công. Giao dịch bị nghi ngờ (liên quan tới lừa đảo, giao dịch bất thường)";
+            case "09": return "Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng chưa đăng ký dịch vụ InternetBanking tại ngân hàng";
+            case "10": return "Giao dịch không thành công do: Khách hàng xác thực thông tin thẻ/tài khoản không đúng quá 3 lần";
+            case "11": return "Giao dịch không thành công do: Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch";
+            case "12": return "Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng bị khóa";
+            case "13": return "Giao dịch không thành công do Quý khách nhập sai mật khẩu xác thực giao dịch (OTP)";
+            case "24": return "Giao dịch không thành công do: Khách hàng hủy giao dịch";
+            case "51": return "Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư để thực hiện giao dịch";
+            case "65": return "Giao dịch không thành công do: Tài khoản của Quý khách đã vượt quá hạn mức giao dịch trong ngày";
+            case "75": return "Ngân hàng thanh toán đang bảo trì";
+            case "79": return "Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định";
+            case "99": return "Các lỗi khác (lỗi còn lại, không có trong danh sách mã lỗi đã liệt kê)";
+            default: return "Lỗi không xác định: " + responseCode;
+        }
     }
 }

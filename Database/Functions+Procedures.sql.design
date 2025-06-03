@@ -8,9 +8,9 @@
     <ProviderVersion>4.4.64.0</ProviderVersion>
     <SchemaVersion>2.0</SchemaVersion>
   </Properties>
-  <Connection Name="qlyphonggym@">
+  <Connection Name="QLYPHONGGYM@">
     <Category>00000000-0000-0000-0000-000000000000</Category>
-    <ConnectionString>User Id=qlyphonggym;Unicode=True</ConnectionString>
+    <ConnectionString>User Id=QLYPHONGGYM;Unicode=True</ConnectionString>
     <Database>QLYPHONGGYM</Database>
   </Connection>
   <Views ShowAdditionalViews="False" IsLayoutActiveAttribute="True" MainViewAttribute="Code" MainViewScale="50">

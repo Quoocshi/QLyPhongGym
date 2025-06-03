@@ -37,6 +37,21 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Thông báo thanh toán -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <i>✅</i> Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ.
+        </div>
+        
+        <div th:if="${param.error}" class="alert alert-error">
+            <i>❌</i> 
+            <span th:switch="${param.error[0]}">
+                <span th:case="'payment_failed'">Thanh toán không thành công. Vui lòng thử lại.</span>
+                <span th:case="'invalid_signature'">Giao dịch không hợp lệ. Vui lòng liên hệ hỗ trợ.</span>
+                <span th:case="'update_failed'">Có lỗi xảy ra khi xử lý thanh toán. Vui lòng liên hệ hỗ trợ.</span>
+                <span th:case="*">Đã có lỗi xảy ra. Vui lòng thử lại.</span>
+            </span>
+        </div>
+
         <!-- Invoice Container -->
         <div class="invoice-container">
             <div class="invoice-header">

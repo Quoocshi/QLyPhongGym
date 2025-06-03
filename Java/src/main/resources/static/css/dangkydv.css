@@ -596,9 +596,8 @@ body {
 /* Styles cho trang chọn bộ môn */
 .bo-mon-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    padding: 20px 0;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -687,9 +686,9 @@ body {
 
 @media (max-width: 768px) {
     .bo-mon-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 16px;
-        padding: 16px;
+        padding: 16px 0;
     }
     
     .bo-mon-card {
@@ -713,6 +712,25 @@ body {
     
     #selected-bo-mon-title {
         font-size: 24px;
+    }
+}
+
+/* CSS cho services grid - tương tự bo-mon-grid */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+@media (max-width: 768px) {
+    /* Responsive cho services grid */
+    .services-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 16px 0;
     }
 }
 

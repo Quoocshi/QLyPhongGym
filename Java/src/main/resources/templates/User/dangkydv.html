@@ -49,9 +49,6 @@
                 <h3>Dịch vụ đã đăng ký</h3>
                 <div class="header-actions">
                     <span id="total-amount"></span>
-
-                    <!-- <span id="total-amount" class="total-amount">Tổng: </span> -->
-
                     <button class="payment-btn" onclick="processPayment()">THANH TOÁN</button>
                     <button class="toggle-btn" onclick="toggleRegisteredServices()">Ẩn/Hiện</button>
                 </div>
@@ -73,67 +70,30 @@
         
         <!-- Hiển thị dịch vụ nếu có -->
         <div th:if="${!#lists.isEmpty(dsDichVu)}">
-            <div class="section-title">Dịch vụ được yêu thích</div>
-            <div class="slider-container">
-                <button class="slider-btn left" onclick="scrollRow('fav-row', -1)">&laquo;</button>
-                <div class="cards-row" id="fav-row">
-                    <!-- Hiển thị nửa đầu danh sách dịch vụ -->
-                    <div th:each="dichVu, iterStat : ${dsDichVu}" 
-                         th:if="${iterStat.index < (dsDichVu.size() + 1) / 2}"
-                         class="service-btn favorite service-card" 
-                         th:href="'#'" 
-                         th:data-ma-dv="${dichVu.maDV}">
-                        <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
-                                                      dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
-                                                      dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
-                                                      dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
-                                                      dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
-                                                      dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
-                             th:alt="${dichVu.tenDV}">
-                        <div class="service-content">
-                            <div class="service-title" th:text="${dichVu.tenDV}"></div>
-                            <div class="service-desc" th:utext="'Hình thức tập luyện: ' + 
-                                                               ${dichVu.loaiDV == 'TuDo' ? 'Tự do' : 
-                                                                 dichVu.loaiDV == 'Lop' ? 'Lớp' : 
-                                                                 dichVu.loaiDV == 'PT' ? 'PT' : dichVu.loaiDV} + 
-                                                               '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
-                            <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
-                        </div>
+            <div class="section-title">Dịch vụ khả dụng</div>
+            <div class="services-grid">
+                <!-- Hiển thị tất cả dịch vụ trong grid layout -->
+                <div th:each="dichVu : ${dsDichVu}"
+                     class="service-btn service-card" 
+                     th:href="'#'" 
+                     th:data-ma-dv="${dichVu.maDV}">
+                    <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
+                                                  dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
+                                                  dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
+                                                  dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
+                                                  dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
+                                                  dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
+                         th:alt="${dichVu.tenDV}">
+                    <div class="service-content">
+                        <div class="service-title" th:text="${dichVu.tenDV}"></div>
+                        <div class="service-desc" th:utext="'Hình thức tập luyện: ' + 
+                                                           ${dichVu.loaiDV == 'TuDo' ? 'Tự do' : 
+                                                             dichVu.loaiDV == 'Lop' ? 'Lớp' : 
+                                                             dichVu.loaiDV == 'PT' ? 'PT' : dichVu.loaiDV} + 
+                                                           '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
+                        <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
                     </div>
                 </div>
-                <button class="slider-btn right" onclick="scrollRow('fav-row', 1)">&raquo;</button>
-            </div>
-            
-            <div class="section-title">Các dịch vụ phổ biến</div>
-            <div class="slider-container">
-                <button class="slider-btn left" onclick="scrollRow('popular-row', -1)">&laquo;</button>
-                <div class="cards-row" id="popular-row">
-                    <!-- Hiển thị nửa sau danh sách dịch vụ -->
-                    <div th:each="dichVu, iterStat : ${dsDichVu}" 
-                         th:if="${iterStat.index >= (dsDichVu.size() + 1) / 2}"
-                         class="service-btn service-card" 
-                         th:href="'#'" 
-                         th:data-ma-dv="${dichVu.maDV}">
-                        <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
-                                                      dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
-                                                      dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
-                                                      dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
-                                                      dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
-                                                      dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
-                             th:alt="${dichVu.tenDV}">
-                        <div class="service-content">
-                            <div class="service-title" th:text="${dichVu.tenDV}"></div>
-                            <div class="service-desc" th:utext="'Hình thức tập luyện: ' + 
-                                                               ${dichVu.loaiDV == 'TuDo' ? 'Tự do' : 
-                                                                 dichVu.loaiDV == 'Lop' ? 'Lớp' : 
-                                                                 dichVu.loaiDV == 'PT' ? 'PT' : dichVu.loaiDV} + 
-                                                               '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
-                            <div class="service-price" th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
-                        </div>
-
-                    </div>
-                </div>
-                <button class="slider-btn right" onclick="scrollRow('popular-row', 1)">&raquo;</button>
             </div>
         </div>
         
