@@ -2,6 +2,7 @@ package hahaha.service;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -10,6 +11,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -89,16 +92,30 @@ public class HoaDonServiceImpl implements HoaDonService {
     private JdbcTemplate jdbcTemplate;
     @Override
     public String createHoaDon(KhachHang khachHang, String dsMaDV) {
-        return jdbcTemplate.execute((org.springframework.jdbc.core.ConnectionCallback<String>) (Connection con) -> {
-            String call = "{call CreateHoaDonProc(?, ?, ?)}";   
-            try (CallableStatement cs = con.prepareCall(call)) {
-                cs.setString(1, khachHang.getMaKH());
-                cs.setString(2, dsMaDV);
-                cs.registerOutParameter(3, java.sql.Types.VARCHAR); // OUT MaHD
-                cs.execute();
-                return cs.getString(3); // Trả về MaHD
-            }
+        try {
+            String maHD = jdbcTemplate.execute((ConnectionCallback<String>) conn -> {
+                CallableStatement stmt = conn.prepareCall("{call CreateHoaDonProc(?, ?, ?)}");
+                stmt.setString(1, khachHang.getMaKH());
+                stmt.setString(2, dsMaDV);
+                stmt.registerOutParameter(3, java.sql.Types.VARCHAR);
+                stmt.execute();
+                return stmt.getString(3); // trả về mã hóa đơn
         });
+
+        System.out.println("Mã hóa đơn tạo ra: " + maHD);
+        return maHD;
+
+    } catch (DataAccessException e) {
+        Throwable root = e.getCause();
+        if (root instanceof SQLException sqlEx) {
+            if (sqlEx.getErrorCode() == 20001) {
+                throw new RuntimeException("❌ Oracle Error: " + sqlEx.getMessage());
+            } else {
+                throw new RuntimeException("❌ DB Error: " + sqlEx.getMessage());
+            }
+        }
+        throw e;
+    }
     }
 
 
