@@ -2,6 +2,7 @@ package hahaha.service;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import hahaha.enums.TrangThaiHoaDon;
@@ -28,6 +30,87 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Autowired private ChiTietDangKyDichVuRepository chiTietRepository;
     @Autowired private ChiTietDangKyDichVuService chiTietService;
     @Autowired private DataSource dataSource;
+
+    // @Override
+    // public HoaDon createHoaDon(KhachHang khachHang, List<String> dsMaDV) {
+
+    //     HoaDon hoaDon = new HoaDon();
+    //     hoaDon.setMaHD(generateNextMaHD());
+    //     hoaDon.setKhachHang(khachHang);
+    //     hoaDon.setTrangThai(TrangThaiHoaDon.ChuaThanhToan);
+    //     hoaDon.setNgayLap(java.time.LocalDateTime.now());
+
+    //     List<ChiTietDangKyDichVu> dsChiTiet = new ArrayList<>();
+    //     double tongGia = 0;
+
+    //     Integer base = chiTietRepository.findMaxChiTietDangKyDichVuNumber();
+    //     base = (base != null) ? base + 1 : 1;
+        
+    //     for (String maDV : dsMaDV) {
+    //         try {
+    //             DichVu dv = dichVuRepository.findById(maDV).orElse(null);
+    //             if (dv != null) {
+    //                 ChiTietDangKyDichVu ct = chiTietService.taoChiTiet(dv, hoaDon, base++);
+    //                 dsChiTiet.add(ct);
+    //                 tongGia += dv.getDonGia();
+    //             } else {
+    //                 // Tạo dịch vụ mẫu nếu không tìm thấy trong database
+    //                 DichVu dvMau = new DichVu();
+    //                 dvMau.setMaDV(maDV);
+    //                 dvMau.setTenDV(getMockServiceName(maDV));
+    //                 dvMau.setDonGia(6999999.0);
+    //                 dvMau.setThoiHan(180); // 6 tháng
+                    
+    //                 ChiTietDangKyDichVu ct = new ChiTietDangKyDichVu();
+    //                 ct.setMaCTDK(chiTietService.generateMaCTDKFromNumber(base++));
+    //                 ct.setDichVu(dvMau);
+    //                 ct.setHoaDon(hoaDon);
+    //                 ct.setNgayBD(java.time.LocalDateTime.now());
+    //                 ct.setNgayKT(java.time.LocalDateTime.now().plusDays(dvMau.getThoiHan()));
+                    
+    //                 dsChiTiet.add(ct);
+    //                 tongGia += dvMau.getDonGia();
+    //             }
+    //         } catch (Exception e) {
+    //             System.err.println("Error processing service: " + maDV + ", " + e.getMessage());
+    //         }
+    //     }
+
+    //     hoaDon.setDsChiTiet(dsChiTiet);
+    //     hoaDon.setTongTien(tongGia);
+    //     try {
+    //         Thread.sleep(4000);
+    //     } catch (InterruptedException ex) {
+    //     }
+    //     hoaDonRepository.save(hoaDon); 
+    //     return hoaDon;
+    // }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Override
+    public String createHoaDon(KhachHang khachHang, String dsMaDV) {
+        return jdbcTemplate.execute((org.springframework.jdbc.core.ConnectionCallback<String>) (Connection con) -> {
+            String call = "{call CreateHoaDonProc(?, ?, ?)}";   
+            try (CallableStatement cs = con.prepareCall(call)) {
+                cs.setString(1, khachHang.getMaKH());
+                cs.setString(2, dsMaDV);
+                cs.registerOutParameter(3, java.sql.Types.VARCHAR); // OUT MaHD
+                cs.execute();
+                return cs.getString(3); // Trả về MaHD
+            }
+        });
+    }
+
+
+    private String getMockServiceName(String maDV) {
+        switch (maDV.toUpperCase()) {
+            case "GYM": return "GYM - 6 tháng - Tự do";
+            case "YOGA": return "Lớp YOGA - 6 tháng - Lớp B1";
+            case "ZUMBA": return "Lớp ZUMBA - 6 tháng - Lớp A1";
+            case "CARDIO": return "CARDIO - 6 tháng - Tự do";
+            case "BƠI": return "BƠI - 6 tháng - Tự do";
+            case "GYMPT": return "GYM PT - 6 tháng - Cá nhân";
+            default: return maDV + " - 6 tháng";
 
     @Override
     public HoaDon createHoaDon(KhachHang khachHang, List<String> dsMaDV) {
@@ -69,6 +152,7 @@ public class HoaDonServiceImpl implements HoaDonService {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi kết nối database: " + e.getMessage(), e);
+
         }
     }
 
@@ -125,4 +209,5 @@ public class HoaDonServiceImpl implements HoaDonService {
             default: return maDV + " - 6 tháng";
         }
     }
+
 }
