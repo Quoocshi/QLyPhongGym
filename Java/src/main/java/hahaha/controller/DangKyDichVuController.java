@@ -104,7 +104,6 @@ public class DangKyDichVuController{
                             RedirectAttributes redirectAttrs) {
         KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
         String dsMaDVString = String.join(",", dsMaDV);
-
         try {
             HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDVString);
             return "redirect:/thanh-toan/" + hoaDon.getMaHD();
@@ -113,6 +112,7 @@ public class DangKyDichVuController{
             return "redirect:/dich-vu-gym/dang-kydv?accountId=" + kh.getAccount().getAccountId();
         }
     }
+
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
     public String hienThiDichVuCuaToi(@RequestParam("accountId") Long accountId, Model model) {
