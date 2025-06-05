@@ -296,10 +296,6 @@ function processPayment() {
         return;
     }
     
-    // if (!confirm(`Bạn có chắc muốn thanh toán cho ${registeredServices.length} dịch vụ?`)) {
-    //     return;
-    // }
-    
     console.log('Processing payment for services:', registeredServices);
     
     // Lấy form và container cho mã dịch vụ

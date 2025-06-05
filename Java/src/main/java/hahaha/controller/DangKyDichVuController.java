@@ -97,16 +97,6 @@ public class DangKyDichVuController{
         return "User/dangkydv";
     }
 
-    
-    // @PostMapping("/dang-ky-dv")
-    // @PreAuthorize("hasRole('USER')")
-    // public String xuLyDangKy(@RequestParam("maKH") String maKH,
-    //                             @RequestParam("dsMaDV") List<String> dsMaDV) {
-    //     KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
-    //     HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDV);
-    //     return "redirect:/thanh-toan/" + hoaDon.getMaHD();
-    // }
-
     @PostMapping("/dang-ky-dv")
     @PreAuthorize("hasRole('USER')")
     public String xuLyDangKy(@RequestParam("maKH") String maKH,
@@ -114,18 +104,14 @@ public class DangKyDichVuController{
                             RedirectAttributes redirectAttrs) {
         KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
         String dsMaDVString = String.join(",", dsMaDV);
-
         try {
-            String maHD = hoaDonService.createHoaDon(kh, dsMaDVString);
-            return "redirect:/thanh-toan/" + maHD;
+            HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDVString);
+            return "redirect:/thanh-toan/" + hoaDon.getMaHD();
         } catch (RuntimeException e) {
             redirectAttrs.addFlashAttribute("error", e.getMessage());
             return "redirect:/dich-vu-gym/dang-kydv?accountId=" + kh.getAccount().getAccountId();
         }
     }
-
-
-
 
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
@@ -150,4 +136,3 @@ public class DangKyDichVuController{
         return "User/dvcuatoi";
     }
 }
-

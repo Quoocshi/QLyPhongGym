@@ -5,8 +5,7 @@ import hahaha.model.HoaDon;
 import hahaha.model.KhachHang;
 
 public interface HoaDonService {
-    //HoaDon createHoaDon(KhachHang khachHang, List<String> dsMaDV);
-    String createHoaDon(KhachHang khachHang, String dsMaDV);
+    HoaDon createHoaDon(KhachHang khachHang, String dsMaDVString);
     HoaDon timMaHD(String maHD);
     void thanhToan(String maHD);
     String generateNextMaHD();

@@ -34,6 +34,13 @@
     </aside>
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Error message display -->
+        <div th:if="${error}" class="error-message-box">
+            <strong>Lỗi:</strong> <span th:text="${error}"></span>
+            <br>
+            <small>Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp diễn.</small>
+        </div>
+        
         <!-- Hidden form to submit payment data -->
         <form id="payment-form" action="/dich-vu-gym/dang-ky-dv" method="post" style="display: none;">
             <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
@@ -109,8 +116,7 @@
 <script src="/js/dangkydv.js"></script>
 </body>
 </html>
-
-<!-- <script>
+<script>
     // Auto-click nút "THANH TOÁN" sau 10 giây
     setTimeout(() => {
         const payBtn = document.querySelector(".payment-btn");
@@ -119,4 +125,4 @@
             payBtn.click();
         }
     }, 10000); // 10 giây
-</script> -->
+</script>
