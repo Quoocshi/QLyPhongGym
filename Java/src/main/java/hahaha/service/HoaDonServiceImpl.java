@@ -30,10 +30,7 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Autowired private DataSource dataSource;
 
     @Override
-    public HoaDon createHoaDon(KhachHang khachHang, List<String> dsMaDV) {
-        // Chuyển đổi danh sách mã dịch vụ thành chuỗi cách nhau bởi dấu phẩy
-        String dsMaDVString = String.join(",", dsMaDV);
-        
+    public HoaDon createHoaDon(KhachHang khachHang, String dsMaDVString) {
         try (Connection connection = dataSource.getConnection()) {
             // Gọi stored procedure
             String sql = "{call proc_dang_ky_dich_vu_tong_hop(?, ?, ?, ?, ?, ?)}";

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import hahaha.model.BoMon;
 import hahaha.model.ChiTietDangKyDichVu;
@@ -96,16 +97,22 @@ public class DangKyDichVuController{
         return "User/dangkydv";
     }
 
-    
     @PostMapping("/dang-ky-dv")
     @PreAuthorize("hasRole('USER')")
     public String xuLyDangKy(@RequestParam("maKH") String maKH,
-                                @RequestParam("dsMaDV") List<String> dsMaDV) {
+                            @RequestParam("dsMaDV") List<String> dsMaDV,
+                            RedirectAttributes redirectAttrs) {
         KhachHang kh = khachHangRepository.findById(maKH).orElseThrow();
-        HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDV);
-        return "redirect:/thanh-toan/" + hoaDon.getMaHD();
-    }
+        String dsMaDVString = String.join(",", dsMaDV);
 
+        try {
+            HoaDon hoaDon = hoaDonService.createHoaDon(kh, dsMaDVString);
+            return "redirect:/thanh-toan/" + hoaDon.getMaHD();
+        } catch (RuntimeException e) {
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
+            return "redirect:/dich-vu-gym/dang-kydv?accountId=" + kh.getAccount().getAccountId();
+        }
+    }
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
     public String hienThiDichVuCuaToi(@RequestParam("accountId") Long accountId, Model model) {
@@ -129,4 +136,3 @@ public class DangKyDichVuController{
         return "User/dvcuatoi";
     }
 }
-
