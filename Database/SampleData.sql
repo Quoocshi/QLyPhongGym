@@ -7,6 +7,18 @@ VALUES ('QL001', 'QUANLY001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'quanl
 INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
 VALUES ('PT001', 'TRAINER001', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Nam', 'trainer001@example.com', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 'Trainer');
 
+
+-- Thêm Huấn luyện viên đứng lớp (Trainers)
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('NV02', 'Trần Minh Tuấn', TO_DATE('1992-08-10', 'YYYY-MM-DD'), 'Nam', 'tuantm.trainer@email.com', TO_DATE('2021-03-01', 'YYYY-MM-DD'), 'Trainer'); -- Trainer cho GYM/CROSSFIT
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('NV03', 'Lê Thị Bảo Châu', TO_DATE('1995-11-25', 'YYYY-MM-DD'), 'Nu', 'chaulb.trainer@email.com', TO_DATE('2022-06-10', 'YYYY-MM-DD'), 'Trainer'); -- Trainer cho YOGA
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('NV04', 'Phạm Hồng Hạnh', TO_DATE('1998-02-14', 'YYYY-MM-DD'), 'Nu', 'hanhph.trainer@email.com', TO_DATE('2023-01-20', 'YYYY-MM-DD'), 'Trainer'); -- Trainer cho ZUMBA
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('NV05', 'Hoàng Quốc Việt', TO_DATE('1994-07-30', 'YYYY-MM-DD'), 'Nam', 'viethq.trainer@email.com', TO_DATE('2022-09-01', 'YYYY-MM-DD'), 'Trainer'); -- Trainer cho BƠI
+
+-- Thêm Bộ môn
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM01', 'Gym Fitness');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM02', 'Yoga');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM03', 'Zumba');
@@ -14,6 +26,34 @@ INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM04', 'Cardio');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM05', 'Boi'); 
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM06', 'Crossfit'); 
 
+-- Thêm Chuyên môn cho các Trainers
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu)
+VALUES ('NV03', 'BM02', 'HLV Yoga');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu)
+VALUES ('NV04', 'BM03', 'HLV Zumba');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu)
+VALUES ('NV05', 'BM05', 'HLV Bơi');
+
+-- Lớp YOGA (BM02) do HLV 'NV03' (Lê Thị Bảo Châu) phụ trách
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP01', 'Yoga Cơ Bản Sáng', 'Lớp cho người mới bắt đầu, tập trung vào các tư thế và nhịp thở.', 20, 'ChuaDay', TO_DATE('2025-06-16', 'YYYY-MM-DD'), 'Vui lòng mang thảm tập', 'BM02', 'NV03');
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP02', 'Yoga Nâng Cao Tối', 'Dành cho hội viên đã có kinh nghiệm, khám phá các tư thế phức tạp.', 15, 'ChuaDay', TO_DATE('2025-06-17', 'YYYY-MM-DD'), NULL, 'BM02', 'NV03');
+
+-- Lớp ZUMBA (BM03) do HLV 'NV04' (Phạm Hồng Hạnh) phụ trách
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP03', 'Zumba Fitness Cơ Bản', 'Đốt cháy calo cùng những điệu nhảy Latin vui nhộn.', 25, 'ChuaDay', TO_DATE('2025-06-16', 'YYYY-MM-DD'), 'Mang giày thể thao phù hợp', 'BM03', 'NV04');
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP04', 'Zumba Fitness Nâng Cao', 'Đốt cháy calo cùng những điệu nhảy Latin vui nhộn.', 25, 'ChuaDay', TO_DATE('2025-06-16', 'YYYY-MM-DD'), 'Mang giày thể thao phù hợp', 'BM03', 'NV04');
+
+-- Lớp BƠI (BM05) do HLV 'NV05' (Hoàng Quốc Việt) phụ trách
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP05', 'Bơi Sải Cơ Bản', 'Lớp học kỹ thuật bơi sải dành cho người lớn.', 10, 'ChuaDay', TO_DATE('2025-06-18', 'YYYY-MM-DD'), 'Yêu cầu biết bơi cơ bản', 'BM05', 'NV05');
+INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, GhiChu, MaBM, MaNV)
+VALUES ('LOP06', 'Lớp Bơi Trẻ Em', 'Dạy bơi cho trẻ từ 6-12 tuổi, an toàn và hiệu quả.', 12, 'ChuaDay', TO_DATE('2025-06-21', 'YYYY-MM-DD'), 'Học vào cuối tuần', 'BM05', 'NV05');
+
+
+-- Them Dich vu
 -- BM01 – GYM (TuDo, PT)
 INSERT INTO DICHVU VALUES ('DV01', 'GYM TuDo 7N', 'TuDo', 7, 300000, 'BM01');
 INSERT INTO DICHVU VALUES ('DV02', 'GYM TuDo 30N', 'TuDo', 30, 1000000, 'BM01');
@@ -74,6 +114,9 @@ INSERT INTO DICHVU VALUES ('DV46', 'CROSSFIT PT 30N', 'PT', 30, 2500000, 'BM06')
 INSERT INTO DICHVU VALUES ('DV47', 'CROSSFIT PT 90N', 'PT', 90, 6500000, 'BM06');
 INSERT INTO DICHVU VALUES ('DV48', 'CROSSFIT PT 365N', 'PT', 365, 20000000, 'BM06');
 
+
+
+--===============================================================Mẫu Đăng Nhập===========================================================================================
 
 insert into ROLE_GROUP(name_role_group) values ('ADMIN');
 insert into ROLE_GROUP(name_role_group) values ('STAFF');

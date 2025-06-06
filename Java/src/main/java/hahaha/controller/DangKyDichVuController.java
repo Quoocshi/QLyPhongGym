@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import hahaha.enums.LoaiDichVu;
 import hahaha.model.BoMon;
 import hahaha.model.ChiTietDangKyDichVu;
 import hahaha.model.DichVu;
@@ -134,5 +135,44 @@ public class DangKyDichVuController{
         model.addAttribute("khachHang", khachHang);
         
         return "User/dvcuatoi";
+    }
+
+    @GetMapping("/chonlop")
+    @PreAuthorize("hasRole('USER')")
+    public String hienThiChonLop(@RequestParam("maDV") String maDV,
+                                @RequestParam("accountId") Long accountId,
+                                Model model) {
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+        if (khachHang == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
+        }
+        
+        String maKH = khachHang.getMaKH();
+        String username = khachHang.getAccount().getUserName();
+        
+        // Lấy thông tin dịch vụ
+        DichVu dichVu = dichVuRepository.findById(maDV).orElse(null);
+        if (dichVu == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy dịch vụ");
+        }
+        
+        System.out.println("=== DEBUG Controller ===");
+        System.out.println("MaDV: " + maDV);
+        System.out.println("TenDV: " + dichVu.getTenDV());
+        System.out.println("LoaiDV enum: " + dichVu.getLoaiDV());
+        System.out.println("LoaiDV toString: '" + dichVu.getLoaiDV().toString() + "'");
+        System.out.println("Is enum Lop: " + (dichVu.getLoaiDV() == hahaha.enums.LoaiDichVu.Lop));
+        
+        // Kiểm tra xem dịch vụ có phải loại "Lop" không (sử dụng enum)
+        if (dichVu.getLoaiDV() != LoaiDichVu.Lop) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dịch vụ này không phải loại lớp. LoaiDV hiện tại: '" + dichVu.getLoaiDV() + "'");
+        }
+        
+        model.addAttribute("dichVu", dichVu);
+        model.addAttribute("maKH", maKH);
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("username", username);
+        
+        return "User/chonlop";
     }
 }

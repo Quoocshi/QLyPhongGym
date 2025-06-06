@@ -44,6 +44,7 @@
         <!-- Hidden form to submit payment data -->
         <form id="payment-form" action="/dich-vu-gym/dang-ky-dv" method="post" style="display: none;">
             <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
+            <input type="hidden" name="accountId" th:value="${accountId}" id="accountId-input">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div id="dsMaDV-inputs">
                 <!-- Service codes will be added here dynamically -->
@@ -83,7 +84,8 @@
                 <div th:each="dichVu : ${dsDichVu}"
                      class="service-btn service-card" 
                      th:href="'#'" 
-                     th:data-ma-dv="${dichVu.maDV}">
+                     th:data-ma-dv="${dichVu.maDV}"
+                     th:data-loai-dv="${dichVu.loaiDV.toString()}">
                     <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
                                                   dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
                                                   dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
@@ -116,7 +118,7 @@
 <script src="/js/dangkydv.js"></script>
 </body>
 </html>
-<script>
+<!--<script>
     // Auto-click nút "THANH TOÁN" sau 10 giây
     setTimeout(() => {
         const payBtn = document.querySelector(".payment-btn");
@@ -125,4 +127,4 @@
             payBtn.click();
         }
     }, 10000); // 10 giây
-</script>
+</script>-->
