@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "DICHVU")
@@ -29,6 +30,10 @@ public class DichVu {
 
     @Column(name = "DONGIA")
     private Double donGia;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 
     @ManyToOne()
     @JoinColumn(name = "MABM", referencedColumnName = "MABM")
@@ -80,6 +85,14 @@ public class DichVu {
 
     public void setLoaiDV(LoaiDichVu loaiDV) {
         this.loaiDV = loaiDV;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
     
     
