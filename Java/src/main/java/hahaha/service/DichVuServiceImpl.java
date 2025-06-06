@@ -1,12 +1,17 @@
 package hahaha.service;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import hahaha.model.BoMon;
@@ -51,26 +56,45 @@ public class DichVuServiceImpl implements DichVuService {
         }
     }
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Override
     public Boolean updateDichVu(DichVu dichVu) {
         try {
-            // Kiểm tra dịch vụ có tồn tại không
-            if (!dichVuRepository.existsById(dichVu.getMaDV())) {
-                System.err.println("Dịch vụ không tồn tại: " + dichVu.getMaDV());
-                return false;
-            }
-            
-            dichVuRepository.save(dichVu);
+            jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                try (CallableStatement cs = connection.prepareCall("{call PROCEDURE_UPDATE_DICHVU(?, ?, ?, ?, ?, ?, ?)}")) {
+                    cs.setString(1, dichVu.getMaDV());
+                    cs.setString(2, dichVu.getTenDV());
+                    cs.setString(3, dichVu.getLoaiDV().toString());
+                    cs.setInt(4, dichVu.getThoiHan());
+                    cs.setDouble(5, dichVu.getDonGia());
+                    cs.setString(6, dichVu.getBoMon().getMaBM());
+                    cs.setInt(7, dichVu.getVersion());  // Truyền version hiện tại
+                    cs.execute();
+                }
+                return null;
+            });
             return true;
-        } catch (Exception e) {
-            System.err.println("Lỗi khi cập nhật dịch vụ: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+        }  catch (DataAccessException dae) {
+            Throwable rootCause = dae.getRootCause();
+            if (rootCause instanceof SQLException sqlEx && sqlEx.getErrorCode() == 20002) {
+                throw new RuntimeException(sqlEx.getMessage().replaceAll("ORA-\\d+:\\s*", "")
+                                                            .replaceAll("\\s+at\\s+\"[^\"]+\", line \\d+(?: at line \\d+)?", "").trim());
+            } else {
+                String cleanMessage = rootCause.getMessage()
+                .replaceAll("ORA-\\d+:\\s*", "")
+                .replaceAll("\\s+at\\s+(\"[^\"]+\",\\s*)?line\\s+\\d+(?:\\s+at\\s+line\\s+\\d+)?", "")
+                .trim();
+                throw new RuntimeException(cleanMessage, dae);
+
+            }
         }
     }
+
+
     @Autowired
     private DataSource dataSource;
-    @Override
     public Boolean deleteDichVu(String maDV) {
         try (Connection conn = dataSource.getConnection()){
             Thread.sleep(15000);

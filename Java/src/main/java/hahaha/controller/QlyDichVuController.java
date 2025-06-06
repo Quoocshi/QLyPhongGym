@@ -107,6 +107,7 @@ public class QlyDichVuController {
                                @RequestParam("thoiHan") int thoiHan,
                                @RequestParam("donGia") Double donGia,
                                @RequestParam("maBM") String maBM,
+                               @RequestParam("version") int version,
                                RedirectAttributes redirectAttributes) {
         try {
             DichVu dichVu = dichVuService.findById(maDV);
@@ -119,6 +120,7 @@ public class QlyDichVuController {
             dichVu.setLoaiDV(LoaiDichVu.valueOf(loaiDV));
             dichVu.setThoiHan(thoiHan);
             dichVu.setDonGia(donGia);
+            dichVu.setVersion(version);
             
             // Set bộ môn cho dịch vụ
             BoMon boMon = new BoMon();
@@ -128,13 +130,13 @@ public class QlyDichVuController {
             Boolean result = dichVuService.updateDichVu(dichVu);
             if (result) {
                 redirectAttributes.addFlashAttribute("successMessage", "Cập nhật dịch vụ thành công!");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật dịch vụ!");
             }
-        } catch (Exception e) {
+        } catch (RuntimeException re) {
+            redirectAttributes.addFlashAttribute("errorMessage", re.getMessage());
+        }
+         catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
         }
-        
         return "redirect:/quan-ly-dich-vu/danh-sach-dich-vu";
     }
 

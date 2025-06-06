@@ -88,6 +88,9 @@
                         <option value="BM05" th:selected="${dichVu.boMon != null && dichVu.boMon.maBM == 'BM05'}">Boi</option>
                     </select>
                 </div>
+
+                <input type="hidden" name="version" th:value="${dichVu.version}" />
+
                 
                 <div class="form-actions" style="text-align: center; margin-top: 30px;">
                     <button type="submit" class="add-modal-btn" style="margin-right: 10px;">CẬP NHẬT</button>
