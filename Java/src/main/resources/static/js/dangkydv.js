@@ -27,6 +27,9 @@ function loadRegisteredServicesFromSession() {
             showRegisteredServicesBar();
         }
     }
+    
+    // Xóa thông tin selectedService sau khi quay lại để tránh conflict
+    sessionStorage.removeItem('selectedService');
 }
 
 // Hàm hiển thị khung dịch vụ đã đăng ký với animation
@@ -73,10 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Lấy thông tin thẻ từ data attributes và DOM
                 const maDV = this.dataset.maDv;
+                const loaiDV = this.dataset.loaiDv; // Thêm này để kiểm tra trực tiếp
                 const img = this.querySelector('img').src;
                 const title = this.querySelector('.service-title').innerText;
                 const desc = this.querySelector('.service-desc').innerHTML;
                 const price = this.querySelector('.service-price').innerText;
+                
+                console.log('=== DEBUG click event ===');
+                console.log('MaDV:', maDV);
+                console.log('Title:', title);
+                console.log('LoaiDV from data:', loaiDV);
+                console.log('Desc full:', desc);
 
                 // Kiểm tra nếu là dịch vụ "Tự do" (GYM, CARDIO, BƠI)
                 if (desc.includes('Tự do')) {
@@ -106,7 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 } else {
-                    // Đối với các dịch vụ khác (Lớp, PT), chỉ phóng to thẻ và hiện nút đăng ký
+                    // Kiểm tra nếu là dịch vụ loại "Lop" thì chuyển hướng trực tiếp
+                    if (loaiDV === 'Lop') {
+                        console.log('Detected Lop service, redirecting...');
+                        registerService(title, desc, maDV);
+                        return;
+                    }
+                    
+                    // Đối với các dịch vụ khác (PT), chỉ phóng to thẻ và hiện nút đăng ký
                     // Bỏ trạng thái active ở các thẻ khác
                     document.querySelectorAll('.service-card').forEach(c => {
                         c.classList.remove('active');
@@ -132,8 +149,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hàm đăng ký dịch vụ (cập nhật để sử dụng maDV)
 function registerService(title, desc, maDV) {
+    console.log('=== DEBUG registerService ===');
+    console.log('Title:', title);
+    console.log('Desc:', desc);
+    console.log('MaDV:', maDV);
+    
     // Lấy hình thức tập luyện từ mô tả
     const trainingType = desc.match(/Hình thức tập luyện: ([^<]+)/)?.[1] || 'Không xác định';
+    console.log('Training Type found:', trainingType);
+    console.log('Is Lớp?', trainingType === 'Lớp');
+    console.log('Training Type trim:', trainingType.trim());
+    console.log('Is Lớp (trimmed)?', trainingType.trim() === 'Lớp');
+    
+    // Kiểm tra nếu là dịch vụ loại "Lớp" thì chuyển hướng đến trang chọn lớp
+    // Kiểm tra cả text và có thể có nhiều cách khác nhau
+    const isLopService = trainingType.trim() === 'Lớp' || 
+                         trainingType.trim() === 'Lop' ||
+                         desc.includes('Lớp') ||
+                         desc.includes('Lop');
+    
+    console.log('Is Lop service?', isLopService);
+    
+    if (isLopService) {
+        // Lấy accountId và các thông tin cần thiết
+        const accountId = document.getElementById('accountId-input')?.value || 
+                         new URLSearchParams(window.location.search).get('accountId');
+        
+        console.log('AccountId found:', accountId);
+        console.log('Hidden input exists?', !!document.getElementById('accountId-input'));
+        console.log('URL params:', new URLSearchParams(window.location.search).toString());
+        
+        if (accountId) {
+            // Lấy mã bộ môn từ URL hiện tại
+            const urlParams = new URLSearchParams(window.location.search);
+            const maBM = urlParams.get('maBM');
+            
+            // Lưu thông tin dịch vụ vào sessionStorage để sử dụng trong trang chọn lớp
+            sessionStorage.setItem('selectedService', JSON.stringify({
+                title: title,
+                desc: desc,
+                maDV: maDV,
+                accountId: accountId,
+                maBM: maBM
+            }));
+            
+            const redirectUrl = `/dich-vu-gym/chonlop?maDV=${maDV}&accountId=${accountId}`;
+            window.location.href = redirectUrl;
+            return;
+        } else {
+            alert('Không tìm thấy thông tin tài khoản. Vui lòng thử lại.');
+            return;
+        }
+    }
     
     // Lấy giá tiền từ mô tả
     const priceMatch = desc.match(/Giá tiền: ([\d,.]+) VNĐ/);
