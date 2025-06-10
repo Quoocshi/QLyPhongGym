@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.Optional;
 
 import hahaha.repository.NhanVienRepository;
+import hahaha.repository.AccountRepository;
 import hahaha.model.NhanVien;
+import hahaha.model.Account;
 import hahaha.enums.LoaiNhanVien;
 
 @Service
 public class NhanVienServiceImpl implements NhanVienService {
     @Autowired
     NhanVienRepository nhanVienRepository;
+    
+    @Autowired
+    AccountRepository accountRepository;
 
     @Override
     public String generateNextMaNV() {
@@ -104,11 +109,11 @@ public class NhanVienServiceImpl implements NhanVienService {
     @Override
     public Boolean deleteNhanVien(String maNV) {
         try {
-            Optional<NhanVien> nhanVienOpt = nhanVienRepository.findByIdActive(maNV);
-            if (nhanVienOpt.isPresent()) {
-                NhanVien nhanVien = nhanVienOpt.get();
-                nhanVien.setIsDeleted(1); // Soft delete
-                nhanVienRepository.save(nhanVien);
+            // Tìm account của nhân viên và soft delete
+            Account account = accountRepository.findByNhanVien_MaNV(maNV);
+            if (account != null) {
+                account.setIsDeleted(1); // Soft delete account
+                accountRepository.save(account);
                 return true;
             }
             return false;
@@ -150,7 +155,7 @@ public class NhanVienServiceImpl implements NhanVienService {
             // Fallback: nếu không tìm được với UTF-8, thử với unaccented search
             if (!keyword.isEmpty() && (result == null || result.size() == 0)) {
                 System.out.println("=== TRYING UNACCENTED SEARCH ===");
-                List<NhanVien> unaccentedResult = nhanVienRepository.searchNhanVienUnaccented(keyword, loaiNV);
+                List<NhanVien> unaccentedResult = nhanVienRepository.searchNhanVienUnaccented(keyword, loaiNV, loaiNVEnum);
                 System.out.println("Unaccented search found: " + unaccentedResult.size() + " employees");
                 if (unaccentedResult.size() > 0) {
                     result = unaccentedResult;

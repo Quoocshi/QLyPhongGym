@@ -237,14 +237,6 @@ public class QlyNhanVienController {
     @PreAuthorize("hasRole('ADMIN')")
     public String xoaNhanVien(@RequestParam String maNV, RedirectAttributes redirectAttributes) {
         try {
-            // Tìm và xóa account trước
-            Account account = accountRepository.findByNhanVien_MaNV(maNV);
-            
-            if (account != null) {
-                account.setIsDeleted(1); // Soft delete
-                accountRepository.save(account);
-            }
-            
             Boolean result = nhanVienService.deleteNhanVien(maNV);
             if (result) {
                 redirectAttributes.addFlashAttribute("successMessage", "Xóa nhân viên thành công!");
