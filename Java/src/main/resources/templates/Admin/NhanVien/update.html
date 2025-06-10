@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật nhân viên</title>
+    <link rel="stylesheet" th:href="@{/css/qlycus.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            <span class="user-title">QUẢN LÝ</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" id="adminHomeLink">Trang chủ</a></li>
+                <li><a th:href="@{/quan-ly-khach-hang/danh-sach-khach-hang}">Quản lý khách hàng</a></li>
+                <li><a th:href="@{/quan-ly-dich-vu/danh-sach-dich-vu}">Quản lý dịch vụ</a></li>
+                <li><a th:href="@{/quan-ly-bo-mon/danh-sach-bo-mon}">Quản lý bộ môn</a></li>
+                <li><a href="#">Quản lý lớp</a></li>
+                <li><a href="#">Quản lý lịch tập</a></li>
+                <li><a href="#">Quản lý CTKM</a></li>
+                <li><a href="#">Quản lý voucher</a></li>
+                <li><a href="#">Quản lý thiết bị</a></li>
+                <li><a href="#">Quản lý khu vực</a></li>
+                <li class="active"><a th:href="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}">Quản lý nhân viên</a></li>
+            </ul>
+        </nav>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="logout-btn">ĐĂNG XUẤT</button>
+        </form>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <h1>CẬP NHẬT THÔNG TIN NHÂN VIÊN</h1>
+
+        <!-- Thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Back to list button -->
+        <div style="margin-bottom: 20px; text-align: center;">
+            <a th:href="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}" class="edit-btn">← Quay lại danh sách</a>
+        </div>
+
+        <!-- Info about current employee -->
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <p>Bạn đang cập nhật thông tin cho nhân viên <strong th:text="${nhanVien.maNV}">NV001</strong> - <strong th:text="${nhanVien.tenNV}">Tên nhân viên</strong></p>
+        </div>
+
+        <!-- Form cập nhật nhân viên -->
+        <div class="table-container">
+            <form th:action="@{/quan-ly-nhan-vien/cap-nhat-nhan-vien}" method="post" th:object="${nhanVien}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" th:field="*{maNV}"/>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px #eee;">
+                    
+                    <!-- Cột trái -->
+                    <div>
+                        <div class="form-group">
+                            <label for="maNV">Mã nhân viên</label>
+                            <input type="text" th:value="${nhanVien.maNV}" id="maNV" readonly style="background: #f8f9fa;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tenNV">Tên nhân viên *</label>
+                            <input type="text" th:field="*{tenNV}" id="tenNV" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" th:field="*{email}" id="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gioiTinh">Giới tính *</label>
+                            <select th:field="*{gioiTinh}" id="gioiTinh" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Cột phải -->
+                    <div>
+                        <div class="form-group">
+                            <label for="ngaySinh">Ngày sinh *</label>
+                            <input type="date" th:field="*{ngaySinh}" id="ngaySinh" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ngayVaoLam">Ngày vào làm *</label>
+                            <input type="date" th:field="*{ngayVaoLam}" id="ngayVaoLam" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loaiNV">Loại nhân viên *</label>
+                            <select th:field="*{loaiNV}" id="loaiNV" required onchange="updateRoleDescription()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                                <option value="">-- Chọn loại nhân viên --</option>
+                                <option value="QuanLy">Quản lý</option>
+                                <option value="LeTan">Lễ tân</option>
+                                <option value="Trainer">Trainer</option>
+                                <option value="PhongTap">Nhân viên phòng tập</option>
+                            </select>
+                        </div>
+
+                        <!-- Thông tin tài khoản -->
+                        <div class="form-group">
+                            <label>Cập nhật quyền hạn tài khoản</label>
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-size: 14px; color: #666;">
+                                <p><strong>Quyền hạn hiện tại:</strong> <span id="roleDesc">Chọn loại nhân viên để xem quyền hạn</span></p>
+                                <p style="margin-top: 8px; font-style: italic;">
+                                    Tài khoản đăng nhập của nhân viên này sẽ được cập nhật quyền hạn tự động khi thay đổi loại nhân viên.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="submit" class="add-modal-btn">CẬP NHẬT NHÂN VIÊN</button>
+                    <button type="reset" class="delete-btn" style="margin-left: 10px;">RESET FORM</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+// Update role description when employee type changes
+function updateRoleDescription() {
+    const loaiNV = document.getElementById('loaiNV').value;
+    const roleDesc = document.getElementById('roleDesc');
+    
+    switch(loaiNV) {
+        case 'QuanLy':
+            roleDesc.textContent = 'Quản lý - Toàn quyền hệ thống';
+            break;
+        case 'LeTan':
+            roleDesc.textContent = 'Nhân viên - Quản lý khách hàng và dịch vụ';
+            break;
+        case 'Trainer':
+            roleDesc.textContent = 'Trainer - Huấn luyện và tư vấn khách hàng';
+            break;
+        case 'PhongTap':
+            roleDesc.textContent = 'Nhân viên phòng tập - Hỗ trợ khách hàng';
+            break;
+        default:
+            roleDesc.textContent = 'Chọn loại nhân viên để xem quyền hạn';
+    }
+}
+
+// Initialize role description on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateRoleDescription();
+    
+    // Admin home link setup
+    const adminHomeLink = document.getElementById('adminHomeLink');
+    const savedUserId = sessionStorage.getItem('adminUserId');
+    const savedUsername = sessionStorage.getItem('adminUsername');
+    
+    if (savedUserId && savedUsername) {
+        adminHomeLink.href = `/admin/home/${savedUserId}/${savedUsername}`;
+    } else {
+        adminHomeLink.href = '/login';
+    }
+});
+</script>
+</body>
+</html> 

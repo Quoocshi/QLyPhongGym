@@ -36,6 +36,9 @@ public class NhanVien {
     @Column(name = "LOAINV", length = 10)
     private LoaiNhanVien loaiNV;
 
+    @Column(name = "ISDELETED", nullable = false)
+    private Integer isDeleted = 0;
+
     public String getMaNV() {
         return maNV;
     }
@@ -90,6 +93,14 @@ public class NhanVien {
 
     public void setLoaiNV(LoaiNhanVien loaiNV) {
         this.loaiNV = loaiNV;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
 

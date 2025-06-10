@@ -33,8 +33,13 @@ public class SecurityConfig {
                 .requestMatchers("/staff/**").hasRole("STAFF")
                 .requestMatchers("/user/**").hasRole("USER")
                 .requestMatchers("/trainer/**").hasRole("TRAINER")
+                .requestMatchers("/quan-ly-nhan-vien/**").hasRole("ADMIN")
+                .requestMatchers("/quan-ly-khach-hang/**").hasAnyRole("ADMIN", "STAFF")
+                .requestMatchers("/quan-ly-dich-vu/**").hasAnyRole("ADMIN", "STAFF")
+                .requestMatchers("/quan-ly-bo-mon/**").hasRole("ADMIN")
                 .requestMatchers("/dich-vu-gym/**").hasRole("USER")
                 .requestMatchers("/thanh-toan/**").hasRole("USER")
+                .requestMatchers("/vnpay/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
