@@ -87,4 +87,9 @@ public class KhachHangServiceImpl implements KhachHangService{
         return khachHangRepository.findByMaKH(maKH);
     }
 
+    @Override
+    public List<KhachHang> searchCustomers(String keyword) {
+    return khachHangRepository.searchByKeyword(keyword);
+}
+
 }

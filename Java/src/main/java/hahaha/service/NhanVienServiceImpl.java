@@ -9,6 +9,7 @@ import hahaha.repository.NhanVienRepository;
 import hahaha.repository.AccountRepository;
 import hahaha.model.NhanVien;
 import hahaha.model.Account;
+import hahaha.model.KhachHang;
 import hahaha.enums.LoaiNhanVien;
 
 @Service
@@ -76,6 +77,13 @@ public class NhanVienServiceImpl implements NhanVienService {
     }
 
     @Override
+    public List<NhanVien> searchNhanVien(String keyword){
+        keyword = keyword.trim().replaceAll("\\s+", " ");
+        return nhanVienRepository.searchActiveEmployeesByKeyword(keyword);
+    }
+
+
+    @Override
     public NhanVien findById(String maNV) {
         Optional<NhanVien> result = nhanVienRepository.findByIdActive(maNV);
         return result.orElse(null);
@@ -122,6 +130,4 @@ public class NhanVienServiceImpl implements NhanVienService {
             return false;
         }
     }
-    
-
 }

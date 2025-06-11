@@ -43,21 +43,30 @@ public class QlyNhanVienController {
 
     @GetMapping("/danh-sach-nhan-vien")
     @PreAuthorize("hasRole('ADMIN')")
-    public String hienThiQuanLyNhanVien(Authentication auth, Model model) {
-        try {
-            // Chỉ lấy tất cả nhân viên, bỏ logic tìm kiếm backend
-            List<NhanVien> nhanVienList = nhanVienService.getAll();
-            model.addAttribute("nhanVienList", nhanVienList);
-            return getViewByRole(auth, "qlynv");
-            
-        } catch (Exception e) {
-            System.err.println("Lỗi trong controller quản lý nhân viên: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("errorMessage", "Có lỗi xảy ra khi tải danh sách nhân viên.");
-            model.addAttribute("nhanVienList", nhanVienService.getAll());
-            return getViewByRole(auth, "qlynv");
-        }
+
+    public String hienThiDanhSachNhanVien(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "loaiNV", required = false) String loaiNV,
+            Authentication auth,
+            Model model) {
+        List<NhanVien> danhSachNhanVien;
+        danhSachNhanVien = nhanVienService.getAll(); 
+        model.addAttribute("nhanVienList", danhSachNhanVien);
+        return getViewByRole(auth, "qlynv");
+
     }
+
+    @GetMapping("/tim-kiem")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public String timKiemNhanVien(Authentication auth,
+                                @RequestParam("keyword") String keyword,
+                                Model model) {
+        keyword = keyword.trim().replaceAll("\\s+", " ");
+        List<NhanVien> employees = nhanVienService.searchNhanVien(keyword);
+        model.addAttribute("nhanVienList", employees);
+        return getViewByRole(auth, "qlynv");
+    }
+
 
     @GetMapping("/them-nhan-vien")
     @PreAuthorize("hasRole('ADMIN')")

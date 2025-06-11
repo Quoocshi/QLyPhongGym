@@ -32,6 +32,21 @@ public class QlyKhachHangController {
         return getViewByRole(auth, "qlycus");
     }
 
+    @GetMapping("/tim-kiem")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public String timKiemKhachHang(Authentication auth,
+                                @RequestParam("keyword") String keyword,
+                                Model model) {
+        keyword = keyword.trim().replaceAll("\\s+", " ");
+
+        List<KhachHang> customers = khachHangService.searchCustomers(keyword);
+        model.addAttribute("customers", customers);
+        return getViewByRole(auth, "qlycus");
+    }
+
+
+    
+
     @GetMapping("/cap-nhat-thong-tin-khach-hang/{maKH}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public String updateCustomerForm(@PathVariable String maKH, Authentication auth, Model model) {
