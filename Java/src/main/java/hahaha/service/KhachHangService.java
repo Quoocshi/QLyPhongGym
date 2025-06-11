@@ -13,4 +13,5 @@ public interface  KhachHangService {
     Boolean deleteCustomer(String MaKH);
     String generateNextMaKH();
     String generateNextReferralCode();
+    List<KhachHang> searchCustomers(String keyword);
 }

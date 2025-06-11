@@ -1,6 +1,8 @@
 package hahaha.service;
 
 import java.util.List;
+
+import hahaha.model.KhachHang;
 import hahaha.model.NhanVien;
 
 public interface NhanVienService {
@@ -12,6 +14,6 @@ public interface NhanVienService {
     Boolean createNhanVien(NhanVien nhanVien);
     Boolean updateNhanVien(NhanVien nhanVien);
     Boolean deleteNhanVien(String maNV);
-    
-    List<NhanVien> searchNhanVien(String keyword, String loaiNV);
+    List<NhanVien> searchNhanVien(String keyword);
+
 }

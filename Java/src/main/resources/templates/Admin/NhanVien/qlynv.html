@@ -48,7 +48,7 @@
         </div>
 
         <!-- Form tìm kiếm -->
-        <form method="GET" th:action="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}" style="margin-bottom: 20px;">
+        <!-- <form method="GET" th:action="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}" style="margin-bottom: 20px;">
             <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
                 <div class="search-bar" style="width: auto; margin: 0;">
                     <input type="text" name="keyword" th:value="${searchKeyword}" 
@@ -66,7 +66,13 @@
                 <button type="submit" class="edit-btn">Tìm kiếm</button>
                 <a th:href="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}" class="delete-btn">Xóa bộ lọc</a>
             </div>
-        </form>
+        </form> -->
+        <div class="search-bar">
+            <form th:action="@{/quan-ly-nhan-vien/tim-kiem}" method="get">
+                <input type="text" name="keyword" placeholder="Tìm kiếm nhân viên..." required>
+                <button type="submit" class="search-btn">&#9906;</button>
+            </form>
+        </div>
 
         <!-- Nút thêm nhân viên -->
         <div class="mb-3" style="margin-bottom: 20px;">
