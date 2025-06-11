@@ -9,4 +9,9 @@ public interface HoaDonService {
     HoaDon timMaHD(String maHD);
     void thanhToan(String maHD);
     String generateNextMaHD();
+    
+    // Methods missing in controller
+    HoaDon taoHoaDon(String maKH, Double tongTien);
+    void themChiTietHoaDon(String maHD, String maDV);
+    void themChiTietHoaDonVoiLop(String maHD, String maDV, String maLop);
 }

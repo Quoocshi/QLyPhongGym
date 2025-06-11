@@ -35,6 +35,9 @@ public class Lop {
     @Column(name = "NGAYBD")
     private LocalDateTime ngayBD;
 
+    @Column(name = "NGAYKT")
+    private LocalDateTime ngayKT;
+
     @Column(name = "GHICHU")
     private String ghiChu;
 
@@ -94,6 +97,14 @@ public class Lop {
         this.ngayBD = ngayBD;
     }
 
+    public LocalDateTime getNgayKT() {
+        return ngayKT;
+    }
+
+    public void setNgayKT(LocalDateTime ngayKT) {
+        this.ngayKT = ngayKT;
+    }
+
     public String getGhiChu() {
         return ghiChu;
     }
@@ -117,5 +128,4 @@ public class Lop {
     public void setNhanVien(NhanVien nhanVien) {
         this.nhanVien = nhanVien;
     }
-    
 }

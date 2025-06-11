@@ -15,4 +15,11 @@ public interface DichVuService {
     List<BoMon> getAllBoMon();
 
     List<DichVu> getDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH);
+    
+    // Method mới để filter theo thời hạn
+    List<DichVu> getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(String maBM, String maKH, String thoiHanFilter);
+    
+    // Methods missing in controller
+    List<DichVu> getDichVuByBoMon(String maBM);
+    BoMon getBoMonById(String maBM);
 } 

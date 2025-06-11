@@ -33,4 +33,5 @@ public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
     """)
     List<NhanVien> searchActiveEmployeesByKeyword(@Param("keyword") String keyword);
 
+
 }

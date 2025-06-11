@@ -15,5 +15,4 @@ public interface NhanVienService {
     Boolean updateNhanVien(NhanVien nhanVien);
     Boolean deleteNhanVien(String maNV);
     List<NhanVien> searchNhanVien(String keyword);
-
 }

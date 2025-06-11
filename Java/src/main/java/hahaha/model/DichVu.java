@@ -26,7 +26,7 @@ public class DichVu {
     private LoaiDichVu loaiDV;
 
     @Column(name = "THOIHAN")
-    private int thoiHan;
+    private Integer thoiHan;
 
     @Column(name = "DONGIA")
     private Double donGia;
@@ -55,11 +55,11 @@ public class DichVu {
         this.tenDV = tenDV;
     }
 
-    public int getThoiHan() {
+    public Integer getThoiHan() {
         return thoiHan;
     }
 
-    public void setThoiHan(int thoiHan) {
+    public void setThoiHan(Integer thoiHan) {
         this.thoiHan = thoiHan;
     }
 

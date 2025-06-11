@@ -356,14 +356,14 @@ function updateTotalAmount() {
     }
 }
 
-// Hàm xử lý thanh toán
+// Hàm xử lý thanh toán (VNPay flow)
 function processPayment() {
     if (registeredServices.length === 0) {
         alert('Chưa có dịch vụ nào để thanh toán!');
         return;
     }
     
-    console.log('Processing payment for services:', registeredServices);
+    console.log('Processing payment with VNPay flow:', registeredServices);
     
     // Lấy form và container cho mã dịch vụ
     const form = document.getElementById('payment-form');
@@ -374,31 +374,45 @@ function processPayment() {
         return;
     }
     
+    // Đổi form action về endpoint tạo hóa đơn trước VNPay
+    form.action = '/dich-vu-gym/thanh-toan';
+    
     // Xóa các input cũ
     dsMaDVContainer.innerHTML = '';
     
-    // Thêm input cho từng mã dịch vụ
+    // Tính tổng tiền
+    const tongTien = registeredServices.reduce((sum, service) => sum + service.price, 0);
+    
+    // Thêm tổng tiền (VNPay flow yêu cầu)
+    const inputTongTien = document.createElement('input');
+    inputTongTien.type = 'hidden';
+    inputTongTien.name = 'tongtien';
+    inputTongTien.value = tongTien;
+    dsMaDVContainer.appendChild(inputTongTien);
+    console.log('Added total amount:', tongTien);
+    
+    // Thêm input cho từng mã dịch vụ (VNPay flow dùng 'dichvu')
     registeredServices.forEach(service => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'dsMaDV';
-        input.value = service.code;
-        dsMaDVContainer.appendChild(input);
-        console.log('Added service code to form:', service.code);
+        const inputDV = document.createElement('input');
+        inputDV.type = 'hidden';
+        inputDV.name = 'dichvu';  // VNPay flow dùng 'dichvu'
+        inputDV.value = service.code;
+        dsMaDVContainer.appendChild(inputDV);
+        console.log('Added service code to form (VNPay flow):', service.code);
     });
     
     // Log form data trước khi submit
     const formData = new FormData(form);
-    console.log('Form data being submitted:');
+    console.log('Form data being submitted (VNPay flow):');
     for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
     }
     
-    // Xóa session sau khi thanh toán thành công
+    // Xóa session sau khi submit thành công
     clearRegisteredServicesSession();
     
-    // Submit form
-    console.log('Submitting form to:', form.action);
+    // Submit form - sẽ tạo hóa đơn và redirect đến trang thanh toán VNPay
+    console.log('Submitting form to (VNPay flow):', form.action);
     form.submit();
 }
 

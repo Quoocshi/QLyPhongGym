@@ -24,7 +24,7 @@
                 <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${accountId})}">Dịch vụ của tôi</a></li>
                 <li><a href="#">Theo dõi khu vực</a></li>
                 <li><a href="#">Voucher của tôi</a></li>
-                <li><a href="#">Tài khoản</a></li>
+                <li><a href="#" th:href="@{/user/taikhoan/{accountId}(accountId=${accountId})}">Tài khoản</a></li>
             </ul>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin: 0;">
@@ -42,8 +42,18 @@
             <small>Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp diễn.</small>
         </div>
         
+        <!-- Success message display -->
+        <div th:if="${successMessage}" class="success-message-box" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+        </div>
+        
+        <!-- Error message display -->
+        <div th:if="${errorMessage}" class="error-message-box" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+        </div>
+        
         <!-- Hidden form to submit payment data -->
-        <form id="payment-form" action="/dich-vu-gym/dang-ky-dv" method="post" style="display: none;">
+        <form id="payment-form" action="/dich-vu-gym/thanh-toan" method="post" style="display: none;">
             <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div id="dsMaDV-inputs">

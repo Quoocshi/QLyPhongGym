@@ -114,18 +114,18 @@ CREATE TABLE CT_CHUYENMON (
 -- Create LOP table
 CREATE TABLE LOP (
     MaLop VARCHAR2(10) PRIMARY KEY,
-    TenLop VARCHAR2(30) NOT NULL,
+    TenLop VARCHAR2(80) NOT NULL,
     MoTa VARCHAR2(100),
     SL_ToiDa NUMBER,
     TinhTrang VARCHAR2(10) CHECK (TinhTrang IN ('ChuaDay', 'DaDay')),
     NgayBD DATE,
+    NgayKT DATE,
     GhiChu VARCHAR2(50),
     MaBM VARCHAR2(10),
     MaNV VARCHAR2(10),
     CONSTRAINT FK_LOP_BOMON FOREIGN KEY (MaBM) REFERENCES BOMON(MaBM),
     CONSTRAINT FK_LOP_NHANVIEN FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
 );
-
 
 -- Create VOUCHER table
 CREATE TABLE VOUCHER (
@@ -221,16 +221,18 @@ CREATE TABLE CATAP (
 CREATE TABLE LICHTAP (
     MaLT VARCHAR2(10) PRIMARY KEY,
     LoaiLich VARCHAR2(10) CHECK (LoaiLich IN ('Lop', 'PT')),
-    NgayTap DATE,
-    TrangThai VARCHAR2(20) CHECK (TrangThai IN ('Sap dien ra', 'Hoan thanh', 'Huy', 'Hoan')),
-    Ca VARCHAR2(10),
-    MaKH VARCHAR2(10),
-    MaNV VARCHAR2(10),
-    MaLop VARCHAR2(10),
-    CONSTRAINT FK_LICHTAP_CATAP FOREIGN KEY (Ca) REFERENCES CATAP(MaCa),
-    CONSTRAINT FK_LICHTAP_KHACHHANG FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
-    CONSTRAINT FK_LICHTAP_NHANVIEN FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV),
-    CONSTRAINT FK_LICHTAP_LOP FOREIGN KEY (MaLop) REFERENCES LOP(MaLop)
+    Thu VARCHAR2(20),                                 -- 246 tức là thứ 2 thứ 4 và thứ 6
+    Ca VARCHAR2(10),                                  -- khung giờ (FK tới CATAP)
+    MaLop VARCHAR2(10),                               -- dùng khi là lịch lớp
+    MaKH VARCHAR2(10),                                -- dùng khi là lịch PT 1-1
+    MaNV VARCHAR2(10),                                -- HLV hoặc GV lớp
+    MaKV VARCHAR2(10),                                -- khu vực tập luyện
+    TrangThai VARCHAR2(20) DEFAULT 'Dang mo' CHECK (TrangThai IN ('Dang mo', 'Tam dung', 'Huy')),
+    CONSTRAINT FK_LICHLAP_CA FOREIGN KEY (Ca) REFERENCES CATAP(MaCa),
+    CONSTRAINT FK_LICHLAP_LOP FOREIGN KEY (MaLop) REFERENCES LOP(MaLop),
+    CONSTRAINT FK_LICHLAP_KH FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
+    CONSTRAINT FK_LICHLAP_NV FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV),
+    CONSTRAINT FK_LICHLAP_KV FOREIGN KEY (MaKV) REFERENCES KHUVUC(MaKV)
 );
 
 -- Create LICHLAMVIEC table

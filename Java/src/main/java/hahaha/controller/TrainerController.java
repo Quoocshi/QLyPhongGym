@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/trainer")
 public class TrainerController {
     
-        @GetMapping("/home/{id}/{username}")
-        public String trainerPage(Model model, @PathVariable Long id, @PathVariable String username) {
+    @GetMapping("/home/{id}/{username}")
+    public String trainerPage(Model model, @PathVariable Long id, @PathVariable String username) {
         model.addAttribute("userId", id);
         model.addAttribute("username", username);
-            return "Trainer/home"; 
-        }
-
+        return "Trainer/home"; 
+    }
 }

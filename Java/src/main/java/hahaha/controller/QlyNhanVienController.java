@@ -43,6 +43,7 @@ public class QlyNhanVienController {
 
     @GetMapping("/danh-sach-nhan-vien")
     @PreAuthorize("hasRole('ADMIN')")
+
     public String hienThiDanhSachNhanVien(
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "loaiNV", required = false) String loaiNV,
@@ -52,6 +53,7 @@ public class QlyNhanVienController {
         danhSachNhanVien = nhanVienService.getAll(); 
         model.addAttribute("nhanVienList", danhSachNhanVien);
         return getViewByRole(auth, "qlynv");
+
     }
 
     @GetMapping("/tim-kiem")

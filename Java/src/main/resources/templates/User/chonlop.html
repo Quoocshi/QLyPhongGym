@@ -24,7 +24,7 @@
                 <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${accountId})}">Dịch vụ của tôi</a></li>
                 <li><a href="#">Theo dõi khu vực</a></li>
                 <li><a href="#">Voucher của tôi</a></li>
-                <li><a href="#">Tài khoản</a></li>
+                <li><a href="#" th:href="@{/user/taikhoan/{accountId}(accountId=${accountId})}">Tài khoản</a></li>
             </ul>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin: 0;">
@@ -50,8 +50,8 @@
                 <div class="service-detail-content">
                     <h2 th:text="${dichVu.tenDV}"></h2>
                     <div th:utext="'Hình thức tập luyện: ' + 
-                                   ${dichVu.loaiDV == 'Lop' ? 'Lớp' : dichVu.loaiDV} + 
-                                   '<br>Thời hạn: ' + ${dichVu.thoiHan} + ' ngày'"></div>
+                                   ${dichVu.loaiDV.name() == 'Lop' ? 'Lớp' : dichVu.loaiDV} + 
+                                   '<br>Thời hạn dịch vụ gốc: ' + ${dichVu.thoiHan != null ? dichVu.thoiHan : 'Chưa xác định'} + ' ngày'"></div>
                     <div th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
                 </div>
             </div>
@@ -59,38 +59,33 @@
         
         <!-- Danh sách lớp học -->
         <div class="section-title">Chọn lớp học (chỉ được chọn 1 lớp)</div>
-        <div class="classes-grid">
-            <div class="class-card" data-class-id="1">
-                <div class="class-time">7:00 - 8:30</div>
+        
+        <!-- Hiển thị thông báo nếu không có lớp -->
+        <div th:if="${dsLopChuaDay == null or dsLopChuaDay.isEmpty()}" class="no-classes-message">
+            <p>Hiện tại không có lớp học nào còn chỗ trống cho dịch vụ này.</p>
+            <p>Vui lòng quay lại sau hoặc chọn dịch vụ khác.</p>
+        </div>
+        
+        <!-- Grid hiển thị lớp học -->
+        <div class="classes-grid" th:if="${dsLopChuaDay != null and !dsLopChuaDay.isEmpty()}">
+            <div class="class-card" th:each="lop : ${dsLopChuaDay}" th:data-class-id="${lop.maLop}">
+                <div class="class-time" th:text="${lopService.getCaTapStringForLop(lop.maLop)}">7:00 - 8:30</div>
                 <div class="class-info">
-                    <div class="class-name">Lớp sáng</div>
-                    <div class="class-instructor">HLV: Nguyễn Văn A</div>
-                    <div class="class-capacity">Sức chứa: 20 người</div>
-                    <div class="class-available">Còn trống: 5 chỗ</div>
+                    <div class="class-name" th:text="${lop.tenLop}">Lớp sáng</div>
+                    <div class="class-instructor" th:text="'HLV: ' + ${lop.nhanVien != null ? lop.nhanVien.tenNV : 'Chưa phân công'}">HLV: Nguyễn Văn A</div>
+                    <div class="class-capacity" th:text="'Sức chứa: ' + ${lop.slToiDa} + ' người'">Sức chứa: 20 người</div>
+                    <div class="class-available" th:text="'Tình trạng: Còn chỗ trống'">Còn trống: 5 chỗ</div>
+                    <div class="class-duration" th:text="'Thời hạn lớp: ' + ${lopService.getThoiHanLop(lop)} + ' ngày'">Thời hạn lớp: 30 ngày</div>
+                    <div class="class-date" th:text="'Ngày bắt đầu: ' + ${lop.ngayBD != null ? #temporals.format(lop.ngayBD, 'dd/MM/yyyy') : 'Chưa xác định'}">Ngày bắt đầu: 01/01/2024</div>
+                    <div class="class-end-date" th:text="'Ngày kết thúc: ' + ${lop.ngayKT != null ? #temporals.format(lop.ngayKT, 'dd/MM/yyyy') : 'Chưa xác định'}">Ngày kết thúc: 30/01/2024</div>
+                    <div class="class-schedule" th:text="'Lịch tập: ' + ${lopService.getCaTapStringForLop(lop.maLop)}">Lịch tập: Ca 1 (06:00-08:00)</div>
                 </div>
-                <button class="select-class-btn" onclick="selectClass(1, 'Lớp sáng 7:00-8:30')">CHỌN LỚP</button>
-            </div>
-            
-            <div class="class-card" data-class-id="2">
-                <div class="class-time">18:00 - 19:30</div>
-                <div class="class-info">
-                    <div class="class-name">Lớp tối</div>
-                    <div class="class-instructor">HLV: Trần Thị B</div>
-                    <div class="class-capacity">Sức chứa: 25 người</div>
-                    <div class="class-available">Còn trống: 10 chỗ</div>
-                </div>
-                <button class="select-class-btn" onclick="selectClass(2, 'Lớp tối 18:00-19:30')">CHỌN LỚP</button>
-            </div>
-            
-            <div class="class-card" data-class-id="3">
-                <div class="class-time">19:30 - 21:00</div>
-                <div class="class-info">
-                    <div class="class-name">Lớp nâng cao</div>
-                    <div class="class-instructor">HLV: Lê Văn C</div>
-                    <div class="class-capacity">Sức chứa: 15 người</div>
-                    <div class="class-available">Còn trống: 3 chỗ</div>
-                </div>
-                <button class="select-class-btn" onclick="selectClass(3, 'Lớp nâng cao 19:30-21:00')">CHỌN LỚP</button>
+                <button class="select-class-btn" 
+                        th:data-class-id="${lop.maLop}"
+                        th:data-class-name="${lop.tenLop}"
+                        th:data-class-schedule="${lopService.getCaTapStringForLop(lop.maLop)}"
+                        th:data-class-duration="${lopService.getThoiHanLop(lop)}"
+                        onclick="selectClassFromData(this)">CHỌN LỚP</button>
             </div>
         </div>
         
@@ -99,20 +94,30 @@
         <input type="hidden" id="dichvu-tenDV" th:value="${dichVu.tenDV}">
         <input type="hidden" id="dichvu-donGia" th:value="${dichVu.donGia}">
         <input type="hidden" id="dichvu-accountId" th:value="${accountId}">
+        <input type="hidden" id="dichvu-maBM" th:value="${dichVu.boMon.maBM}">
     </div>
 </div>
 
 <script>
-function selectClass(classId, className) {
-    if (confirm(`Bạn có chắc chắn muốn đăng ký "${className}"?`)) {
+function selectClassFromData(button) {
+    const classId = button.getAttribute('data-class-id');
+    const className = button.getAttribute('data-class-name');
+    const classSchedule = button.getAttribute('data-class-schedule');
+    const classDuration = button.getAttribute('data-class-duration');
+    
+    selectClass(classId, className, classSchedule, classDuration);
+}
+
+function selectClass(classId, className, classSchedule, classDuration) {
+    if (confirm(`Bạn có chắc chắn muốn đăng ký lớp "${className}"?`)) {
         // Lấy thông tin dịch vụ
         const maDV = document.getElementById('dichvu-maDV').value;
         const tenDV = document.getElementById('dichvu-tenDV').value;
         const donGia = document.getElementById('dichvu-donGia').value;
         const accountId = document.getElementById('dichvu-accountId').value;
         
-        // Tạo tên dịch vụ với thông tin lớp
-        const serviceNameWithClass = `${tenDV} - ${className}`;
+        // Tạo tên dịch vụ với thông tin lớp và lịch tập
+        const serviceNameWithClass = `${tenDV} - ${className} (${classSchedule})`;
         
         // Thêm dịch vụ vào sessionStorage
         const registeredServices = JSON.parse(sessionStorage.getItem('registeredServices') || '[]');
@@ -131,14 +136,16 @@ function selectClass(classId, className) {
             trainingType: 'Lớp',
             price: parseInt(donGia),
             classId: classId,
-            className: className
+            className: className,
+            classSchedule: classSchedule,
+            classDuration: classDuration || 'Chưa xác định' // Thời hạn từ lớp
         });
         
         // Lưu vào sessionStorage
         sessionStorage.setItem('registeredServices', JSON.stringify(registeredServices));
         
         // Hiển thị thông báo thành công
-        alert(`Đã thêm "${serviceNameWithClass}" vào giỏ hàng!`);
+        alert(`Đã thêm "${serviceNameWithClass}" vào giỏ hàng!\nThời hạn: ${classDuration} ngày`);
         
         // Chuyển về trang bộ môn
         goBackToBoMon();
@@ -147,10 +154,7 @@ function selectClass(classId, className) {
 
 function goBackToBoMon() {
     const accountId = document.getElementById('dichvu-accountId').value;
-    
-    // Lấy thông tin bộ môn từ sessionStorage
-    const selectedService = JSON.parse(sessionStorage.getItem('selectedService') || '{}');
-    const maBM = selectedService.maBM;
+    const maBM = document.getElementById('dichvu-maBM').value;
     
     if (maBM && accountId) {
         window.location.href = `/dich-vu-gym/dich-vu-theo-bo-mon?maBM=${maBM}&accountId=${accountId}`;
@@ -207,7 +211,7 @@ function goBackToBoMon() {
     color: #333;
 }
 
-.class-instructor, .class-capacity, .class-available {
+.class-instructor, .class-capacity, .class-available, .class-duration, .class-date, .class-end-date, .class-schedule {
     font-size: 14px;
     color: #666;
     margin-bottom: 5px;
@@ -216,6 +220,20 @@ function goBackToBoMon() {
 .class-available {
     color: #28a745;
     font-weight: 500;
+}
+
+.class-duration {
+    color: #ff6b8a;
+    font-weight: 600;
+}
+
+.class-schedule {
+    color: #007bff;
+    font-weight: 500;
+    background: #f8f9fa;
+    padding: 5px 8px;
+    border-radius: 5px;
+    margin-top: 8px;
 }
 
 .select-class-btn {
@@ -268,6 +286,39 @@ function goBackToBoMon() {
 .service-detail-content div {
     margin-bottom: 8px;
     color: #666;
+}
+
+.no-classes-message {
+    text-align: center;
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #666;
+}
+
+.no-classes-message p {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.back-to-bo-mon {
+    margin-bottom: 20px;
+}
+
+.back-btn-bo-mon {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.back-btn-bo-mon:hover {
+    background: #5a6268;
 }
 </style>
 </body>
