@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import hahaha.enums.LoaiNhanVien;
 import hahaha.model.NhanVien;
 
 public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
@@ -22,39 +21,16 @@ public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
     List<NhanVien> findAllNotDeleted();
     
     @Query("""
-        SELECT n FROM NhanVien n 
-        JOIN Account a ON a.nhanVien.maNV = n.maNV 
-        WHERE a.isDeleted = 0 
+        SELECT acc.nhanVien FROM Account acc
+        WHERE acc.isDeleted = 0
+        AND acc.nhanVien IS NOT NULL
         AND (
-            :keyword IS NULL OR :keyword = '' OR
-            LOWER(TRIM(n.tenNV)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%')) OR
-            LOWER(TRIM(n.email)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%')) OR
-            LOWER(TRIM(n.maNV)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%'))
-        )
-        AND (:loaiNV IS NULL OR :loaiNV = '' OR n.loaiNV = :loaiNVEnum)
+                LOWER(acc.nhanVien.maNV) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                LOWER(acc.nhanVien.tenNV) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                LOWER(acc.nhanVien.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                LOWER(CAST(acc.nhanVien.loaiNV AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            )
     """)
-    List<NhanVien> searchNhanVien(@Param("keyword") String keyword, @Param("loaiNV") String loaiNV, @Param("loaiNVEnum") LoaiNhanVien loaiNVEnum);
-    
-    // Method để test tìm kiếm đơn giản
-    @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0 AND LOWER(n.tenNV) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<NhanVien> findByTenNVContainingIgnoreCase(@Param("keyword") String keyword);
-    
-    // Method để debug - lấy tất cả tên nhân viên
-    @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0")
-    List<NhanVien> getAllForDebug();
-    
-    // Method tìm kiếm không dấu - sử dụng JPQL thay vì native query
-    @Query("""
-        SELECT n FROM NhanVien n 
-        JOIN Account a ON a.nhanVien.maNV = n.maNV 
-        WHERE a.isDeleted = 0 
-        AND (
-            :keyword IS NULL OR :keyword = '' OR
-            UPPER(n.tenNV) LIKE UPPER(CONCAT('%', :keyword, '%')) OR
-            UPPER(n.email) LIKE UPPER(CONCAT('%', :keyword, '%')) OR
-            UPPER(n.maNV) LIKE UPPER(CONCAT('%', :keyword, '%'))
-        )
-        AND (:loaiNV IS NULL OR :loaiNV = '' OR n.loaiNV = :loaiNVEnum)
-    """)
-    List<NhanVien> searchNhanVienUnaccented(@Param("keyword") String keyword, @Param("loaiNV") String loaiNV, @Param("loaiNVEnum") LoaiNhanVien loaiNVEnum);
+    List<NhanVien> searchActiveEmployeesByKeyword(@Param("keyword") String keyword);
+
 }

@@ -40,9 +40,13 @@
         <h1>BẢNG DANH SÁCH KHÁCH HÀNG</h1>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Tìm kiếm khách hàng...">
-            <button class="search-btn">&#9906;</button>
+            <form th:action="@{/quan-ly-khach-hang/tim-kiem}" method="get">
+                <input type="text" name="keyword" placeholder="Tìm kiếm khách hàng..." required>
+                <button type="submit" class="search-btn">&#9906;</button>
+            </form>
         </div>
+
+
 
         <div class="table-container">
             <table>
