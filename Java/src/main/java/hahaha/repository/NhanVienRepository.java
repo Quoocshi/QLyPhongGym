@@ -21,40 +21,5 @@ public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
     @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0")
     List<NhanVien> findAllNotDeleted();
     
-    @Query("""
-        SELECT n FROM NhanVien n 
-        JOIN Account a ON a.nhanVien.maNV = n.maNV 
-        WHERE a.isDeleted = 0 
-        AND (
-            :keyword IS NULL OR :keyword = '' OR
-            LOWER(TRIM(n.tenNV)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%')) OR
-            LOWER(TRIM(n.email)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%')) OR
-            LOWER(TRIM(n.maNV)) LIKE LOWER(CONCAT('%', TRIM(:keyword), '%'))
-        )
-        AND (:loaiNV IS NULL OR :loaiNV = '' OR n.loaiNV = :loaiNVEnum)
-    """)
-    List<NhanVien> searchNhanVien(@Param("keyword") String keyword, @Param("loaiNV") String loaiNV, @Param("loaiNVEnum") LoaiNhanVien loaiNVEnum);
-    
-    // Method để test tìm kiếm đơn giản
-    @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0 AND LOWER(n.tenNV) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<NhanVien> findByTenNVContainingIgnoreCase(@Param("keyword") String keyword);
-    
-    // Method để debug - lấy tất cả tên nhân viên
-    @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0")
-    List<NhanVien> getAllForDebug();
-    
-    // Method tìm kiếm không dấu - sử dụng JPQL thay vì native query
-    @Query("""
-        SELECT n FROM NhanVien n 
-        JOIN Account a ON a.nhanVien.maNV = n.maNV 
-        WHERE a.isDeleted = 0 
-        AND (
-            :keyword IS NULL OR :keyword = '' OR
-            UPPER(n.tenNV) LIKE UPPER(CONCAT('%', :keyword, '%')) OR
-            UPPER(n.email) LIKE UPPER(CONCAT('%', :keyword, '%')) OR
-            UPPER(n.maNV) LIKE UPPER(CONCAT('%', :keyword, '%'))
-        )
-        AND (:loaiNV IS NULL OR :loaiNV = '' OR n.loaiNV = :loaiNVEnum)
-    """)
-    List<NhanVien> searchNhanVienUnaccented(@Param("keyword") String keyword, @Param("loaiNV") String loaiNV, @Param("loaiNVEnum") LoaiNhanVien loaiNVEnum);
+
 }

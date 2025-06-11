@@ -43,47 +43,17 @@ public class QlyNhanVienController {
 
     @GetMapping("/danh-sach-nhan-vien")
     @PreAuthorize("hasRole('ADMIN')")
-    public String hienThiQuanLyNhanVien(@RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "loaiNV", required = false) String loaiNV,
-                                       Authentication auth, Model model) {
+    public String hienThiQuanLyNhanVien(Authentication auth, Model model) {
         try {
-            List<NhanVien> nhanVienList;
-            
-            if ((keyword != null && !keyword.trim().isEmpty()) || (loaiNV != null && !loaiNV.trim().isEmpty())) {
-                // Có tìm kiếm hoặc lọc
-                System.out.println("=== DEBUG SEARCH ===");
-                System.out.println("Original keyword: '" + keyword + "'");
-                System.out.println("Keyword bytes: " + (keyword != null ? java.util.Arrays.toString(keyword.getBytes("UTF-8")) : "null"));
-                System.out.println("LoaiNV: '" + loaiNV + "'");
-                
-                // Test URL decode
-                try {
-                    String decodedKeyword = java.net.URLDecoder.decode(keyword, "UTF-8");
-                    System.out.println("URL decoded keyword: '" + decodedKeyword + "'");
-                    System.out.println("Decoded bytes: " + java.util.Arrays.toString(decodedKeyword.getBytes("UTF-8")));
-                } catch (Exception e) {
-                    System.out.println("URL decode failed: " + e.getMessage());
-                }
-                nhanVienList = nhanVienService.searchNhanVien(keyword, loaiNV);
-                System.out.println("Kết quả tìm được: " + nhanVienList.size() + " nhân viên");
-                for (NhanVien nv : nhanVienList) {
-                    System.out.println("- " + nv.getMaNV() + ": " + nv.getTenNV());
-                }
-                System.out.println("===================");
-                model.addAttribute("searchKeyword", keyword);
-                model.addAttribute("selectedLoaiNV", loaiNV);
-            } else {
-                // Hiển thị tất cả
-                nhanVienList = nhanVienService.getAll();
-            }
-            
+            // Chỉ lấy tất cả nhân viên, bỏ logic tìm kiếm backend
+            List<NhanVien> nhanVienList = nhanVienService.getAll();
             model.addAttribute("nhanVienList", nhanVienList);
             return getViewByRole(auth, "qlynv");
             
         } catch (Exception e) {
             System.err.println("Lỗi trong controller quản lý nhân viên: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("errorMessage", "Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.");
+            model.addAttribute("errorMessage", "Có lỗi xảy ra khi tải danh sách nhân viên.");
             model.addAttribute("nhanVienList", nhanVienService.getAll());
             return getViewByRole(auth, "qlynv");
         }

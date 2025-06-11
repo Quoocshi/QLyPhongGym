@@ -17,7 +17,7 @@
         <nav>
             <ul>
                 <li class="active"><a href="#">Trang chủ</a></li>
-                <li><a href="/trainer/lichlop">Lịch dạy lớp</a></li>
+                <li><a href="#" th:href="@{/trainer/lichlop/{accountId}/{username}(accountId=${userId}, username=${username})}">Lịch dạy lớp</a></li>
                 <li><a href="#">Lịch dạy cá nhân</a></li>
                 <li><a href="#">Lương</a></li>
                 <li><a href="#">Phản hồi/ Khiếu nại</a></li>

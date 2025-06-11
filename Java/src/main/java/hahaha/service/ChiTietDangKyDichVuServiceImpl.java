@@ -11,6 +11,7 @@ import hahaha.model.ChiTietDangKyDichVu;
 import hahaha.model.DichVu;
 import hahaha.model.HoaDon;
 import hahaha.model.Lop;
+import hahaha.repository.ChiTietDangKyDichVuRepository;
 import hahaha.repository.LopRepository;
 
 @Service
@@ -18,6 +19,9 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
 
     @Autowired
     private LopRepository lopRepository;
+    
+    @Autowired
+    private ChiTietDangKyDichVuRepository chiTietRepository;
 
     @Override
     public String generateMaCTDKFromNumber(int number) {
@@ -31,7 +35,7 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
         ct.setDichVu(dv);
         ct.setHoaDon(hd);
         ct.setNgayBD(LocalDateTime.now());
-        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan()));
+        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
 
         if (!dv.getLoaiDV().equals(LoaiDichVu.TuDo)) {
             String maBM = dv.getBoMon().getMaBM();
@@ -41,8 +45,53 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
                 ct.setNhanVien(lop.getNhanVien());
             }
         }
-        return ct;
+        
+        // Lưu vào database
+        return chiTietRepository.save(ct);
     }
 
-
+    @Override
+    public ChiTietDangKyDichVu taoChiTietVoiLop(DichVu dv, HoaDon hd, int soThuTu, String maLop) {
+        ChiTietDangKyDichVu ct = new ChiTietDangKyDichVu();
+        ct.setMaCTDK(generateMaCTDKFromNumber(soThuTu));
+        ct.setDichVu(dv);
+        ct.setHoaDon(hd);
+        ct.setNgayBD(LocalDateTime.now());
+        
+        // Nếu có lớp được chọn cụ thể
+        if (maLop != null && !maLop.trim().isEmpty()) {
+            Lop lopDaChon = lopRepository.findById(maLop).orElse(null);
+            if (lopDaChon != null) {
+                ct.setLop(lopDaChon);
+                ct.setNhanVien(lopDaChon.getNhanVien());
+                
+                // Sử dụng thời hạn của lớp thay vì dịch vụ
+                if (lopDaChon.getNgayBD() != null && lopDaChon.getNgayKT() != null) {
+                    ct.setNgayBD(lopDaChon.getNgayBD());
+                    ct.setNgayKT(lopDaChon.getNgayKT());
+                } else {
+                    // Fallback về thời hạn dịch vụ nếu lớp không có ngày
+                    ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+                }
+            } else {
+                // Lớp không tồn tại, fallback về logic cũ
+                ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+            }
+        } else {
+            // Không có lớp được chọn, sử dụng logic cũ
+            ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+            
+            if (!dv.getLoaiDV().equals(LoaiDichVu.TuDo)) {
+                String maBM = dv.getBoMon().getMaBM();
+                Lop lop = lopRepository.findFirstByBoMon_MaBMAndTinhTrangLop(maBM, TinhTrangLop.ChuaDay);
+                if (lop != null) {
+                    ct.setLop(lop);
+                    ct.setNhanVien(lop.getNhanVien());
+                }
+            }
+        }
+        
+        // Lưu vào database
+        return chiTietRepository.save(ct);
+    }
 }

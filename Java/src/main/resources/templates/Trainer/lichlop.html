@@ -15,12 +15,12 @@
             <span class="user-icon">&#128100;</span>
             <div>
                 <div class="user-title">HUẤN LUYỆN VIÊN</div>
-                <div style="font-size: 14px; color: #666; margin-top: 4px;">Trang chủ</div>
+                <div style="font-size: 14px; color: #666; margin-top: 4px;" th:text="${trainer != null ? trainer.tenNV : 'Trang chủ'}">Trang chủ</div>
             </div>
         </div>
         <nav>
             <ul>
-                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#" th:href="@{/trainer/home/{accountId}/{username}(accountId=${accountId}, username=${username})}">Trang chủ</a></li>
                 <li class="active"><a href="#">Lịch dạy lớp</a></li>
                 <li><a href="#">Lịch dạy cá nhân</a></li>
                 <li><a href="#">Lương</a></li>
@@ -28,17 +28,25 @@
                 <li><a href="#">Tài khoản</a></li>
             </ul>
         </nav>
-        <a href="/login" class="logout-btn">ĐĂNG XUẤT</a>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="logout-btn">ĐĂNG XUẤT</button>
+        </form>
     </aside>
 
     <!-- Main Content -->
     <div class="main-content">
         <h1>LỊCH DẠY LỚP</h1>
         
+        <!-- Error Message -->
+        <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 20px; padding: 10px; background: #ffebee; border: 1px solid #e57373; border-radius: 4px;">
+            <span th:text="${error}"></span>
+        </div>
+        
         <!-- Search Bar -->
         <div class="search-bar">
-            <input type="text" placeholder="Tìm kiếm lớp học...">
-            <button class="search-btn">🔍</button>
+            <input type="text" placeholder="Tìm kiếm lớp học..." id="searchInput">
+            <button class="search-btn" onclick="searchClasses()">🔍</button>
         </div>
 
         <!-- Class Table -->
@@ -57,55 +65,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- Dynamic data from database -->
+                    <tr th:each="lop : ${dsLop}" th:if="${dsLop != null and !dsLop.isEmpty()}">
                         <td>
-                            <input type="checkbox" class="row-checkbox" value="L001" onchange="updateActionButtons()">
+                            <input type="checkbox" class="row-checkbox" th:value="${lop.maLop}" onchange="updateActionButtons()">
                         </td>
-                        <td>L001</td>
-                        <td>Yoga Cơ Bản A1</td>
-                        <td>Ca 1</td>
-                        <td>15/01/2024</td>
-                        <td><span class="status chua-day">Chưa dạy</span></td>
+                        <td th:text="${lop.maLop}">L001</td>
+                        <td th:text="${lop.tenLop}">Yoga Cơ Bản A1</td>
+                        <td th:text="${lopService.getCaTapStringForLop(lop.maLop)}">Ca 1</td>
+                        <td th:text="${lop.ngayBD != null ? #temporals.format(lop.ngayBD, 'dd/MM/yyyy') : 'Chưa xác định'}">15/01/2024</td>
+                        <td>
+                            <span th:class="${lop.tinhTrangLop == T(hahaha.enums.TinhTrangLop).ChuaDay ? 'status chua-day' : 'status da-day'}" 
+                                  th:text="${lop.tinhTrangLop == T(hahaha.enums.TinhTrangLop).ChuaDay ? 'Chưa đầy' : 'Đã đầy'}">Chưa đầy</span>
+                        </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="row-checkbox" value="L002" onchange="updateActionButtons()">
+                    <!-- No data message -->
+                    <tr th:if="${dsLop == null or dsLop.isEmpty()}">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                            Không có lớp học nào được phân công cho bạn
                         </td>
-                        <td>L002</td>
-                        <td>Yoga Nâng Cao B1</td>
-                        <td>Ca 2</td>
-                        <td>20/01/2024</td>
-                        <td><span class="status da-day">Đã dạy</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="row-checkbox" value="L003" onchange="updateActionButtons()">
-                        </td>
-                        <td>L003</td>
-                        <td>Zumba Sáng C1</td>
-                        <td>Ca 1</td>
-                        <td>22/01/2024</td>
-                        <td><span class="status chua-day">Chưa dạy</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="row-checkbox" value="L004" onchange="updateActionButtons()">
-                        </td>
-                        <td>L004</td>
-                        <td>Cardio Chiều D1</td>
-                        <td>Ca 4</td>
-                        <td>25/01/2024</td>
-                        <td><span class="status chua-day">Chưa dạy</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="row-checkbox" value="L005" onchange="updateActionButtons()">
-                        </td>
-                        <td>L005</td>
-                        <td>Bơi Cơ Bản E1</td>
-                        <td>Ca 5</td>
-                        <td>28/01/2024</td>
-                        <td><span class="status da-day">Đã dạy</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -166,8 +144,8 @@
                 <label>Tình trạng:</label>
                 <select name="tinhTrang" required>
                     <option value="">Chọn tình trạng</option>
-                    <option value="ChuaDay">Chưa dạy</option>
-                    <option value="DaDay">Đã dạy</option>
+                    <option value="ChuaDay">Chưa đầy</option>
+                    <option value="DaDay">Đã đầy</option>
                 </select>
             </div>
             <div class="form-group">
@@ -218,8 +196,8 @@
             <div class="form-group">
                 <label>Tình trạng:</label>
                 <select name="tinhTrang" required>
-                    <option value="ChuaDay" selected>Chưa dạy</option>
-                    <option value="DaDay">Đã dạy</option>
+                    <option value="ChuaDay" selected>Chưa đầy</option>
+                    <option value="DaDay">Đã đầy</option>
                 </select>
             </div>
             <div class="form-group">
@@ -287,6 +265,23 @@ function updateActionButtons() {
     }
 }
 
+function searchClasses() {
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const classCode = row.cells[1]?.textContent?.toLowerCase() || '';
+        const className = row.cells[2]?.textContent?.toLowerCase() || '';
+        
+        if (classCode.includes(searchTerm) || className.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
 function openAddModal() {
     document.getElementById('addModal').style.display = 'flex';
 }
@@ -351,6 +346,13 @@ window.onclick = function(event) {
         }
     });
 }
+
+// Allow Enter key to trigger search
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchClasses();
+    }
+});
 </script>
 </body>
 </html>

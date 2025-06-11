@@ -67,7 +67,11 @@ public class DichVuServiceImpl implements DichVuService {
                     cs.setString(1, dichVu.getMaDV());
                     cs.setString(2, dichVu.getTenDV());
                     cs.setString(3, dichVu.getLoaiDV().toString());
-                    cs.setInt(4, dichVu.getThoiHan());
+                    if (dichVu.getThoiHan() != null) {
+                        cs.setInt(4, dichVu.getThoiHan());
+                    } else {
+                        cs.setNull(4, java.sql.Types.INTEGER);
+                    }
                     cs.setDouble(5, dichVu.getDonGia());
                     cs.setString(6, dichVu.getBoMon().getMaBM());
                     cs.setInt(7, dichVu.getVersion());  // Truyền version hiện tại
@@ -147,6 +151,21 @@ public class DichVuServiceImpl implements DichVuService {
     @Override
     public List<DichVu> getDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH) {
         return dichVuRepository.listDichVuTheoBoMonKhachHangChuaDangKy(maBM, maKH);
+    }
+
+    @Override
+    public List<DichVu> getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(String maBM, String maKH, String thoiHanFilter) {
+        return dichVuRepository.listDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(maBM, maKH, thoiHanFilter);
+    }
+
+    @Override
+    public List<DichVu> getDichVuByBoMon(String maBM) {
+        return dichVuRepository.findByBoMon_MaBM(maBM);
+    }
+
+    @Override
+    public BoMon getBoMonById(String maBM) {
+        return boMonRepository.findById(maBM).orElse(null);
     }
 
 } 

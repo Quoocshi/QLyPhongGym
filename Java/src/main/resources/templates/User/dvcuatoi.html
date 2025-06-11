@@ -289,7 +289,7 @@
                 <li><a href="#" class="active">Dịch vụ của tôi</a></li>
                 <li><a href="#">Theo dõi khu vực</a></li>
                 <li><a href="#">Voucher của tôi</a></li>
-                <li><a href="#">Tài khoản</a></li>
+                <li><a href="#" th:href="@{/user/taikhoan/{accountId}(accountId=${accountId})}">Tài khoản</a></li>
             </ul>
         </nav>
         <form th:action="@{/logout}" method="post" style="margin: 0;">
