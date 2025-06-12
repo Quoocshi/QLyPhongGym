@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Biểu đồ doanh thu</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>📊 Biểu đồ doanh thu theo ngày</h2>
+    <canvas id="revenueChart" width="600px" height="300px"></canvas>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function loadBalanceData(){
+            fetch('/api/thongke/doanhthu',{
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Không thể lấy dữ liệu từ API");
+                return response.json();
+            })
+            .then(data => {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: data.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'VNĐ'
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                alert("Lỗi khi tải biểu đồ: " + error);
+                console.error(error);
+            });
+        }
+    </script>
+    <script>
+    $(document).ready(function() {
+        loadBalanceData();
+    });
+</script>
+
+
+</body>
+</html>
