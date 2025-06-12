@@ -84,8 +84,16 @@ public class QlyNhanVienController {
 
     @PostMapping("/them-nhan-vien")
     @PreAuthorize("hasRole('ADMIN')")
-    public String themNhanVien(NhanVien nhanVien, RedirectAttributes redirectAttributes) {
+    public String themNhanVien(NhanVien nhanVien,
+                                @RequestParam("rawPassword") String rawPassword, 
+                                @RequestParam("confirmPassword") String confirmPassword,
+                                RedirectAttributes redirectAttributes) {
         try {
+
+            if (!rawPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu và xác nhận mật khẩu không khớp!");
+            return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
+        }
             // Kiểm tra email đã tồn tại
             if (accountRepository.existsByEmail(nhanVien.getEmail())) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Email đã tồn tại trong hệ thống!");
@@ -100,20 +108,16 @@ public class QlyNhanVienController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Email này đã được sử dụng làm tài khoản đăng nhập!");
                 return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
             }
-            
-            // Password mặc định
-            String password = "123456";
-            
-            Boolean resultNV = nhanVienService.createNhanVien(nhanVien);
-            if (!resultNV) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tạo nhân viên!");
+            System.out.println("tenNV: " + nhanVien.getTenNV());
+            boolean nv = nhanVienService.createNhanVien(nhanVien);
+            if(!nv){
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể tạo nhân viên.");
                 return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
             }
-
             // Tạo tài khoản cho nhân viên
             Account account = new Account();
             account.setUserName(username);
-            account.setPasswordHash(passwordEncoder.encode(password));
+            account.setPasswordHash(passwordEncoder.encode(rawPassword));
             account.setCreatedAt(LocalDateTime.now());
             account.setUpdatedAt(LocalDateTime.now());
             account.setStatus("ACTIVE");
@@ -122,11 +126,19 @@ public class QlyNhanVienController {
 
             // Gán role group dựa trên loại nhân viên
             Long roleGroupId = getRoleGroupIdByLoaiNV(nhanVien.getLoaiNV().name());
-            RoleGroup roleGroup = new RoleGroup();
-            roleGroup.setRoleGroupId(roleGroupId);
+            System.out.println("role: " + roleGroupId);
+            RoleGroup roleGroup = roleGroupRepository.findById(roleGroupId).orElse(null);
+            if (roleGroup == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy quyền hạn tương ứng!");
+                return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
+            }
             account.setRoleGroup(roleGroup);
-            
+                        
             accountRepository.save(account);
+            System.out.println(">>> Đã tạo tài khoản cho nhân viên:");
+            System.out.println("username = " + account.getUserName());
+            System.out.println("roleGroup = " + account.getRoleGroup().getNameRoleGroup());
+            System.out.println("MaNV = " + account.getNhanVien().getMaNV());
             
             redirectAttributes.addFlashAttribute("successMessage", "Thêm nhân viên và tạo tài khoản thành công!");
         } catch (Exception e) {
@@ -193,8 +205,11 @@ public class QlyNhanVienController {
                 
                 // Cập nhật role
                 Long roleGroupId = getRoleGroupIdByLoaiNV(nhanVienUpdate.getLoaiNV().name());
-                RoleGroup roleGroup = new RoleGroup();
-                roleGroup.setRoleGroupId(roleGroupId);
+                RoleGroup roleGroup = roleGroupRepository.findById(roleGroupId).orElse(null);
+                if (roleGroup == null) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy quyền hạn tương ứng!");
+                    return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
+                }
                 account.setRoleGroup(roleGroup);
                 account.setUpdatedAt(LocalDateTime.now());
                 accountRepository.save(account);

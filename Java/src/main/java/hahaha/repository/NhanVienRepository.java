@@ -17,9 +17,6 @@ public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
     @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE n.maNV = ?1 AND a.isDeleted = 0")
     Optional<NhanVien> findByIdActive(String maNV);
     
-    @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0")
-    List<NhanVien> findAllNotDeleted();
-    
     @Query("""
         SELECT acc.nhanVien FROM Account acc
         WHERE acc.isDeleted = 0

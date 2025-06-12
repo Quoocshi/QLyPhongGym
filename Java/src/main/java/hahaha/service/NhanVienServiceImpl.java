@@ -1,16 +1,15 @@
 package hahaha.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import hahaha.repository.NhanVienRepository;
-import hahaha.repository.AccountRepository;
-import hahaha.model.NhanVien;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import hahaha.model.Account;
-import hahaha.model.KhachHang;
-import hahaha.enums.LoaiNhanVien;
+import hahaha.model.NhanVien;
+import hahaha.repository.AccountRepository;
+import hahaha.repository.NhanVienRepository;
 
 @Service
 public class NhanVienServiceImpl implements NhanVienService {
@@ -22,7 +21,7 @@ public class NhanVienServiceImpl implements NhanVienService {
 
     @Override
     public String generateNextMaNV() {
-        List<NhanVien> allNV = nhanVienRepository.findAllNotDeleted();
+        List<NhanVien> allNV = nhanVienRepository.findAll();
         int maxNumber = 0;
         for (NhanVien nv : allNV) {
             if (nv.getMaNV().startsWith("NV")) {
@@ -39,7 +38,7 @@ public class NhanVienServiceImpl implements NhanVienService {
 
     @Override
     public String generateNextMaQL() {
-        List<NhanVien> allNV = nhanVienRepository.findAllNotDeleted();
+        List<NhanVien> allNV = nhanVienRepository.findAll();
         int maxNumber = 0;
         for (NhanVien nv : allNV) {
             if (nv.getMaNV().startsWith("QL")) {
@@ -56,7 +55,7 @@ public class NhanVienServiceImpl implements NhanVienService {
 
     @Override
     public String generateNextMaPT() {
-        List<NhanVien> allNV = nhanVienRepository.findAllNotDeleted();
+        List<NhanVien> allNV = nhanVienRepository.findAll();
         int maxNumber = 0;
         for (NhanVien nv : allNV) {
             if (nv.getMaNV().startsWith("PT")) {

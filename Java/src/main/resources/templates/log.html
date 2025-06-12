@@ -38,6 +38,21 @@
                     <div class="login-form">
                         <h1>Đăng Nhập</h1>
                         
+                        <!-- Thông báo lỗi -->
+                        <div th:if="${errorMessage}" class="alert alert-error">
+                            <span th:text="${errorMessage}"></span>
+                        </div>
+                        
+                        <!-- Thông báo đăng xuất -->
+                        <div th:if="${logoutMessage}" class="alert alert-success">
+                            <span th:text="${logoutMessage}"></span>
+                        </div>
+                        
+                        <!-- Thông báo đăng ký thành công -->
+                        <div th:if="${successMessage}" class="alert alert-success">
+                            <span th:text="${successMessage}"></span>
+                        </div>
+                        
                         <form th:action="@{/login}" method="post">
                             <div class="form-group">
                                 <label for="username">Gmail hoặc Username</label>
