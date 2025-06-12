@@ -6,4 +6,7 @@ import hahaha.model.DoanhThu;
 
 public interface ThongKeService {
     List<DoanhThu>layDoanhThuTheoNgay();
+    Long layTongLuotDangKy();
+    Long layTongLuotThanhToan();
+    Double layTongDoanhThuThang();
 }
