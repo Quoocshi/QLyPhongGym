@@ -222,4 +222,33 @@ public class HoaDonServiceImpl implements HoaDonService {
             throw new RuntimeException("Lỗi thêm chi tiết hóa đơn với lớp: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public void themChiTietHoaDonVoiTrainer(String maHD, String maDV, String maNV) {
+        try {
+            // Lấy thông tin dịch vụ
+            DichVu dichVu = dichVuRepository.findById(maDV).orElseThrow(
+                () -> new RuntimeException("Không tìm thấy dịch vụ: " + maDV)
+            );
+            
+            // Lấy hóa đơn
+            HoaDon hoaDon = hoaDonRepository.findById(maHD).orElseThrow(
+                () -> new RuntimeException("Không tìm thấy hóa đơn: " + maHD)
+            );
+            
+            // Lấy số thứ tự tiếp theo
+            Integer maxNumber = chiTietRepository.findMaxChiTietDangKyDichVuNumber();
+            int stt = (maxNumber != null) ? maxNumber + 1 : 1;
+            
+            // Tạo chi tiết đăng ký dịch vụ với thông tin trainer
+            ChiTietDangKyDichVu chiTiet = chiTietService.taoChiTietVoiTrainer(dichVu, hoaDon, stt, maNV);
+            
+            if (chiTiet == null) {
+                throw new RuntimeException("Không thể tạo chi tiết đăng ký cho dịch vụ: " + maDV + " với trainer: " + maNV);
+            }
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi thêm chi tiết hóa đơn với trainer: " + e.getMessage(), e);
+        }
+    }
 }

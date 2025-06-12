@@ -14,4 +14,5 @@ public interface HoaDonService {
     HoaDon taoHoaDon(String maKH, Double tongTien);
     void themChiTietHoaDon(String maHD, String maDV);
     void themChiTietHoaDonVoiLop(String maHD, String maDV, String maLop);
+    void themChiTietHoaDonVoiTrainer(String maHD, String maDV, String maNV);
 }

@@ -5,6 +5,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.sql.Connection;
+import java.sql.CallableStatement;
+import java.sql.Types;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +17,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import hahaha.config.VNPayConfig;
 import hahaha.model.HoaDon;
+import hahaha.model.ChiTietDangKyDichVu;
+import hahaha.model.Lop;
 import hahaha.service.HoaDonService;
+import hahaha.service.ChiTietDangKyDichVuService;
+import hahaha.repository.ChiTietDangKyDichVuRepository;
+import hahaha.repository.NhanVienRepository;
+import hahaha.repository.LopRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,6 +32,18 @@ import jakarta.servlet.http.HttpServletRequest;
 public class VNPayController {
     @Autowired
     private HoaDonService hoaDonService;
+    
+    @Autowired
+    private ChiTietDangKyDichVuRepository chiTietRepository;
+    
+    @Autowired
+    private NhanVienRepository nhanVienRepository;
+    
+    @Autowired
+    private LopRepository lopRepository;
+    
+    @Autowired
+    private javax.sql.DataSource dataSource;
 
     @PostMapping("/pay/{maHD}")
     @PreAuthorize("hasRole('USER')")
@@ -165,6 +186,10 @@ public class VNPayController {
                 // Chỉ cập nhật trạng thái khi thanh toán thành công
                 hoaDonService.thanhToan(maHD);
                 System.out.println("✅ Cập nhật trạng thái thanh toán thành công cho hóa đơn: " + maHD);
+                
+                // Xử lý thông tin trainer/class nếu có (từ session frontend)
+                processTrainerAndClassAssignments(maHD);
+                
                 redirectAttributes.addFlashAttribute("success", "Thanh toán thành công!");
                 return "redirect:/thanh-toan/" + maHD + "?success=true";
             } catch (Exception e) {
@@ -240,6 +265,207 @@ public class VNPayController {
             case "79": return "Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định";
             case "99": return "Các lỗi khác (lỗi còn lại, không có trong danh sách mã lỗi đã liệt kê)";
             default: return "Lỗi không xác định: " + responseCode;
+        }
+    }
+
+    private void processTrainerAndClassAssignments(String maHD) {
+        try {
+            System.out.println("🔄 Bắt đầu xử lý gán trainer/class cho hóa đơn: " + maHD);
+            
+            // Lấy hóa đơn và chi tiết
+            HoaDon hoaDon = hoaDonService.timMaHD(maHD);
+            if (hoaDon == null) {
+                System.err.println("❌ Không tìm thấy hóa đơn: " + maHD);
+                return;
+            }
+            
+            List<ChiTietDangKyDichVu> dsChiTiet = hoaDon.getDsChiTiet();
+            if (dsChiTiet == null || dsChiTiet.isEmpty()) {
+                System.out.println("ℹ️ Không có chi tiết dịch vụ nào trong hóa đơn");
+                return;
+            }
+            
+            // Note: Thông tin trainer/class được lưu trong sessionStorage phía frontend
+            // Sẽ cần API endpoint riêng để frontend gửi thông tin này sau khi VNPay callback
+            // Hoặc có thể lưu vào database temporary table trước khi chuyển VNPay
+            
+            System.out.println("✅ Sẵn sàng xử lý trainer/class assignments cho " + dsChiTiet.size() + " dịch vụ");
+            
+            // TODO: Implement logic cập nhật trainer/class
+            // Có thể tạo API endpoint /vnpay/update-assignments để frontend gọi
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi xử lý trainer/class assignments: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @PostMapping("/update-assignments")
+    @ResponseBody
+    public Map<String, Object> updateTrainerAndClassAssignments(
+            @RequestParam String maHD,
+            @RequestBody Map<String, Map<String, String>> serviceDetails) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            System.out.println("🔄 Cập nhật trainer/class assignments cho hóa đơn: " + maHD);
+            System.out.println("📋 Service details: " + serviceDetails);
+            
+            // Lấy hóa đơn
+            HoaDon hoaDon = hoaDonService.timMaHD(maHD);
+            if (hoaDon == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy hóa đơn: " + maHD);
+                return response;
+            }
+            
+            List<ChiTietDangKyDichVu> dsChiTiet = hoaDon.getDsChiTiet();
+            if (dsChiTiet == null || dsChiTiet.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Không có chi tiết dịch vụ nào trong hóa đơn");
+                return response;
+            }
+            
+            int successCount = 0;
+            int totalCount = 0;
+            
+            // Duyệt qua từng chi tiết để cập nhật
+            for (ChiTietDangKyDichVu chiTiet : dsChiTiet) {
+                totalCount++;
+                String maDV = chiTiet.getDichVu().getMaDV();
+                String maCTDK = chiTiet.getMaCTDK();
+                
+                // Lấy thông tin trainer/class từ serviceDetails
+                Map<String, String> detail = serviceDetails.get(maDV);
+                if (detail != null) {
+                    String trainerId = detail.get("trainerId");
+                    String classId = detail.get("classId");
+                    
+                    // Nếu có trainerId và là dịch vụ PT
+                    if (trainerId != null && !trainerId.isEmpty() && 
+                        "PT".equals(chiTiet.getDichVu().getLoaiDV())) {
+                        
+                        System.out.println("📌 Cập nhật trainer " + trainerId + " cho CT " + maCTDK);
+                        
+                        // Gọi procedure để cập nhật trainer
+                        boolean updateSuccess = updateTrainerForCTDK(maCTDK, trainerId);
+                        if (updateSuccess) {
+                            successCount++;
+                            System.out.println("✅ Cập nhật trainer thành công cho " + maCTDK);
+                        } else {
+                            System.out.println("❌ Cập nhật trainer thất bại cho " + maCTDK);
+                        }
+                    }
+                    // Nếu có classId và là dịch vụ Lop
+                    else if (classId != null && !classId.isEmpty() && 
+                             "Lop".equals(chiTiet.getDichVu().getLoaiDV())) {
+                        
+                        System.out.println("📌 Cập nhật class " + classId + " cho CT " + maCTDK);
+                        
+                        // Cập nhật trực tiếp vào database
+                        boolean updateSuccess = updateClassForCTDK(maCTDK, classId);
+                        if (updateSuccess) {
+                            successCount++;
+                            System.out.println("✅ Cập nhật class thành công cho " + maCTDK);
+                        } else {
+                            System.out.println("❌ Cập nhật class thất bại cho " + maCTDK);
+                        }
+                    }
+                }
+            }
+            
+            response.put("success", true);
+            response.put("message", "Cập nhật thành công " + successCount + "/" + totalCount + " dịch vụ");
+            response.put("successCount", successCount);
+            response.put("totalCount", totalCount);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi cập nhật trainer/class assignments: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi hệ thống: " + e.getMessage());
+        }
+        
+        return response;
+    }
+    
+    /**
+     * Gọi procedure để cập nhật trainer cho chi tiết đăng ký
+     */
+    private boolean updateTrainerForCTDK(String maCTDK, String trainerId) {
+        try {
+            // Sử dụng JDBC để gọi procedure
+            Connection connection = dataSource.getConnection();
+            CallableStatement statement = connection.prepareCall(
+                "{call proc_cap_nhat_trainer_cho_ctdk(?, ?, ?, ?)}"
+            );
+            
+            // Input parameters
+            statement.setString(1, maCTDK);
+            statement.setString(2, trainerId);
+            
+            // Output parameters
+            statement.registerOutParameter(3, Types.VARCHAR); // p_result
+            statement.registerOutParameter(4, Types.VARCHAR); // p_error_msg
+            
+            // Execute procedure
+            statement.execute();
+            
+            // Lấy kết quả
+            String result = statement.getString(3);
+            String errorMsg = statement.getString(4);
+            
+            statement.close();
+            connection.close();
+            
+            if ("SUCCESS".equals(result)) {
+                System.out.println("✅ Procedure cập nhật trainer thành công cho " + maCTDK);
+                return true;
+            } else {
+                System.err.println("❌ Procedure cập nhật trainer thất bại: " + errorMsg);
+                return false;
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi gọi procedure updateTrainerForCTDK: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Cập nhật class cho chi tiết đăng ký
+     */
+    private boolean updateClassForCTDK(String maCTDK, String classId) {
+        try {
+            // Tìm lớp theo ID
+            Optional<Lop> lopOpt = lopRepository.findById(classId);
+            if (!lopOpt.isPresent()) {
+                System.err.println("❌ Không tìm thấy lớp: " + classId);
+                return false;
+            }
+            
+            // Tìm chi tiết đăng ký
+            Optional<ChiTietDangKyDichVu> chiTietOpt = chiTietRepository.findById(maCTDK);
+            if (!chiTietOpt.isPresent()) {
+                System.err.println("❌ Không tìm thấy chi tiết đăng ký: " + maCTDK);
+                return false;
+            }
+            
+            // Cập nhật
+            ChiTietDangKyDichVu chiTiet = chiTietOpt.get();
+            chiTiet.setLop(lopOpt.get());
+            chiTiet.setNhanVien(lopOpt.get().getNhanVien()); // Gán trainer của lớp
+            chiTietRepository.save(chiTiet);
+            
+            System.out.println("✅ Cập nhật class thành công cho " + maCTDK);
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi cập nhật class: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 }

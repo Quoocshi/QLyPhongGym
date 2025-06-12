@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chọn Personal Trainer</title>
+    <link rel="stylesheet" th:href="@{/css/dangkydv.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            KHÁCH HÀNG
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" th:href="@{/user/home/{accountId}/{username}(accountId=${accountId}, username=${username})}">Trang chủ</a></li>
+                <li><a href="#" class="active">Đăng ký dịch vụ</a></li>
+                <li><a href="#">Thuê dụng cụ</a></li>
+                <li><a href="#" th:href="@{/user/lich-tap/{accountId}(accountId=${accountId})}">Xem lịch tập</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Thanh toán</a></li>
+                <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${accountId})}">Dịch vụ của tôi</a></li>
+                <li><a href="#">Theo dõi khu vực</a></li>
+                <li><a href="#">Voucher của tôi</a></li>
+                <li><a href="#" th:href="@{/user/taikhoan/{accountId}(accountId=${accountId})}">Tài khoản</a></li>
+            </ul>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">ĐĂNG XUẤT</button>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hidden inputs to store data -->
+        <input type="hidden" id="dichvu-maDV" th:value="${dichVu.maDV}">
+        <input type="hidden" id="dichvu-tenDV" th:value="${dichVu.tenDV}">
+        <input type="hidden" id="dichvu-donGia" th:value="${dichVu.donGia}">
+        <input type="hidden" id="dichvu-accountId" th:value="${accountId}">
+        <input type="hidden" id="dichvu-maBM" th:value="${dichVu.boMon.maBM}">
+
+        <!-- Header với nút quay lại -->
+        <div class="back-to-bo-mon">
+            <button onclick="goBackToBoMon()" class="back-btn-bo-mon">← Quay lại dịch vụ</button>
+            <h1 th:text="'CHỌN PERSONAL TRAINER CHO ' + ${dichVu.tenDV}"></h1>
+        </div>
+        
+        <!-- Thông tin dịch vụ -->
+        <div class="service-info">
+            <div class="service-detail-card">
+                <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'GymdvPT.png' : 
+                                              dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 'UIT.png'}}" 
+                     th:alt="${dichVu.tenDV}">
+                <div class="service-detail-content">
+                    <h2 th:text="${dichVu.tenDV}"></h2>
+                    <div th:utext="'Hình thức tập luyện: ' + 
+                                   ${dichVu.loaiDV.name() == 'PT' ? 'Personal Trainer (1-1)' : dichVu.loaiDV} + 
+                                   '<br>Thời hạn dịch vụ: ' + ${dichVu.thoiHan != null ? dichVu.thoiHan : 'Chưa xác định'} + ' ngày'"></div>
+                    <div th:text="'Giá tiền: ' + ${#numbers.formatDecimal(dichVu.donGia, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danh sách Personal Trainer -->
+        <div class="section-title">Chọn Personal Trainer (chỉ được chọn 1 PT)</div>
+        
+        <!-- Hiển thị thông báo nếu không có PT -->
+        <div th:if="${dsTrainer == null or dsTrainer.isEmpty()}" class="no-classes-message">
+            <p>Hiện tại không có Personal Trainer nào có sẵn cho dịch vụ này.</p>
+            <p>Vui lòng quay lại sau hoặc chọn dịch vụ khác.</p>
+        </div>
+        
+        <!-- Grid hiển thị Personal Trainer -->
+        <div th:if="${dsTrainer != null and !dsTrainer.isEmpty()}" class="trainers-grid">
+            <div th:each="trainer : ${dsTrainer}" class="trainer-card">
+                <div class="trainer-image">
+                    <div class="trainer-avatar">
+                        <span th:if="${trainer.gioiTinh == 'Nam'}" class="avatar-icon">👨‍💪</span>
+                        <span th:if="${trainer.gioiTinh == 'Nu'}" class="avatar-icon">👩‍💪</span>
+                        <span th:unless="${trainer.gioiTinh == 'Nam' or trainer.gioiTinh == 'Nu'}" class="avatar-icon">🏋️</span>
+                    </div>
+                </div>
+                <div class="trainer-info">
+                    <div class="trainer-name" th:text="${trainer.tenNV}">Tên Trainer</div>
+                    <div class="trainer-code">Mã: <span th:text="${trainer.maNV}">PT001</span></div>
+                    <div class="trainer-gender">Giới tính: <span th:text="${trainer.gioiTinh}">Nam</span></div>
+                    <div class="trainer-email">Email: <span th:text="${trainer.email}">trainer@gym.com</span></div>
+                    <div class="trainer-experience">
+                        Kinh nghiệm: <span th:text="${trainer.ngayVaoLam != null ? 
+                            (#temporals.format(trainer.ngayVaoLam, 'dd/MM/yyyy') + ' (Từ ' + 
+                            #temporals.format(trainer.ngayVaoLam, 'yyyy') + ')') : 'Chưa xác định'}">05/2020</span>
+                    </div>
+                </div>
+                <button class="select-trainer-btn" 
+                        th:data-trainer-id="${trainer.maNV}"
+                        th:data-trainer-name="${trainer.tenNV}"
+                        onclick="selectTrainerFromButton(this)">
+                    CHỌN TRAINER NÀY
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectTrainerFromButton(button) {
+    const trainerId = button.getAttribute('data-trainer-id');
+    const trainerName = button.getAttribute('data-trainer-name');
+    selectTrainer(trainerId, trainerName);
+}
+
+function selectTrainer(trainerId, trainerName) {
+    if (confirm(`Bạn có chắc chắn muốn chọn Personal Trainer "${trainerName}"?`)) {
+        // Lấy thông tin dịch vụ
+        const maDV = document.getElementById('dichvu-maDV').value;
+        const tenDV = document.getElementById('dichvu-tenDV').value;
+        const donGia = document.getElementById('dichvu-donGia').value;
+        const accountId = document.getElementById('dichvu-accountId').value;
+        
+        // Tạo tên dịch vụ với thông tin trainer
+        const serviceNameWithTrainer = `${tenDV} - PT: ${trainerName}`;
+        
+        // Thêm dịch vụ vào sessionStorage
+        const registeredServices = JSON.parse(sessionStorage.getItem('registeredServices') || '[]');
+        
+        // Kiểm tra xem dịch vụ đã được đăng ký chưa
+        const existingService = registeredServices.find(service => service.code === maDV);
+        if (existingService) {
+            alert('Dịch vụ này đã được đăng ký!');
+            return;
+        }
+        
+        // Thêm dịch vụ với thông tin trainer
+        registeredServices.push({
+            name: serviceNameWithTrainer,
+            code: maDV,
+            trainingType: 'PT',
+            price: parseInt(donGia),
+            trainerId: trainerId,
+            trainerName: trainerName
+        });
+        
+        // Lưu vào sessionStorage
+        sessionStorage.setItem('registeredServices', JSON.stringify(registeredServices));
+        
+        // Hiển thị thông báo thành công
+        alert(`Đã thêm "${serviceNameWithTrainer}" vào giỏ hàng!`);
+        
+        // Chuyển về trang bộ môn
+        goBackToBoMon();
+    }
+}
+
+function goBackToBoMon() {
+    const accountId = document.getElementById('dichvu-accountId').value;
+    const maBM = document.getElementById('dichvu-maBM').value;
+    
+    if (maBM && accountId) {
+        window.location.href = `/dich-vu-gym/dich-vu-theo-bo-mon?maBM=${maBM}&accountId=${accountId}`;
+    } else {
+        // Fallback nếu không có thông tin bộ môn
+        alert('Không tìm thấy thông tin bộ môn. Quay lại trang chủ đăng ký dịch vụ.');
+        window.location.href = `/dich-vu-gym/dang-kydv?accountId=${accountId}`;
+    }
+}
+</script>
+
+<style>
+.service-info {
+    margin-bottom: 30px;
+}
+
+.trainers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.trainer-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.trainer-card:hover {
+    border-color: #007bff;
+    transform: translateY(-5px);
+}
+
+.trainer-image {
+    margin-bottom: 20px;
+}
+
+.trainer-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.avatar-icon {
+    font-size: 40px;
+}
+
+.trainer-info {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.trainer-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.trainer-code, .trainer-gender, .trainer-email, .trainer-experience {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.trainer-code span, .trainer-gender span {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.trainer-email span {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.trainer-experience span {
+    color: #ff6b8a;
+    font-weight: 600;
+}
+
+.select-trainer-btn {
+    background: linear-gradient(135deg, #ff6b8a, #ff8e53);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.select-trainer-btn:hover {
+    background: linear-gradient(135deg, #ff5577, #ff7043);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 138, 0.4);
+}
+
+.no-classes-message {
+    text-align: center;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 40px 20px;
+    margin: 30px 0;
+    color: #6c757d;
+}
+
+.no-classes-message p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.no-classes-message p:first-child {
+    font-weight: 600;
+    color: #495057;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #ff6b8a;
+}
+</style>
+</body>
+</html> 

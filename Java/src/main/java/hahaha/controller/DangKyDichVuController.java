@@ -1,5 +1,9 @@
 package hahaha.controller;
 
+import java.math.BigDecimal;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Types;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +26,14 @@ import hahaha.model.DichVu;
 import hahaha.model.HoaDon;
 import hahaha.model.KhachHang;
 import hahaha.model.Lop;
+import hahaha.model.NhanVien;
 import hahaha.repository.ChiTietDangKyDichVuRepository;
 import hahaha.repository.DichVuRepository;
 import hahaha.repository.KhachHangRepository;
 import hahaha.service.DichVuService;
 import hahaha.service.HoaDonService;
 import hahaha.service.LopService;
+import hahaha.service.NhanVienService;
 
 @Controller
 @RequestMapping("/dich-vu-gym")
@@ -44,6 +50,11 @@ public class DangKyDichVuController{
         ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
     @Autowired
         LopService lopService;
+    @Autowired
+        NhanVienService nhanVienService;
+    
+    @Autowired
+    private javax.sql.DataSource dataSource;
     
 
     @GetMapping("/dang-kydv")
@@ -264,6 +275,65 @@ public class DangKyDichVuController{
         }
     }
 
+    @GetMapping("/chonpt")
+    @PreAuthorize("hasRole('USER')")
+    public String hienThiChonPT(@RequestParam("maDV") String maDV,
+                               @RequestParam("accountId") Long accountId,
+                               Model model) {
+        try {
+            KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+            if (khachHang == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
+            }
+            
+            String maKH = khachHang.getMaKH();
+            String username = khachHang.getAccount().getUserName();
+            
+            // Lấy thông tin dịch vụ
+            DichVu dichVu = dichVuRepository.findById(maDV).orElse(null);
+            if (dichVu == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy dịch vụ với mã: " + maDV);
+            }
+            
+            System.out.println("=== DEBUG Controller ChonPT ===");
+            System.out.println("MaDV: " + maDV);
+            System.out.println("TenDV: " + dichVu.getTenDV());
+            System.out.println("LoaiDV enum: " + dichVu.getLoaiDV());
+            
+            // Kiểm tra xem dịch vụ có phải loại "PT" không
+            if (dichVu.getLoaiDV() != LoaiDichVu.PT) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dịch vụ này không phải loại PT. LoaiDV hiện tại: '" + dichVu.getLoaiDV() + "'");
+            }
+            
+            // Lấy danh sách trainer theo bộ môn của dịch vụ
+            String maBM = dichVu.getBoMon().getMaBM();
+            System.out.println("MaBM: " + maBM);
+            
+            List<NhanVien> dsTrainer = nhanVienService.getTrainersByBoMon(maBM);
+            System.out.println("Tổng số trainer: " + (dsTrainer != null ? dsTrainer.size() : "null"));
+            
+            if (dsTrainer != null) {
+                for (NhanVien trainer : dsTrainer) {
+                    System.out.println("Trainer: " + trainer.getMaNV() + " - " + trainer.getTenNV());
+                }
+            }
+            
+            model.addAttribute("dichVu", dichVu);
+            model.addAttribute("dsTrainer", dsTrainer);
+            model.addAttribute("maKH", maKH);
+            model.addAttribute("accountId", accountId);
+            model.addAttribute("username", username);
+            
+            return "User/chonpt";
+            
+        } catch (Exception e) {
+            System.err.println("=== LỖI trong hienThiChonPT ===");
+            e.printStackTrace();
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "error";
+        }
+    }
+
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
     public String hienThiDichVuCuaToi(@RequestParam("accountId") Long accountId, Model model) {
@@ -317,70 +387,165 @@ public class DangKyDichVuController{
         return "User/dvcuatoi";
     }
 
-    @PostMapping("/dang-ky-dv")
+    @PostMapping("/dang-ky-dv-universal")
     @PreAuthorize("hasRole('USER')")
-    public String dangKyDichVu(@RequestParam("maKH") String maKH,
-                              @RequestParam("accountId") Long accountId,
-                              @RequestParam("dsMaDV") String[] dsMaDV,
-                              @RequestParam(value = "dsClassId", required = false) String[] dsClassId,
-                              Model model,
-                              RedirectAttributes redirectAttributes) {
+    public String dangKyDichVuUniversal(@RequestParam("maKH") String maKH,
+                                       @RequestParam("accountId") Long accountId,
+                                       @RequestParam("dsMaDV") String[] dsMaDV,
+                                       @RequestParam(value = "dsTrainerId", required = false) String[] dsTrainerId,
+                                       @RequestParam(value = "dsClassId", required = false) String[] dsClassId,
+                                       Model model,
+                                       RedirectAttributes redirectAttributes) {
         try {
-            KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
-            if (khachHang == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khách hàng");
-            }
-            
-            System.out.println("=== ĐĂNG KÝ DỊCH VỤ ===");
+            System.out.println("=== ĐĂNG KÝ DỊCH VỤ UNIVERSAL (TuDo + PT + Lop) ===" );
             System.out.println("MaKH: " + maKH);
             System.out.println("AccountId: " + accountId);
             System.out.println("Số dịch vụ: " + dsMaDV.length);
             
-            // Tạo hóa đơn
-            double tongTien = 0;
-            
-            // Tính tổng tiền từ các dịch vụ
-            for (int i = 0; i < dsMaDV.length; i++) {
-                String maDV = dsMaDV[i];
-                DichVu dichVu = dichVuRepository.findById(maDV).orElse(null);
-                
-                if (dichVu != null) {
-                    tongTien += dichVu.getDonGia();
-                    System.out.println("Dịch vụ: " + maDV + " - Giá: " + dichVu.getDonGia());
-                    
-                    // Kiểm tra nếu có classId được gửi kèm
-                    if (dsClassId != null && i < dsClassId.length && !dsClassId[i].isEmpty()) {
-                        System.out.println("Lớp được chọn: " + dsClassId[i]);
-                    }
+            // Debug assignments
+            if (dsTrainerId != null) {
+                System.out.println("Trainer assignments:");
+                for (int j = 0; j < dsTrainerId.length; j++) {
+                    System.out.println("  [" + j + "] DV: " + (j < dsMaDV.length ? dsMaDV[j] : "N/A") + 
+                                     " → Trainer: " + dsTrainerId[j]);
                 }
             }
             
-            // Tạo hóa đơn
-            HoaDon hoaDon = hoaDonService.taoHoaDon(maKH, tongTien);
-            String maHD = hoaDon.getMaHD();
-            
-            // Thêm chi tiết dịch vụ vào hóa đơn
-            for (int i = 0; i < dsMaDV.length; i++) {
-                String maDV = dsMaDV[i];
-                String classId = (dsClassId != null && i < dsClassId.length) ? dsClassId[i] : null;
-                
-                // Gọi service để thêm chi tiết với thông tin lớp (nếu có)
-                hoaDonService.themChiTietHoaDonVoiLop(maHD, maDV, classId);
+            if (dsClassId != null) {
+                System.out.println("Class assignments:");
+                for (int j = 0; j < dsClassId.length; j++) {
+                    System.out.println("  [" + j + "] DV: " + (j < dsMaDV.length ? dsMaDV[j] : "N/A") + 
+                                     " → Class: " + dsClassId[j]);
+                }
             }
             
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Đăng ký dịch vụ thành công! Mã hóa đơn: " + maHD);
-            redirectAttributes.addFlashAttribute("maHD", maHD);
+            // Xác thực khách hàng
+            KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+            if (khachHang == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin khách hàng");
+            }
             
-            return "redirect:/dich-vu-gym/dang-kydv?accountId=" + accountId;
+            if (!khachHang.getMaKH().equals(maKH)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Thông tin khách hàng không khớp");
+            }
+            
+            // Gọi procedure universal
+            String[] result = callUniversalProcedure(maKH, dsMaDV, dsTrainerId, dsClassId);
+            
+            if ("SUCCESS".equals(result[0])) {
+                String maHD = result[1];
+                String tongTien = result[2];
+                
+                System.out.println("✅ Đăng ký universal thành công - MaHD: " + maHD + ", TongTien: " + tongTien);
+                
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Đăng ký dịch vụ thành công! Mã hóa đơn: " + maHD);
+                
+                // Redirect trực tiếp đến trang thanh toán theo mã hóa đơn
+                return "redirect:/thanh-toan/" + maHD;
+            } else {
+                System.err.println("❌ Đăng ký thất bại: " + result[3]);
+                redirectAttributes.addFlashAttribute("errorMessage", result[3]);
+                return "redirect:/dich-vu-gym";
+            }
             
         } catch (Exception e) {
-            System.err.println("Lỗi khi đăng ký dịch vụ: " + e.getMessage());
+            System.err.println("❌ Lỗi trong dangKyDichVuUniversal: " + e.getMessage());
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", 
-                "Có lỗi xảy ra khi đăng ký dịch vụ: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/dich-vu-gym";
+        }
+    }
+    
+    /**
+     * Gọi procedure proc_dang_ky_dich_vu_universal
+     * @return String array [result, maHD, tongTien, errorMsg]
+     */
+    private String[] callUniversalProcedure(String maKH, String[] dsMaDV, 
+                                          String[] dsTrainerId, String[] dsClassId) {
+        Connection connection = null;
+        CallableStatement statement = null;
+        
+        try {
+            // Chuẩn bị dữ liệu cho procedure
+            String listMaDV = String.join(",", dsMaDV);
             
-            return "redirect:/dich-vu-gym/dang-kydv?accountId=" + accountId;
+            // Đảm bảo trainer và class arrays có cùng độ dài với service array
+            String[] normalizedTrainerIds = new String[dsMaDV.length];
+            String[] normalizedClassIds = new String[dsMaDV.length];
+            
+            for (int i = 0; i < dsMaDV.length; i++) {
+                normalizedTrainerIds[i] = (dsTrainerId != null && i < dsTrainerId.length && 
+                                         dsTrainerId[i] != null && !dsTrainerId[i].trim().isEmpty()) 
+                                        ? dsTrainerId[i].trim() : "";
+                                        
+                normalizedClassIds[i] = (dsClassId != null && i < dsClassId.length && 
+                                       dsClassId[i] != null && !dsClassId[i].trim().isEmpty()) 
+                                      ? dsClassId[i].trim() : "";
+            }
+            
+            String listTrainerId = String.join(",", normalizedTrainerIds);
+            String listClassId = String.join(",", normalizedClassIds);
+            
+            System.out.println("📋 Procedure inputs:");
+            System.out.println("  MaKH: " + maKH);
+            System.out.println("  Services: " + listMaDV);
+            System.out.println("  Trainers: " + listTrainerId);
+            System.out.println("  Classes: " + listClassId);
+            
+            connection = dataSource.getConnection();
+            statement = connection.prepareCall(
+                "{call proc_dang_ky_dich_vu_universal(?, ?, ?, ?, ?, ?, ?, ?)}"
+            );
+            
+            // Input parameters
+            statement.setString(1, maKH);
+            statement.setString(2, listMaDV);
+            statement.setString(3, listTrainerId.isEmpty() ? null : listTrainerId);
+            statement.setString(4, listClassId.isEmpty() ? null : listClassId);
+            
+            // Output parameters
+            statement.registerOutParameter(5, Types.VARCHAR); // p_ma_hd
+            statement.registerOutParameter(6, Types.NUMERIC); // p_tong_tien
+            statement.registerOutParameter(7, Types.VARCHAR); // p_result
+            statement.registerOutParameter(8, Types.VARCHAR); // p_error_msg
+            
+            // Execute procedure
+            System.out.println("🔄 Executing procedure proc_dang_ky_dich_vu_universal...");
+            statement.execute();
+            
+            // Lấy kết quả
+            String maHD = statement.getString(5);
+            BigDecimal tongTien = statement.getBigDecimal(6);
+            String result = statement.getString(7);
+            String errorMsg = statement.getString(8);
+            
+            System.out.println("📋 Procedure result: " + result);
+            System.out.println("📋 MaHD: " + maHD);
+            System.out.println("📋 TongTien: " + tongTien);
+            
+            if (errorMsg != null) {
+                System.out.println("📋 Error: " + errorMsg);
+            }
+            
+            return new String[]{
+                result,
+                maHD,
+                tongTien != null ? tongTien.toString() : "0",
+                errorMsg
+            };
+            
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi gọi procedure universal: " + e.getMessage());
+            e.printStackTrace();
+            return new String[]{"ERROR", null, "0", "Lỗi hệ thống: " + e.getMessage()};
+        } finally {
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (Exception e) {
+                System.err.println("❌ Lỗi khi đóng connection: " + e.getMessage());
+            }
         }
     }
 }

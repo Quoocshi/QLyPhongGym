@@ -32,6 +32,16 @@ public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
             )
     """)
     List<NhanVien> searchActiveEmployeesByKeyword(@Param("keyword") String keyword);
+    
+    @Query("""
+        SELECT nv FROM NhanVien nv 
+        JOIN ChuyenMon cm ON nv.maNV = cm.maNV
+        JOIN Account a ON a.nhanVien.maNV = nv.maNV
+        WHERE cm.maBM = :maBM 
+        AND nv.loaiNV = 'Trainer'
+        AND a.isDeleted = 0
+    """)
+    List<NhanVien> findTrainersByBoMon(@Param("maBM") String maBM);
 
 
 }

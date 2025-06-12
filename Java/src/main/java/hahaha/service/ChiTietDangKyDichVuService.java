@@ -8,4 +8,5 @@ public interface ChiTietDangKyDichVuService {
     String generateMaCTDKFromNumber(int number);
     ChiTietDangKyDichVu taoChiTiet(DichVu dv, HoaDon hd, int stt);
     ChiTietDangKyDichVu taoChiTietVoiLop(DichVu dv, HoaDon hd, int stt, String maLop);
+    ChiTietDangKyDichVu taoChiTietVoiTrainer(DichVu dv, HoaDon hd, int stt, String maNV);
 }
