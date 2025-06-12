@@ -187,8 +187,61 @@ function redirectToPTSelection(title, desc, maDV) {
     }
 }
 
+// Hàm kiểm tra validation dịch vụ trước khi đăng ký
+async function checkServiceValidation(maDV) {
+    try {
+        // Lấy danh sách mã dịch vụ trong giỏ hàng
+        const cartServices = registeredServices.map(service => service.code).join(',');
+        
+        console.log('=== KIỂM TRA VALIDATION ===');
+        console.log('Mã DV muốn đăng ký:', maDV);
+        console.log('Cart services:', cartServices);
+        
+        // Lấy CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || 
+                         document.querySelector('input[name="_csrf"]')?.value;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+        
+        // Gọi API validation
+        const formData = new FormData();
+        formData.append('maDV', maDV);
+        formData.append('cartServices', cartServices);
+        
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+        
+        // Thêm CSRF token nếu có
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+        
+        const response = await fetch('/api/dichvu-validation/kiem-tra', {
+            method: 'POST',
+            body: formData,
+            headers: headers
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const result = await response.json();
+        console.log('Validation result:', result);
+        
+        return result;
+        
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra validation:', error);
+        return {
+            canRegister: false,
+            message: 'Lỗi kết nối. Vui lòng thử lại!'
+        };
+    }
+}
+
 // Hàm đăng ký dịch vụ (cập nhật để sử dụng maDV)
-function registerService(title, desc, maDV) {
+async function registerService(title, desc, maDV) {
     console.log('=== DEBUG registerService ===');
     console.log('Title:', title);
     console.log('Desc:', desc);
@@ -211,6 +264,13 @@ function registerService(title, desc, maDV) {
     console.log('Is Lop service?', isLopService);
     
     if (isLopService) {
+        // Kiểm tra validation trước khi chuyển hướng
+        const validationResult = await checkServiceValidation(maDV);
+        if (!validationResult.canRegister) {
+            showErrorMessage(validationResult.message);
+            return;
+        }
+        
         // Lấy accountId và các thông tin cần thiết
         const accountId = document.getElementById('accountId-input')?.value || 
                          new URLSearchParams(window.location.search).get('accountId');
@@ -242,6 +302,13 @@ function registerService(title, desc, maDV) {
         }
     }
     
+    // Kiểm tra validation trước khi đăng ký dịch vụ TuDo hoặc PT
+    const validationResult = await checkServiceValidation(maDV);
+    if (!validationResult.canRegister) {
+        showErrorMessage(validationResult.message);
+        return;
+    }
+    
     // Lấy giá tiền từ mô tả
     const priceMatch = desc.match(/Giá tiền: ([\d,.]+) VNĐ/);
     const price = priceMatch ? parseInt(priceMatch[1].replace(/[,.]/g, '')) : 0;
@@ -249,7 +316,7 @@ function registerService(title, desc, maDV) {
     // Kiểm tra xem dịch vụ đã được đăng ký chưa
     const existingService = registeredServices.find(service => service.code === maDV);
     if (existingService) {
-        alert('Dịch vụ này đã được đăng ký!');
+        showErrorMessage('Dịch vụ này đã được đăng ký!');
         return;
     }
 
@@ -314,6 +381,46 @@ function showSuccessMessage(message) {
             }
         }, 300);
     }, 3000);
+}
+
+// Hàm hiển thị thông báo lỗi
+function showErrorMessage(message) {
+    // Tạo element thông báo lỗi
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        z-index: 1000;
+        font-weight: 600;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        max-width: 400px;
+        line-height: 1.4;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animation hiển thị
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Tự động ẩn sau 5 giây (lâu hơn success message)
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
 }
 
 // Hàm cập nhật hiển thị danh sách dịch vụ đã đăng ký

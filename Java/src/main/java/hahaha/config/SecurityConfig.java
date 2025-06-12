@@ -26,9 +26,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            //.csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/vnpay/return", "/api/dichvu-validation/**") // VNPay callback và validation API không cần CSRF
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers( "/login","/log&re","/register","/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/api/autocomplete/**").hasAnyRole("ADMIN", "STAFF", "USER", "TRAINER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/staff/**").hasRole("STAFF")
                 .requestMatchers("/user/**").hasRole("USER")

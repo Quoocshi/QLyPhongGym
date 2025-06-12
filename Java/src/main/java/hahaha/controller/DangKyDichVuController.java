@@ -95,9 +95,11 @@ public class DangKyDichVuController{
         // Lấy dịch vụ theo bộ môn và filter (nếu có)
         List<DichVu> dichVuList;
         if (thoiHanFilter != null && !thoiHanFilter.isEmpty()) {
-            dichVuList = dichVuService.getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(maBM, maKH, thoiHanFilter);
+            // Sử dụng method mới: hiển thị tất cả dịch vụ (không filter ra dịch vụ đã đăng ký)
+            dichVuList = dichVuService.getTatCaDichVuTheoBoMonVaThoiHan(maBM, thoiHanFilter);
         } else {
-            dichVuList = dichVuService.getDichVuTheoBoMonKhachHangChuaDangKy(maBM, maKH);
+            // Sử dụng method mới: hiển thị tất cả dịch vụ (không filter ra dịch vụ đã đăng ký)
+            dichVuList = dichVuService.getTatCaDichVuTheoBoMon(maBM);
         }
         
         BoMon boMon = dichVuService.getBoMonById(maBM);

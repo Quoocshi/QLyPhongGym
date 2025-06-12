@@ -55,4 +55,28 @@ public interface DichVuRepository extends JpaRepository<DichVu, String> {
     
     // Method missing in controller
     List<DichVu> findByBoMon_MaBM(String maBM);
+    
+    // Query mới: Hiển thị tất cả dịch vụ theo bộ môn (không filter dịch vụ đã đăng ký)
+    @Query("""
+    SELECT d FROM DichVu d
+    WHERE d.boMon.maBM = :maBM 
+    """)
+    List<DichVu> listTatCaDichVuTheoBoMon(@Param("maBM") String maBM);
+    
+    // Query mới: Hiển thị tất cả dịch vụ theo bộ môn và filter theo thời hạn
+    @Query("""
+    SELECT d FROM DichVu d
+    WHERE d.boMon.maBM = :maBM 
+    AND (
+        :thoiHanFilter = '' OR :thoiHanFilter IS NULL OR
+        (:thoiHanFilter = '7' AND d.thoiHan <= 7) OR
+        (:thoiHanFilter = '30' AND d.thoiHan > 7 AND d.thoiHan <= 30) OR
+        (:thoiHanFilter = '90' AND d.thoiHan > 30 AND d.thoiHan <= 90) OR
+        (:thoiHanFilter = 'khac' AND d.thoiHan > 90)
+    )
+    """)
+    List<DichVu> listTatCaDichVuTheoBoMonVaThoiHan(
+        @Param("maBM") String maBM, 
+        @Param("thoiHanFilter") String thoiHanFilter
+    );
 }

@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Chọn Personal Trainer</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" th:href="@{/css/dangkydv.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -112,14 +114,80 @@ function selectTrainerFromButton(button) {
     selectTrainer(trainerId, trainerName);
 }
 
-function selectTrainer(trainerId, trainerName) {
-    if (confirm(`Bạn có chắc chắn muốn chọn Personal Trainer "${trainerName}"?`)) {
-        // Lấy thông tin dịch vụ
-        const maDV = document.getElementById('dichvu-maDV').value;
-        const tenDV = document.getElementById('dichvu-tenDV').value;
-        const donGia = document.getElementById('dichvu-donGia').value;
-        const accountId = document.getElementById('dichvu-accountId').value;
+// Hàm kiểm tra validation dịch vụ
+async function checkServiceValidation(maDV) {
+    try {
+        // Lấy danh sách mã dịch vụ trong giỏ hàng
+        const registeredServices = JSON.parse(sessionStorage.getItem('registeredServices') || '[]');
+        const cartServices = registeredServices.map(service => service.code).join(',');
         
+        console.log('=== KIỂM TRA VALIDATION (ChonPT) ===');
+        console.log('Mã DV muốn đăng ký:', maDV);
+        console.log('Cart services:', cartServices);
+        
+        // Lấy CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || 
+                         document.querySelector('input[name="_csrf"]')?.value;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+        
+        // Gọi API validation
+        const formData = new FormData();
+        formData.append('maDV', maDV);
+        formData.append('cartServices', cartServices);
+        
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+        
+        // Thêm CSRF token nếu có
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+        
+        const response = await fetch('/api/dichvu-validation/kiem-tra', {
+            method: 'POST',
+            body: formData,
+            headers: headers
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const result = await response.json();
+        console.log('Validation result:', result);
+        
+        return result;
+        
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra validation:', error);
+        return {
+            canRegister: false,
+            message: 'Lỗi kết nối. Vui lòng thử lại!'
+        };
+    }
+}
+
+// Hàm hiển thị thông báo lỗi
+function showErrorMessage(message) {
+    alert(message);
+}
+
+async function selectTrainer(trainerId, trainerName) {
+    // Lấy thông tin dịch vụ
+    const maDV = document.getElementById('dichvu-maDV').value;
+    const tenDV = document.getElementById('dichvu-tenDV').value;
+    const donGia = document.getElementById('dichvu-donGia').value;
+    const accountId = document.getElementById('dichvu-accountId').value;
+    
+    // Kiểm tra validation trước khi đăng ký
+    const validationResult = await checkServiceValidation(maDV);
+    if (!validationResult.canRegister) {
+        showErrorMessage(validationResult.message);
+        return;
+    }
+    
+    if (confirm(`Bạn có chắc chắn muốn chọn Personal Trainer "${trainerName}"?`)) {
         // Tạo tên dịch vụ với thông tin trainer
         const serviceNameWithTrainer = `${tenDV} - PT: ${trainerName}`;
         
@@ -129,7 +197,7 @@ function selectTrainer(trainerId, trainerName) {
         // Kiểm tra xem dịch vụ đã được đăng ký chưa
         const existingService = registeredServices.find(service => service.code === maDV);
         if (existingService) {
-            alert('Dịch vụ này đã được đăng ký!');
+            showErrorMessage('Dịch vụ này đã được đăng ký!');
             return;
         }
         
