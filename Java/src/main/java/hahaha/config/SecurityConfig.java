@@ -50,7 +50,8 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .successHandler(customAuthenticationSuccessHandler) 
+                .successHandler(customAuthenticationSuccessHandler)
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout

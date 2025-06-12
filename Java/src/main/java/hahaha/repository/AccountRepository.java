@@ -18,9 +18,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     
     @Query("""
         SELECT a.accountId FROM Account a
+        LEFT JOIN a.khachHang kh
+        LEFT JOIN a.nhanVien nv
         WHERE 
-            ((a.khachHang IS NOT NULL AND a.khachHang.email = ?1) 
-            OR (a.nhanVien IS NOT NULL AND a.nhanVien.email = ?1))
+            ((kh.email = ?1) OR (nv.email = ?1))
             AND a.isDeleted = 0
     """)
     Long findAccountIdByEmail(String email);
