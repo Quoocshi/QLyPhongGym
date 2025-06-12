@@ -52,6 +52,53 @@ VALUES ('PT008', 'Đỗ Minh Trí', TO_DATE('1993-03-20', 'YYYY-MM-DD'), 'Nam', 
 INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
 VALUES (4, 'PT008', 'trainer008', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
 
+-- Thêm PT 
+-- PT009: GYM
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT009', 'Nguyễn Văn Cường', TO_DATE('1991-05-12', 'YYYY-MM-DD'), 'Nam', 'cuongnv.gym@email.com', TO_DATE('2022-01-15', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT009', 'trainer009', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT0010: GYM
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT010', 'Lê Thị Mai', TO_DATE('1990-07-22', 'YYYY-MM-DD'), 'Nữ', 'mailt.gym@email.com', TO_DATE('2022-03-10', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT010', 'trainer010', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT011: GYM
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT011', 'Phạm Hữu Hùng', TO_DATE('1988-11-03', 'YYYY-MM-DD'), 'Nam', 'hungph.gym@email.com', TO_DATE('2021-09-01', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT011', 'trainer011', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT012: Cardio
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT012', 'Nguyễn Thị Hoa', TO_DATE('1993-06-25', 'YYYY-MM-DD'), 'Nữ', 'hoant.cardio@email.com', TO_DATE('2022-05-01', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT012', 'trainer012', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT013: Cardio
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT013', 'Trần Quốc Long', TO_DATE('1990-02-28', 'YYYY-MM-DD'), 'Nam', 'longtq.cardio@email.com', TO_DATE('2021-11-15', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT013', 'trainer013', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT014: Cardio
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT014', 'Lâm Thị Châu', TO_DATE('1992-09-19', 'YYYY-MM-DD'), 'Nữ', 'chaul.cardio@email.com', TO_DATE('2023-01-05', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT014', 'trainer014', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT015: CrossFit
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT015', 'Lê Văn Nam', TO_DATE('1987-04-10', 'YYYY-MM-DD'), 'Nam', 'namlv.crossfit@email.com', TO_DATE('2021-07-01', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT015', 'trainer015', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT016: CrossFit
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT016', 'Đặng Thị Lan', TO_DATE('1994-12-01', 'YYYY-MM-DD'), 'Nữ', 'landt.crossfit@email.com', TO_DATE('2022-04-20', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT016', 'trainer016', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+-- PT017: CrossFit
+INSERT INTO NHANVIEN (MaNV, TenNV, NgaySinh, GioiTinh, Email, NgayVaoLam, LoaiNV)
+VALUES ('PT017', 'Phạm Minh Khoa', TO_DATE('1989-03-18', 'YYYY-MM-DD'), 'Nam', 'khoapm.crossfit@email.com', TO_DATE('2023-02-01', 'YYYY-MM-DD'), 'Trainer');
+INSERT INTO ACCOUNT (ROLE_GROUP_ID, MaNV, USERNAME, PASSWORD_HASH, STATUS, IS_DELETED)
+VALUES (4, 'PT017', 'trainer017', '$2a$12$nul1RU9h4Q80aD2iBTwbt.YUKH3U8QspOvqcv066Wi2AvVMsjVqDK', 'ACTIVE', 0);
+
 -- Thêm Bộ môn
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM01', 'Gym Fitness');
 INSERT INTO BOMON (MaBM, TenBM) VALUES ('BM02', 'Yoga');
@@ -89,6 +136,17 @@ VALUES ('PT005', 'BM05', 'HLV Bơi');
 INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu)
 VALUES ('PT008', 'BM05', 'HLV Bơi');
 
+-- Thêm Chuyên môn cho các PT
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT009', 'BM01', 'HLV Gym');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT010', 'BM01', 'HLV Gym');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT011', 'BM01', 'HLV Gym');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT012', 'BM04', 'HLV Cardio');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT013', 'BM04', 'HLV Cardio');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT014', 'BM04', 'HLV Cardio');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT015', 'BM06', 'HLV CrossFit');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT016', 'BM06', 'HLV CrossFit');
+INSERT INTO CT_CHUYENMON (MaNV, MaBM, GhiChu) VALUES ('PT017', 'BM06', 'HLV CrossFit');
+
 -- Lớp YOGA (BM02) do PT003 phụ trách
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, NgayKT, GhiChu, MaBM, MaNV)
 VALUES ('LOP01', 'Yoga Cơ Bản Sáng', 'Lớp cho người mới bắt đầu, tập trung vào các tư thế và nhịp thở.', 20, 'ChuaDay', DATE '2025-06-16', DATE '2025-07-16', 'Vui lòng mang thảm tập', 'BM02', 'PT003');
@@ -121,6 +179,43 @@ VALUES ('LOP06', 'Lớp Bơi Trẻ Em', 'Dạy bơi cho trẻ từ 6-12 tuổi, 
 -- PT008 phụ trách
 INSERT INTO LOP (MaLop, TenLop, MoTa, SL_ToiDa, TinhTrang, NgayBD, NgayKT, GhiChu, MaBM, MaNV)
 VALUES ('LOP12', 'Bơi Ếch Tối', 'Học kỹ thuật bơi ếch cơ bản vào buổi tối.', 10, 'ChuaDay', DATE '2025-06-24', DATE '2025-07-24', 'Mang theo kính bơi', 'BM05', 'PT008');
+
+-- Them Lịch tập cho các lớp 
+-- YOGA
+INSERT INTO LICHTAP (MaLT, LoaiLich, Thu, Ca, MaLop, MaKH, MaNV, MaKV, TrangThai)
+VALUES 
+('LT001', 'Lop', '246', 'CA01', 'LOP01', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT013', 'Lop', '13',  'CA06', 'LOP01', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT002', 'Lop', '357', 'CA06', 'LOP02', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT003', 'Lop', '24',  'CA02', 'LOP07', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT016', 'Lop', '25',  'CA04', 'LOP07', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT004', 'Lop', '46',  'CA05', 'LOP08', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT005', 'Lop', '135', 'CA01', 'LOP09', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT019', 'Lop', '246', 'CA01', 'LOP13', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT020', 'Lop', '357', 'CA06', 'LOP13', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT021', 'Lop', '135', 'CA02', 'LOP14', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT022', 'Lop', '24',  'CA05', 'LOP14', NULL, 'PT006', 'KV02', 'Dang mo'),
+('LT023', 'Lop', '246', 'CA03', 'LOP15', NULL, 'PT003', 'KV02', 'Dang mo'),
+('LT024', 'Lop', '135', 'CA04', 'LOP16', NULL, 'PT006', 'KV02', 'Dang mo');
+
+-- ZUMBA
+INSERT INTO LICHTAP (MaLT, LoaiLich, Thu, Ca, MaLop, MaKH, MaNV, MaKV, TrangThai)
+VALUES 
+('LT006', 'Lop', '246', 'CA04', 'LOP03', NULL, 'PT004', 'KV03', 'Dang mo'),
+('LT014', 'Lop', '57',  'CA02', 'LOP03', NULL, 'PT004', 'KV03', 'Dang mo'),
+('LT007', 'Lop', '357', 'CA05', 'LOP04', NULL, 'PT004', 'KV03', 'Dang mo'),
+('LT008', 'Lop', '235', 'CA04', 'LOP10', NULL, 'PT007', 'KV03', 'Dang mo'),
+('LT017', 'Lop', '14',  'CA06', 'LOP10', NULL, 'PT007', 'KV03', 'Dang mo'),
+('LT009', 'Lop', '7',   'CA02', 'LOP11', NULL, 'PT007', 'KV03', 'Dang mo');
+
+-- BƠI
+INSERT INTO LICHTAP (MaLT, LoaiLich, Thu, Ca, MaLop, MaKH, MaNV, MaKV, TrangThai)
+VALUES 
+('LT010', 'Lop', '24',  'CA03', 'LOP05', NULL, 'PT005', 'KV05', 'Dang mo'),
+('LT018', 'Lop', '35',  'CA05', 'LOP05', NULL, 'PT005', 'KV05', 'Dang mo'),
+('LT011', 'Lop', '67',  'CA03', 'LOP06', NULL, 'PT005', 'KV05', 'Dang mo'),
+('LT012', 'Lop', '357', 'CA06', 'LOP12', NULL, 'PT008', 'KV05', 'Dang mo'),
+('LT015', 'Lop', '246', 'CA01', 'LOP12', NULL, 'PT008', 'KV05', 'Dang mo');
 
 -- Them Dich vu
 -- BM01 – GYM (TuDo, PT)

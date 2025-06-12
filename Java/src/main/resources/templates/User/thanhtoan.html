@@ -20,7 +20,7 @@
                 <li><a href="#" th:href="@{/user/home/{accountId}/{username}(accountId=${hoaDon.khachHang.account.accountId}, username=${hoaDon.khachHang.account.userName})}">Trang chủ</a></li>
                 <li><a href="#" th:href="@{/dich-vu-gym/dang-kydv(accountId=${hoaDon.khachHang.account.accountId})}">Đăng ký dịch vụ</a></li>
                 <li><a href="#">Thuê dụng cụ</a></li>
-                <li><a href="#">Xem lịch tập</a></li>
+                <li><a href="#" th:href="@{/user/lich-tap/{accountId}(accountId=${accountId})}">Xem lịch tập</a></li>
                 <li><a href="#">Phản hồi/ Khiếu nại</a></li>
                 <li><a href="#" class="active">Thanh toán</a></li>
                 <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${hoaDon.khachHang.account.accountId})}">Dịch vụ của tôi</a></li>
@@ -142,5 +142,114 @@
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra xem có phải callback từ VNPay thành công không
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSuccess = urlParams.get('success') === 'true';
+    
+    if (isSuccess) {
+        // Lấy thông tin trainer/class từ sessionStorage
+        const pendingServiceDetails = sessionStorage.getItem('pendingServiceDetails');
+        
+        if (pendingServiceDetails) {
+            console.log('Found pending service details, updating assignments...');
+            
+            try {
+                const serviceDetails = JSON.parse(pendingServiceDetails);
+                const maHD = /*[[${hoaDon.maHD}]]*/ '';
+                
+                // Gọi API để cập nhật assignments
+                updateServiceAssignments(maHD, serviceDetails);
+                
+            } catch (error) {
+                console.error('Error parsing service details:', error);
+            }
+        }
+    }
+});
+
+function updateServiceAssignments(maHD, serviceDetails) {
+    console.log('Updating service assignments for invoice:', maHD);
+    console.log('Service details:', serviceDetails);
+    
+    // Lấy CSRF token
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || 
+                     document.querySelector('input[name="${_csrf.parameterName}"]')?.value;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 
+                      '_csrf';
+    
+    fetch('/vnpay/update-assignments?maHD=' + encodeURIComponent(maHD), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify(serviceDetails)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Assignment update result:', data);
+        
+        if (data.success) {
+            console.log('✅ Successfully updated', data.updatedCount, 'services');
+            
+            // Xóa thông tin tạm thời
+            sessionStorage.removeItem('pendingServiceDetails');
+            
+            // Hiển thị thông báo thành công (optional)
+            if (data.updatedCount > 0) {
+                showNotification('Đã cập nhật thông tin trainer/lớp cho ' + data.updatedCount + ' dịch vụ', 'success');
+            }
+        } else {
+            console.error('❌ Failed to update assignments:', data.message);
+            showNotification('Lỗi cập nhật thông tin: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error updating assignments:', error);
+        showNotification('Có lỗi xảy ra khi cập nhật thông tin trainer/lớp', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 1000;
+        max-width: 300px;
+        word-wrap: break-word;
+        ${type === 'success' ? 'background: #28a745;' : 'background: #dc3545;'}
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animation hiển thị
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Tự động ẩn sau 5 giây
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+}
+</script>
 </body>
 </html>

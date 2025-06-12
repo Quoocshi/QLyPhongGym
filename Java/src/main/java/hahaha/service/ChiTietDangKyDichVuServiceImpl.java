@@ -11,8 +11,10 @@ import hahaha.model.ChiTietDangKyDichVu;
 import hahaha.model.DichVu;
 import hahaha.model.HoaDon;
 import hahaha.model.Lop;
+import hahaha.model.NhanVien;
 import hahaha.repository.ChiTietDangKyDichVuRepository;
 import hahaha.repository.LopRepository;
+import hahaha.repository.NhanVienRepository;
 
 @Service
 public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuService {
@@ -22,6 +24,9 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
     
     @Autowired
     private ChiTietDangKyDichVuRepository chiTietRepository;
+    
+    @Autowired
+    private NhanVienRepository nhanVienRepository;
 
     @Override
     public String generateMaCTDKFromNumber(int number) {
@@ -88,6 +93,28 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
                     ct.setLop(lop);
                     ct.setNhanVien(lop.getNhanVien());
                 }
+            }
+        }
+        
+        // Lưu vào database
+        return chiTietRepository.save(ct);
+    }
+
+    @Override
+    public ChiTietDangKyDichVu taoChiTietVoiTrainer(DichVu dv, HoaDon hd, int soThuTu, String maNV) {
+        ChiTietDangKyDichVu ct = new ChiTietDangKyDichVu();
+        ct.setMaCTDK(generateMaCTDKFromNumber(soThuTu));
+        ct.setDichVu(dv);
+        ct.setHoaDon(hd);
+        ct.setNgayBD(LocalDateTime.now());
+        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+        
+        // Gán trainer được chọn
+        if (maNV != null && !maNV.isEmpty()) {
+            NhanVien trainer = nhanVienRepository.findById(maNV).orElse(null);
+            if (trainer != null) {
+                ct.setNhanVien(trainer);
+                System.out.println("Đã gán trainer: " + trainer.getTenNV() + " cho dịch vụ PT");
             }
         }
         

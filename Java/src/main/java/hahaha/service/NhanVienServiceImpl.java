@@ -130,4 +130,9 @@ public class NhanVienServiceImpl implements NhanVienService {
             return false;
         }
     }
+
+    @Override
+    public List<NhanVien> getTrainersByBoMon(String maBM) {
+        return nhanVienRepository.findTrainersByBoMon(maBM);
+    }
 }

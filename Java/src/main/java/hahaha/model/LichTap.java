@@ -39,6 +39,10 @@ public class LichTap {
     @ManyToOne
     @JoinColumn(name = "MaLop", referencedColumnName = "MaLop")
     private Lop lop;
+    
+    @ManyToOne
+    @JoinColumn(name = "MaKV", referencedColumnName = "MaKV")
+    private KhuVuc khuVuc;
 
     // Constructors
     public LichTap() {}
@@ -67,8 +71,6 @@ public class LichTap {
     public void setThu(String thu) {
         this.thu = thu;
     }
-
-
 
     public String getTrangThai() {
         return trangThai;
@@ -108,5 +110,13 @@ public class LichTap {
 
     public void setLop(Lop lop) {
         this.lop = lop;
+    }
+    
+    public KhuVuc getKhuVuc() {
+        return khuVuc;
+    }
+
+    public void setKhuVuc(KhuVuc khuVuc) {
+        this.khuVuc = khuVuc;
     }
 } 

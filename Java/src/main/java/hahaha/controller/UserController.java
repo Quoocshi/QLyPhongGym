@@ -12,11 +12,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import hahaha.model.Account;
 import hahaha.model.KhachHang;
+import hahaha.model.LichTap;
 import hahaha.repository.AccountRepository;
 import hahaha.repository.KhachHangRepository;
+import hahaha.service.LichTapService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -27,6 +30,9 @@ public class UserController {
     @Autowired
     private KhachHangRepository khachHangRepository;
     
+    @Autowired
+    private LichTapService lichTapService;
+    
     @GetMapping("/home/{id}/{username}")
     public String homePage(Model model, @PathVariable Long id,@PathVariable String username) {
         Account acc = accountRepository.findByAccountId(id);
@@ -35,6 +41,27 @@ public class UserController {
         model.addAttribute("username", username);
         model.addAttribute("hoTen", hoTen);
         return "User/home"; 
+    }
+    
+    @GetMapping("/lich-tap/{id}")
+    public String lichTapPage(Model model, @PathVariable Long id) {
+        Account acc = accountRepository.findByAccountId(id);
+        if (acc == null || acc.getKhachHang() == null) {
+            return "redirect:/login";
+        }
+        
+        KhachHang khachHang = acc.getKhachHang();
+        String maKH = khachHang.getMaKH();
+        
+        // Lấy tất cả lịch tập của khách hàng
+        List<LichTap> danhSachLichTap = lichTapService.getAllLichTapByKhachHang(maKH);
+        
+        model.addAttribute("accountId", id);
+        model.addAttribute("username", acc.getUserName());
+        model.addAttribute("khachHang", khachHang);
+        model.addAttribute("danhSachLichTap", danhSachLichTap);
+        
+        return "User/lichtap";
     }
     
     @GetMapping("/taikhoan/{id}")

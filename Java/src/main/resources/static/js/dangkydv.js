@@ -123,7 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
-                    // Đối với các dịch vụ khác (PT), chỉ phóng to thẻ và hiện nút đăng ký
+                    // Kiểm tra nếu là dịch vụ loại "PT" thì chuyển hướng đến trang chọn PT
+                    if (loaiDV === 'PT') {
+                        console.log('Detected PT service, redirecting to choose PT...');
+                        redirectToPTSelection(title, desc, maDV);
+                        return;
+                    }
+                    
+                    // Đối với các dịch vụ khác, chỉ phóng to thẻ và hiện nút đăng ký
                     // Bỏ trạng thái active ở các thẻ khác
                     document.querySelectorAll('.service-card').forEach(c => {
                         c.classList.remove('active');
@@ -146,6 +153,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Hàm chuyển hướng đến trang chọn PT
+function redirectToPTSelection(title, desc, maDV) {
+    // Lấy accountId và các thông tin cần thiết
+    const accountId = document.getElementById('accountId-input')?.value || 
+                     new URLSearchParams(window.location.search).get('accountId');
+    
+    console.log('PT Redirect - AccountId found:', accountId);
+    console.log('PT Redirect - MaDV:', maDV);
+    
+    if (accountId) {
+        // Lấy mã bộ môn từ URL hiện tại
+        const urlParams = new URLSearchParams(window.location.search);
+        const maBM = urlParams.get('maBM');
+        
+        // Lưu thông tin dịch vụ vào sessionStorage để sử dụng trong trang chọn PT
+        sessionStorage.setItem('selectedService', JSON.stringify({
+            title: title,
+            desc: desc,
+            maDV: maDV,
+            accountId: accountId,
+            maBM: maBM
+        }));
+        
+        const redirectUrl = `/dich-vu-gym/chonpt?maDV=${maDV}&accountId=${accountId}`;
+        console.log('Redirecting to:', redirectUrl);
+        window.location.href = redirectUrl;
+        return;
+    } else {
+        alert('Không tìm thấy thông tin tài khoản. Vui lòng thử lại.');
+        return;
+    }
+}
 
 // Hàm đăng ký dịch vụ (cập nhật để sử dụng maDV)
 function registerService(title, desc, maDV) {
@@ -356,14 +396,14 @@ function updateTotalAmount() {
     }
 }
 
-// Hàm xử lý thanh toán (VNPay flow)
+// Hàm xử lý thanh toán (Universal flow cho tất cả loại dịch vụ)
 function processPayment() {
     if (registeredServices.length === 0) {
         alert('Chưa có dịch vụ nào để thanh toán!');
         return;
     }
     
-    console.log('Processing payment with VNPay flow:', registeredServices);
+    console.log('Processing payment with Universal flow:', registeredServices);
     
     // Lấy form và container cho mã dịch vụ
     const form = document.getElementById('payment-form');
@@ -374,45 +414,63 @@ function processPayment() {
         return;
     }
     
-    // Đổi form action về endpoint tạo hóa đơn trước VNPay
-    form.action = '/dich-vu-gym/thanh-toan';
-    
-    // Xóa các input cũ
+    // Clear existing inputs
     dsMaDVContainer.innerHTML = '';
     
-    // Tính tổng tiền
-    const tongTien = registeredServices.reduce((sum, service) => sum + service.price, 0);
+    // Luôn sử dụng universal endpoint
+    form.action = '/dich-vu-gym/dang-ky-dv-universal';
+    console.log('🔄 Sử dụng Universal flow (hỗ trợ TuDo + PT + Lop)');
     
-    // Thêm tổng tiền (VNPay flow yêu cầu)
-    const inputTongTien = document.createElement('input');
-    inputTongTien.type = 'hidden';
-    inputTongTien.name = 'tongtien';
-    inputTongTien.value = tongTien;
-    dsMaDVContainer.appendChild(inputTongTien);
-    console.log('Added total amount:', tongTien);
+    // Chuẩn bị arrays cho service, trainer, class
+    let serviceIds = [];
+    let trainerIds = [];
+    let classIds = [];
     
-    // Thêm input cho từng mã dịch vụ (VNPay flow dùng 'dichvu')
-    registeredServices.forEach(service => {
-        const inputDV = document.createElement('input');
-        inputDV.type = 'hidden';
-        inputDV.name = 'dichvu';  // VNPay flow dùng 'dichvu'
-        inputDV.value = service.code;
-        dsMaDVContainer.appendChild(inputDV);
-        console.log('Added service code to form (VNPay flow):', service.code);
+    registeredServices.forEach((service, index) => {
+        serviceIds.push(service.code);
+        trainerIds.push(service.trainerId || '');
+        classIds.push(service.classId || '');
+        
+        console.log(`[${index}] Service: ${service.code}, Trainer: ${service.trainerId || 'None'}, Class: ${service.classId || 'None'}`);
     });
     
-    // Log form data trước khi submit
-    const formData = new FormData(form);
-    console.log('Form data being submitted (VNPay flow):');
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
+    // Thêm mã dịch vụ
+    serviceIds.forEach(serviceId => {
+        const inputDV = document.createElement('input');
+        inputDV.type = 'hidden';
+        inputDV.name = 'dsMaDV';
+        inputDV.value = serviceId;
+        dsMaDVContainer.appendChild(inputDV);
+    });
     
-    // Xóa session sau khi submit thành công
+    // Thêm trainer IDs (luôn gửi, kể cả khi rỗng)
+    trainerIds.forEach(trainerId => {
+        const inputTrainer = document.createElement('input');
+        inputTrainer.type = 'hidden';
+        inputTrainer.name = 'dsTrainerId';
+        inputTrainer.value = trainerId;
+        dsMaDVContainer.appendChild(inputTrainer);
+    });
+    
+    // Thêm class IDs (luôn gửi, kể cả khi rỗng)
+    classIds.forEach(classId => {
+        const inputClass = document.createElement('input');
+        inputClass.type = 'hidden';
+        inputClass.name = 'dsClassId';
+        inputClass.value = classId;
+        dsMaDVContainer.appendChild(inputClass);
+    });
+    
+    console.log('✅ Đã tạo form với universal data');
+    console.log('📋 Services:', serviceIds);
+    console.log('📋 Trainers:', trainerIds);
+    console.log('📋 Classes:', classIds);
+    
+    // Clear session sau khi submit
     clearRegisteredServicesSession();
     
-    // Submit form - sẽ tạo hóa đơn và redirect đến trang thanh toán VNPay
-    console.log('Submitting form to (VNPay flow):', form.action);
+    // Submit form
+    console.log('📤 Submitting form to:', form.action);
     form.submit();
 }
 

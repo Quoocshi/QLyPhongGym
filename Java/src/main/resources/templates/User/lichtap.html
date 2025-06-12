@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch Tập - GYM 666</title>
+    <link rel="stylesheet" th:href="@{/css/dangkydv.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calendar-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .calendar-title {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .calendar-navigation {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #bdc3c7;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .calendar-day-header {
+            background: #34495e;
+            color: white;
+            padding: 15px 5px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 8px;
+            position: relative;
+            border: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #f8f9fa;
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #bdc3c7;
+        }
+
+        .calendar-day.today {
+            background: #e8f6fd;
+            border: 2px solid #3498db;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .other-month .day-number {
+            color: #bdc3c7;
+        }
+
+        .schedule-item {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #1abc9c;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .schedule-item.pt {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-left-color: #f39c12;
+        }
+
+        .schedule-item.lop {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-left-color: #3498db;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+
+        .legend-color.pt {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-left-color: #f39c12;
+        }
+
+        .legend-color.lop {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-left-color: #3498db;
+        }
+
+        .no-schedule {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .schedule-details {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-item {
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .detail-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .detail-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user">
+            <span class="user-icon">&#128100;</span>
+            KHÁCH HÀNG
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" th:href="@{/user/home/{accountId}/{username}(accountId=${accountId}, username=${username})}">Trang chủ</a></li>
+                <li><a href="#" th:href="@{/dich-vu-gym/dang-kydv(accountId=${accountId})}">Đăng ký dịch vụ</a></li>
+                <li><a href="#">Thuê dụng cụ</a></li>
+                <li><a href="#" th:href="@{/user/lich-tap/{accountId}(accountId=${accountId})}" class="active">Xem lịch tập</a></li>
+                <li><a href="#">Phản hồi/ Khiếu nại</a></li>
+                <li><a href="#">Thanh toán</a></li>
+                <li><a href="#" th:href="@{/dich-vu-gym/dich-vu-cua-toi(accountId=${accountId})}">Dịch vụ của tôi</a></li>
+                <li><a href="#">Theo dõi khu vực</a></li>
+                <li><a href="#">Voucher của tôi</a></li>
+                <li><a href="#" th:href="@{/user/taikhoan/{accountId}(accountId=${accountId})}">Tài khoản</a></li>
+            </ul>
+        </nav>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">ĐĂNG XUẤT</button>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="calendar-container">
+            <!-- Header -->
+            <div class="calendar-header">
+                <h1 class="calendar-title">Lịch Tập Của Tôi</h1>
+                <div class="calendar-navigation">
+                    <button class="nav-btn" onclick="previousMonth()">‹ Tháng trước</button>
+                    <div class="current-month" id="currentMonth"></div>
+                    <button class="nav-btn" onclick="nextMonth()">Tháng sau ›</button>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showCalendarView()">Xem theo tháng</button>
+                <button class="toggle-btn" onclick="showListView()">Xem danh sách</button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div id="calendarView">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar headers -->
+                    <div class="calendar-day-header">Chủ nhật</div>
+                    <div class="calendar-day-header">Thứ hai</div>
+                    <div class="calendar-day-header">Thứ ba</div>
+                    <div class="calendar-day-header">Thứ tư</div>
+                    <div class="calendar-day-header">Thứ năm</div>
+                    <div class="calendar-day-header">Thứ sáu</div>
+                    <div class="calendar-day-header">Thứ bảy</div>
+                    <!-- Calendar days will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="listView" style="display: none;">
+                <div class="schedule-details">
+                    <h3>Chi tiết lịch tập</h3>
+                    <div th:if="${danhSachLichTap != null and !danhSachLichTap.isEmpty()}">
+                        <div th:each="lichTap : ${danhSachLichTap}" class="detail-item">
+                            <div class="detail-title" th:text="${lichTap.loaiLich == 'PT' ? 'Personal Training' : 'Lớp học: ' + (lichTap.lop != null ? lichTap.lop.tenLop : 'N/A')}"></div>
+                            <div class="detail-info">
+                                <strong>Thời gian:</strong> 
+                                <span th:text="${lichTap.thu != null ? lichTap.thu : 'N/A'}"></span>
+                                - 
+                                <span th:text="${lichTap.caTap != null ? lichTap.caTap.tenCa + ' (' + lichTap.caTap.moTa + ')' : 'N/A'}"></span>
+                            </div>
+                            <div class="detail-info" th:if="${lichTap.nhanVien != null}">
+                                <strong>Huấn luyện viên:</strong> 
+                                <span th:text="${lichTap.nhanVien.tenNV}"></span>
+                            </div>
+                            <div class="detail-info">
+                                <strong>Trạng thái:</strong> 
+                                <span th:text="${lichTap.trangThai}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${danhSachLichTap == null or danhSachLichTap.isEmpty()}" class="no-schedule">
+                        <p>Bạn chưa có lịch tập nào. Hãy đăng ký dịch vụ để bắt đầu!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color pt"></div>
+                    <span>Personal Training (PT)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color lop"></div>
+                    <span>Lớp học</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Dữ liệu lịch tập từ server
+    const scheduleData = /*[[${danhSachLichTap}]]*/ [];
+    
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    
+    // Chuyển đổi dữ liệu thứ từ format "246" thành array [2,4,6]
+    function parseDayString(thuString) {
+        if (!thuString) return [];
+        return thuString.split('').map(d => parseInt(d));
+    }
+    
+    // Chuyển đổi thứ từ số sang tên
+    function getDayName(dayNumber) {
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        return days[dayNumber] || '';
+    }
+    
+    function generateCalendar() {
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+        
+        // Update month display
+        const monthNames = [
+            'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+            'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+        ];
+        document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const calendarGrid = document.getElementById('calendarGrid');
+        // Clear existing days
+        const existingDays = calendarGrid.querySelectorAll('.calendar-day');
+        existingDays.forEach(day => day.remove());
+        
+        // Add days from previous month
+        const prevMonth = new Date(currentYear, currentMonth - 1, 0);
+        const prevMonthDays = prevMonth.getDate();
+        
+        for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+            const dayDiv = createDayDiv(prevMonthDays - i, true);
+            calendarGrid.appendChild(dayDiv);
+        }
+        
+        // Add days of current month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayDiv = createDayDiv(day, false);
+            calendarGrid.appendChild(dayDiv);
+        }
+        
+        // Add days from next month
+        const totalCells = calendarGrid.children.length - 7; // Subtract header row
+        const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42 cells
+        
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayDiv = createDayDiv(day, true);
+            calendarGrid.appendChild(dayDiv);
+        }
+    }
+    
+    function createDayDiv(dayNumber, isOtherMonth) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = `calendar-day${isOtherMonth ? ' other-month' : ''}`;
+        
+        // Check if this is today
+        const today = new Date();
+        if (!isOtherMonth && 
+            dayNumber === today.getDate() && 
+            currentMonth === today.getMonth() && 
+            currentYear === today.getFullYear()) {
+            dayDiv.classList.add('today');
+        }
+        
+        dayDiv.innerHTML = `<div class="day-number">${dayNumber}</div>`;
+        
+        // Add schedule items for this day if it's not from other month
+        if (!isOtherMonth) {
+            const dayOfWeek = new Date(currentYear, currentMonth, dayNumber).getDay();
+            addScheduleItems(dayDiv, dayOfWeek);
+        }
+        
+        return dayDiv;
+    }
+    
+    function addScheduleItems(dayDiv, dayOfWeek) {
+        scheduleData.forEach(schedule => {
+            if (schedule.thu) {
+                const scheduleDays = parseDayString(schedule.thu);
+                // Convert day of week (0=Sunday, 1=Monday, etc.) to Vietnamese format (2=Monday, 3=Tuesday, etc.)
+                const vietnameseDayFormat = dayOfWeek === 0 ? 8 : dayOfWeek + 1;
+                
+                if (scheduleDays.includes(vietnameseDayFormat)) {
+                    const scheduleItem = document.createElement('div');
+                    scheduleItem.className = `schedule-item ${schedule.loaiLich?.toLowerCase() || 'lop'}`;
+                    
+                    let title = '';
+                    if (schedule.loaiLich === 'PT') {
+                        title = 'PT';
+                    } else if (schedule.lop) {
+                        title = schedule.lop.tenLop || 'Lớp học';
+                    }
+                    
+                    if (schedule.caTap) {
+                        title += ` - ${schedule.caTap.tenCa}`;
+                    }
+                    
+                    scheduleItem.textContent = title;
+                    scheduleItem.title = `${title}\nHuấn luyện viên: ${schedule.nhanVien?.tenNV || 'N/A'}\nTrạng thái: ${schedule.trangThai || 'N/A'}`;
+                    
+                    dayDiv.appendChild(scheduleItem);
+                }
+            }
+        });
+    }
+    
+    function previousMonth() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        generateCalendar();
+    }
+    
+    function nextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        generateCalendar();
+    }
+    
+    function showCalendarView() {
+        document.getElementById('calendarView').style.display = 'block';
+        document.getElementById('listView').style.display = 'none';
+        
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    
+    function showListView() {
+        document.getElementById('calendarView').style.display = 'none';
+        document.getElementById('listView').style.display = 'block';
+        
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    
+    // Initialize calendar
+    document.addEventListener('DOMContentLoaded', function() {
+        generateCalendar();
+    });
+</script>
+
+</body>
+</html> 
