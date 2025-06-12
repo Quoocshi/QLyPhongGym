@@ -35,5 +35,10 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, String> {
         "kh.soDienThoai LIKE CONCAT('%', :keyword, '%')")
     List<KhachHang> searchByKeyword(@Param("keyword") String keyword);
 
+    // Thêm method kiểm tra số điện thoại trùng lặp
+    KhachHang findBySoDienThoai(String soDienThoai);
+
+    // Kiểm tra sự tồn tại của số điện thoại
+    boolean existsBySoDienThoai(String soDienThoai);
 
 }

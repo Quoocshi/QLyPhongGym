@@ -5,7 +5,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GYM 666 - Đăng Ký</title>
     <link rel="stylesheet" th:href="@{/css/reg.css}">
+    <link rel="stylesheet" th:href="@{/css/autocomplete.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced alert styles */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1edff 0%, #a7d8f0 100%);
+            border: 2px solid #0d6efd;
+            color: #0a3622;
+        }
+
+        .alert::before {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .alert-error::before {
+            content: "❌";
+            font-size: 18px;
+        }
+
+        .alert-success::before {
+            content: "✅";
+            font-size: 18px;
+        }
+
+        .alert span {
+            margin-left: 30px;
+            display: block;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #dc3545;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced form styling */
+        .form-group input:invalid:not(:placeholder-shown) {
+            border: 2px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .form-group input:valid:not(:placeholder-shown) {
+            border: 2px solid #28a745;
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+
+        .validation-list {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #6c757d;
+        }
+
+        .validation-list li {
+            margin: 2px 0;
+            list-style: none;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .validation-list li::before {
+            content: "❌";
+            position: absolute;
+            left: 0;
+            font-size: 10px;
+        }
+
+        .validation-list li.valid::before {
+            content: "✅";
+        }
+
+        /* Success animation */
+        .alert-success {
+            animation: successPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .success-checkmark {
+            font-size: 24px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -37,63 +177,107 @@
                     <div class="register-form">
                         <h1>Đăng Ký</h1>
                         
-                        <form th:action="@{/register}" method="post" th:object="${registerForm}" onsubmit="return validatePassword()">
+                        <!-- Thông báo lỗi chung được cải thiện -->
+                        <div th:if="${errorMessage}" class="alert alert-error">
+                            <span th:text="${errorMessage}"></span>
+                        </div>
+                        
+                        <!-- Thông báo thành công (nếu có) -->
+                        <div th:if="${successMessage}" class="alert alert-success">
+                            <span class="success-checkmark">🎉</span>
+                            <span th:text="${successMessage}"></span>
+                        </div>
+                        
+                        <form th:action="@{/register}" method="post" th:object="${registerForm}" onsubmit="return validateForm()">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                             <div class="form-group">
-                                <label for="hoTen">Họ và tên</label>
-                                <input type="text" th:field="*{hoTen}" placeholder="Họ tên khách hàng" required>
+                                <label for="hoTen">Họ và tên *</label>
+                                <input type="text" th:field="*{hoTen}" id="hoTen" placeholder="Nhập họ tên đầy đủ" required>
+                                <div th:if="${#fields.hasErrors('hoTen')}" class="error-message">
+                                    <span th:errors="*{hoTen}"></span>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="gioiTinh">Giới tính</label>
-                                <select th:field="*{gioiTinh}">
+                                <label for="gioiTinh">Giới tính *</label>
+                                <select th:field="*{gioiTinh}" id="gioiTinh" required>
+                                    <option value="">-- Chọn giới tính --</option>
                                     <option value="Nam">Nam</option>
                                     <option value="Nữ">Nữ</option>
                                     <option value="Khác">Khác</option>
                                 </select>
+                                <div th:if="${#fields.hasErrors('gioiTinh')}" class="error-message">
+                                    <span th:errors="*{gioiTinh}"></span>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="ngaySinh">Ngày sinh</label>
-                                <input type="date" th:field="*{ngaySinh}">
+                                <label for="ngaySinh">Ngày sinh *</label>
+                                <input type="date" th:field="*{ngaySinh}" id="ngaySinh" required>
+                                <div th:if="${#fields.hasErrors('ngaySinh')}" class="error-message">
+                                    <span th:errors="*{ngaySinh}"></span>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="soDienThoai">Số điện thoại</label>
-                                <input type="text" th:field="*{soDienThoai}" placeholder="Số điện thoại">
+                                <label for="soDienThoai">Số điện thoại *</label>
+                                <input type="text" th:field="*{soDienThoai}" id="soDienThoai" placeholder="VD: 0901234567" required>
+                                <div th:if="${#fields.hasErrors('soDienThoai')}" class="error-message">
+                                    <span th:errors="*{soDienThoai}"></span>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" th:field="*{email}" placeholder="Email" required>
+                                <label for="email">Email *</label>
+                                <input type="email" th:field="*{email}" id="email" placeholder="VD: email@gmail.com" required>
+                                <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                                    <span th:errors="*{email}"></span>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="diaChi">Địa chỉ</label>
-                                <input type="text" th:field="*{diaChi}" placeholder="Địa chỉ">
+                                <label for="diaChi">Địa chỉ *</label>
+                                <input type="text" th:field="*{diaChi}" id="diaChi" placeholder="VD: 123 Đường ABC, Quận XYZ, TP.HCM" required>
+                                <div th:if="${#fields.hasErrors('diaChi')}" class="error-message">
+                                    <span th:errors="*{diaChi}"></span>
+                                </div>
                             </div>
 
                             <hr>
 
                             <div class="form-group">
-                                <label for="userName">Tên đăng nhập (UserName)</label>
-                                <input type="text" th:field="*{userName}" placeholder="Tên đăng nhập" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">Mật khẩu</label>
-                                <input type="password" th:field="*{password}" id="password" placeholder="Mật khẩu" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirmPassword">Xác nhận mật khẩu</label>
-                                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
-                                <div id="passwordError" class="error-message" style="display: none; color: red; font-size: 12px;">
-                                    Mật khẩu không khớp
+                                <label for="userName">Tên đăng nhập *</label>
+                                <input type="text" th:field="*{userName}" id="userName" placeholder="VD: nguyenvana123" required>
+                                <div th:if="${#fields.hasErrors('userName')}" class="error-message">
+                                    <span th:errors="*{userName}"></span>
                                 </div>
                             </div>
 
-                            <button type="submit" class="register-button">Đăng ký</button>
+                            <div class="form-group">
+                                <label for="password">Mật khẩu *</label>
+                                <input type="password" th:field="*{password}" id="password" placeholder="Nhập mật khẩu mạnh" required>
+                                <div id="passwordStrength" class="password-strength"></div>
+                                <ul class="validation-list" id="passwordValidation">
+                                    <li id="length">Ít nhất 6 ký tự</li>
+                                    <li id="lowercase">Có chữ thường (a-z)</li>
+                                    <li id="uppercase">Có chữ HOA (A-Z)</li>
+                                    <li id="number">Có số (0-9)</li>
+                                </ul>
+                                <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                                    <span th:errors="*{password}"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Xác nhận mật khẩu *</label>
+                                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                                <div id="passwordMatchError" class="error-message" style="display: none;">
+                                    ❌ Mật khẩu không khớp!
+                                </div>
+                            </div>
+
+                            <button type="submit" class="register-button" id="submitBtn">Đăng ký</button>
                         </form>
                     </div>
                 </div>
@@ -101,21 +285,199 @@
         </main>
     </div>
 
+    <script th:src="@{/js/autocomplete.js}"></script>
     <script>
+        // Enhanced password validation and form submission
+        function validateForm() {
+            const isPasswordValid = validatePassword();
+            const isFormValid = validateAllFields();
+            return isPasswordValid && isFormValid;
+        }
+
         function validatePassword() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorElement = document.getElementById('passwordError');
+            const errorElement = document.getElementById('passwordMatchError');
 
             if (password !== confirmPassword) {
                 errorElement.style.display = 'block';
+                errorElement.innerHTML = '❌ Mật khẩu không khớp!';
                 return false;
             }
             errorElement.style.display = 'none';
             return true;
         }
+
+        function validateAllFields() {
+            const requiredFields = ['hoTen', 'gioiTinh', 'ngaySinh', 'soDienThoai', 'email', 'diaChi', 'userName', 'password'];
+            let isValid = true;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        function checkPasswordStrength(password) {
+            const strength = {
+                length: password.length >= 6,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                number: /\d/.test(password)
+            };
+
+            const strengthCount = Object.values(strength).filter(Boolean).length;
+            let strengthText = '';
+            let strengthClass = '';
+
+            if (strengthCount <= 2) {
+                strengthText = '🔴 Yếu';
+                strengthClass = 'strength-weak';
+            } else if (strengthCount === 3) {
+                strengthText = '🟡 Trung bình';
+                strengthClass = 'strength-medium';
+            } else {
+                strengthText = '🟢 Mạnh';
+                strengthClass = 'strength-strong';
+            }
+
+            // Update validation list
+            Object.keys(strength).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.className = strength[key] ? 'valid' : '';
+                }
+            });
+
+            return { strengthText, strengthClass };
+        }
+
+        // Real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password strength checker
+            const passwordInput = document.getElementById('password');
+            const strengthDiv = document.getElementById('passwordStrength');
+
+            passwordInput.addEventListener('input', function() {
+                const { strengthText, strengthClass } = checkPasswordStrength(this.value);
+                strengthDiv.textContent = `Độ mạnh mật khẩu: ${strengthText}`;
+                strengthDiv.className = `password-strength ${strengthClass}`;
+            });
+
+            // Confirm password real-time check
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            confirmPasswordInput.addEventListener('input', function() {
+                const password = passwordInput.value;
+                const confirmPassword = this.value;
+                const errorElement = document.getElementById('passwordMatchError');
+
+                if (confirmPassword && password !== confirmPassword) {
+                    errorElement.style.display = 'block';
+                    errorElement.innerHTML = '❌ Mật khẩu không khớp!';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            });
+
+            // Setup email autocomplete
+            setupEmailAutocomplete('email', {
+                onSelect: function(suggestion, input) {
+                    console.log('Email selected:', suggestion);
+                }
+            });
+
+            // Setup address autocomplete
+            setupDiaChiAutocomplete('diaChi', {
+                onSelect: function(suggestion, input) {
+                    console.log('Address selected:', suggestion);
+                }
+            });
+
+            // Username suggestions based on name
+            const hoTenInput = document.getElementById('hoTen');
+            const userNameInput = document.getElementById('userName');
+            
+            if (hoTenInput && userNameInput) {
+                hoTenInput.addEventListener('blur', function() {
+                    const hoTen = this.value.trim();
+                    if (hoTen && !userNameInput.value) {
+                        // Fetch username suggestions
+                        fetch(`/api/autocomplete/username?hoTen=${encodeURIComponent(hoTen)}`)
+                            .then(response => response.json())
+                            .then(suggestions => {
+                                if (suggestions.length > 0) {
+                                    // Auto-fill first suggestion
+                                    userNameInput.value = suggestions[0];
+                                    userNameInput.style.backgroundColor = '#e7f3ff';
+                                    setTimeout(() => {
+                                        userNameInput.style.backgroundColor = '';
+                                    }, 2000);
+                                }
+                            })
+                            .catch(error => console.log('Username suggestion error:', error));
+                    }
+                });
+            }
+
+            // Format phone number on input
+            const phoneInput = document.getElementById('soDienThoai');
+            phoneInput.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length > 10) value = value.substring(0, 10);
+                
+                // Format as 0XXX XXX XXX
+                if (value.length > 6) {
+                    value = value.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+                } else if (value.length > 3) {
+                    value = value.replace(/(\d{4})(\d+)/, '$1 $2');
+                }
+                
+                this.value = value;
+            });
+
+            // Auto-hide alerts after 10 seconds (chỉ cho error alerts)
+            const errorAlerts = document.querySelectorAll('.alert-error');
+            errorAlerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 10000);
+            });
+
+            // Xử lý auto-redirect sau khi đăng ký thành công
+            const autoRedirect = /*[[${autoRedirect}]]*/ false;
+            if (autoRedirect) {
+                // Disable form để không cho submit lại
+                const form = document.querySelector('form');
+                if (form) {
+                    const inputs = form.querySelectorAll('input, select, button');
+                    inputs.forEach(input => input.disabled = true);
+                }
+
+                // Countdown và redirect
+                let countdown = 3;
+                const successAlert = document.querySelector('.alert-success span:last-child');
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        successAlert.innerHTML = successAlert.innerHTML.replace(/\d+/, countdown);
+                    } else {
+                        clearInterval(countdownInterval);
+                        successAlert.innerHTML = '🚀 Đang chuyển hướng...';
+                        setTimeout(() => {
+                            window.location.href = '/login?registered=true';
+                        }, 500);
+                    }
+                }, 1000);
+            }
+        });
     </script>
 </body>
 </html> 
-
-<form th:action="@{/register}" method="post" th:object="${registerForm}" onsubmit="return validatePassword()">

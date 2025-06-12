@@ -159,6 +159,16 @@ public class DichVuServiceImpl implements DichVuService {
     }
 
     @Override
+    public List<DichVu> getTatCaDichVuTheoBoMon(String maBM) {
+        return dichVuRepository.listTatCaDichVuTheoBoMon(maBM);
+    }
+
+    @Override
+    public List<DichVu> getTatCaDichVuTheoBoMonVaThoiHan(String maBM, String thoiHanFilter) {
+        return dichVuRepository.listTatCaDichVuTheoBoMonVaThoiHan(maBM, thoiHanFilter);
+    }
+
+    @Override
     public List<DichVu> getDichVuByBoMon(String maBM) {
         return dichVuRepository.findByBoMon_MaBM(maBM);
     }

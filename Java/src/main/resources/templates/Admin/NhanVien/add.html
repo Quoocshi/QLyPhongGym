@@ -52,6 +52,76 @@
             <a th:href="@{/quan-ly-nhan-vien/danh-sach-nhan-vien}" class="edit-btn">← Quay lại danh sách</a>
         </div>
 
+        <!-- Khung hiển thị ràng buộc validation -->
+        <div class="validation-rules-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
+                    📋 QUY TẮC TẠO TÀI KHOẢN NHÂN VIÊN
+                </h3>
+                <button type="button" id="toggleRules" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
+                    🔽 Ẩn quy tắc
+                </button>
+            </div>
+            
+            <div id="rulesContent">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                    <!-- Cột trái: Thông tin cơ bản -->
+                    <div>
+                        <h4 style="margin: 0 0 15px 0; color: #ffd700; font-size: 16px; font-weight: 600;">
+                            👤 THÔNG TIN CƠ BẢN
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Tên nhân viên:</strong> 2-50 ký tự, chỉ chữ cái và khoảng trắng</li>
+                            <li><strong>Email:</strong> Phải đúng định dạng và chưa tồn tại trong hệ thống</li>
+                            <li><strong>Giới tính:</strong> Chỉ chọn Nam hoặc Nữ</li>
+                            <li><strong>Ngày sinh:</strong> Phải là ngày trong quá khứ</li>
+                            <li><strong>Ngày vào làm:</strong> Không được là ngày tương lai</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Cột phải: Tài khoản và mật khẩu -->
+                    <div>
+                        <h4 style="margin: 0 0 15px 0; color: #ffd700; font-size: 16px; font-weight: 600;">
+                            🔐 TÀI KHOẢN & MẬT KHẨU
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Username:</strong> Sử dụng email làm tài khoản đăng nhập</li>
+                            <li><strong>Mật khẩu:</strong> Tối thiểu 6 ký tự</li>
+                            <li><strong>Bắt buộc có:</strong> 1 chữ thường, 1 chữ HOA, 1 chữ số</li>
+                            <li><strong>Xác nhận:</strong> Mật khẩu và xác nhận phải khớp nhau</li>
+                            <li><strong>Quyền hạn:</strong> Tự động gán theo loại nhân viên</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Phần quyền hạn -->
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <h4 style="margin: 0 0 15px 0; color: #ffd700; font-size: 16px; font-weight: 600; text-align: center;">
+                        🏆 PHÂN QUYỀN HỆ THỐNG
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                            <strong style="color: #ff6b6b;">👑 QUẢN LÝ</strong><br>
+                            <small>Toàn quyền hệ thống</small>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                            <strong style="color: #4ecdc4;">🏢 LỄ TÂN</strong><br>
+                            <small>Quản lý khách hàng & dịch vụ</small>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                            <strong style="color: #45b7d1;">💪 TRAINER</strong><br>
+                            <small>Huấn luyện & tư vấn</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lưu ý quan trọng -->
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; border-left: 4px solid #ffd700;">
+                    <strong style="color: #ffd700;">⚠️ LưU Ý:</strong> Email sẽ được sử dụng làm tài khoản đăng nhập và không thể thay đổi sau khi tạo. Vui lòng kiểm tra kỹ trước khi xác nhận!
+                </div>
+            </div>
+        </div>
+
         <!-- Form thêm nhân viên -->
         <div class="table-container">
             <form th:action="@{/quan-ly-nhan-vien/them-nhan-vien}" method="post" th:object="${nhanVien}">
@@ -179,26 +249,94 @@ function updateEmployeeCode() {
     }
 }
 
-// Update account username when email changes
+// Update email display dynamically
 document.getElementById('email').addEventListener('input', function() {
-    const email = this.value;
+    const email = this.value.trim();
     const accountUsername = document.getElementById('accountUsername');
-    
     if (email) {
         accountUsername.textContent = email;
+        accountUsername.style.color = '#28a745';
+        accountUsername.style.fontWeight = 'bold';
     } else {
         accountUsername.textContent = '[Sẽ sử dụng email làm username]';
+        accountUsername.style.color = '#666';
+        accountUsername.style.fontWeight = 'normal';
     }
 });
 
-// Auto-fill current date for employment date
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('ngayVaoLam').value = today;
+// Real-time password validation
+function setupPasswordValidation() {
+    const passwordInput = document.querySelector('input[name="rawPassword"]');
+    const confirmInput = document.querySelector('input[name="confirmPassword"]');
     
-    // Set default employee code (NV by default)
-    const nextMaNV = document.getElementById('nextMaNV').value;
-    document.getElementById('maNV').value = nextMaNV;
+    if (passwordInput && confirmInput) {
+        // Tạo validation display
+        const validationDisplay = document.createElement('div');
+        validationDisplay.id = 'password-validation';
+        validationDisplay.style.cssText = `
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        `;
+        confirmInput.parentNode.appendChild(validationDisplay);
+        
+        function validatePassword() {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            const display = document.getElementById('password-validation');
+            
+            const checks = [
+                { test: password.length >= 6, text: 'Tối thiểu 6 ký tự' },
+                { test: /[a-z]/.test(password), text: 'Có chữ thường' },
+                { test: /[A-Z]/.test(password), text: 'Có chữ HOA' },
+                { test: /\d/.test(password), text: 'Có chữ số' },
+                { test: password === confirm && password.length > 0, text: 'Mật khẩu khớp nhau' }
+            ];
+            
+            let html = '<strong>Kiểm tra mật khẩu:</strong><br>';
+            checks.forEach(check => {
+                const icon = check.test ? '✅' : '❌';
+                const color = check.test ? '#28a745' : '#dc3545';
+                html += `<span style="color: ${color};">${icon} ${check.text}</span><br>`;
+            });
+            
+            display.innerHTML = html;
+            
+            // Update border colors
+            const allValid = checks.every(check => check.test);
+            passwordInput.style.borderColor = password.length > 0 ? (checks.slice(0, 3).every(c => c.test) ? '#28a745' : '#dc3545') : '#ddd';
+            confirmInput.style.borderColor = confirm.length > 0 ? (checks[4].test ? '#28a745' : '#dc3545') : '#ddd';
+        }
+        
+        passwordInput.addEventListener('input', validatePassword);
+        confirmInput.addEventListener('input', validatePassword);
+    }
+}
+
+// Setup validation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordValidation();
+    
+    // Setup toggle rules functionality
+    const toggleBtn = document.getElementById('toggleRules');
+    const rulesContent = document.getElementById('rulesContent');
+    let isVisible = true;
+    
+    toggleBtn.addEventListener('click', function() {
+        isVisible = !isVisible;
+        if (isVisible) {
+            rulesContent.style.display = 'block';
+            toggleBtn.innerHTML = '🔽 Ẩn quy tắc';
+            toggleBtn.style.background = 'rgba(255,255,255,0.2)';
+        } else {
+            rulesContent.style.display = 'none';
+            toggleBtn.innerHTML = '🔼 Hiện quy tắc';
+            toggleBtn.style.background = 'rgba(255,255,255,0.3)';
+        }
+    });
     
     // Admin home link setup
     const adminHomeLink = document.getElementById('adminHomeLink');
@@ -210,19 +348,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         adminHomeLink.href = '/login';
     }
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const pass = document.querySelector('input[name="rawPassword"]');
-    const confirm = document.querySelector('input[name="confirmPassword"]');
-    confirm.addEventListener('input', () => {
-        if (confirm.value !== pass.value) {
-            confirm.setCustomValidity("Mật khẩu không khớp");
-        } else {
-            confirm.setCustomValidity('');
-        }
-    });
 });
 </script>
 
