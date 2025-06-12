@@ -1,5 +1,4 @@
 package hahaha.controller;
-
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,17 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hahaha.model.DoanhThu;
+import hahaha.model.TongQuanDoanhThu;
 import hahaha.service.ThongKeService;
 
 @RestController
+@RequestMapping("/api/thongke") 
 public class ThongKeController {
     @Autowired
     ThongKeService thongKeService;
 
-    @GetMapping("/api/thongke/doanhthu")
+    @GetMapping("/doanhthu")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> thongKeDoanhThu() {
         List<DoanhThu> list = thongKeService.layDoanhThuTheoNgay();
@@ -39,5 +41,18 @@ public class ThongKeController {
         result.put("data", data);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/tongquan")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TongQuanDoanhThu> getTongQuan() {
+        Long tongDangKy = thongKeService.layTongLuotDangKy();
+        Long tongThanhToan = thongKeService.layTongLuotThanhToan();
+        Double doanhThuThang = thongKeService.layTongDoanhThuThang();
+        if (doanhThuThang == null) doanhThuThang = 0.0;
+
+        TongQuanDoanhThu result = new TongQuanDoanhThu(tongDangKy, tongThanhToan, doanhThuThang);
+        return ResponseEntity.ok(result);
+    }
+
 
 }

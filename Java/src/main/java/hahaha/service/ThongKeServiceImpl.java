@@ -18,4 +18,16 @@ public class ThongKeServiceImpl implements ThongKeService {
     public List<DoanhThu> layDoanhThuTheoNgay() {
         return hoaDonRepository.thongKeDoanhThuTheoNgay();
     }
+    @Override
+    public Long layTongLuotDangKy(){
+        return hoaDonRepository.tongLuotDangKy();
+    }
+    @Override
+    public Long layTongLuotThanhToan(){
+        return hoaDonRepository.tongLuotThanhToan();
+    }
+    @Override
+    public Double layTongDoanhThuThang(){
+        return hoaDonRepository.tongDoanhThuThang();
+    }
 }
