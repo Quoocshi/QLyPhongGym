@@ -55,7 +55,6 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .deleteCookies("USER_SESSION")
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             );

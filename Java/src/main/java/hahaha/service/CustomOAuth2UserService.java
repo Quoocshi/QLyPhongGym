@@ -1,5 +1,6 @@
 package hahaha.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 account.setUserName(email);
                 account.setPasswordHash("google-auth");
                 account.setIsDeleted(0);
+                account.setCreatedAt(LocalDateTime.now());
+                account.setUpdatedAt(LocalDateTime.now());
                 account.setStatus("ACTIVE");
                 account.setKhachHang(khachHang);
 

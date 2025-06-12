@@ -66,16 +66,6 @@ System.out.println("accountId = " + accountId);
 System.out.println("role = " + role);
 System.out.println("redirectUrl = " + redirectUrl);
 
-
-    Cookie userSessionCookie = new Cookie("USER_SESSION", username);
-    userSessionCookie.setHttpOnly(true);
-    userSessionCookie.setMaxAge(3600);
-    userSessionCookie.setPath("/");
-    response.addCookie(userSessionCookie);
-
-    HttpSession session = request.getSession();
-    session.setAttribute("USER_SESSION", username);
-
     response.sendRedirect(redirectUrl);
 }
 

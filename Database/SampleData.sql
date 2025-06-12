@@ -206,7 +206,7 @@ select * from DICHVU;
 select * from ROLE_GROUP;
 select * from ACCOUNT;
 select * from HOADON;
-select  * from KHACHHANG;
+select * from KHACHHANG;
 select * from CT_DKDV;
 SELECT * FROM LICHTAP
 
@@ -221,4 +221,3 @@ BEGIN
    END LOOP;
 END;
 /
-

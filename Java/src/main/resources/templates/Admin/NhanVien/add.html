@@ -118,7 +118,8 @@
                             <label>Tài khoản đăng nhập</label>
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-size: 14px; color: #666;">
                                 <p><strong>Username:</strong> <span id="accountUsername">[Sẽ sử dụng email làm username]</span></p>
-                                <p><strong>Password:</strong> 123456 (mặc định, được mã hóa BCrypt)</p>
+                                <input type="password" name="rawPassword" placeholder="Nhập mật khẩu" required />
+                                <input type="password" name="confirmPassword" placeholder="Nhập lại mật khẩu" required />
                                 <p><strong>Quyền hạn:</strong> <span id="roleDesc">Chọn loại nhân viên để xem quyền hạn</span></p>
                             </div>
                         </div>
@@ -211,5 +212,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const pass = document.querySelector('input[name="rawPassword"]');
+    const confirm = document.querySelector('input[name="confirmPassword"]');
+    confirm.addEventListener('input', () => {
+        if (confirm.value !== pass.value) {
+            confirm.setCustomValidity("Mật khẩu không khớp");
+        } else {
+            confirm.setCustomValidity('');
+        }
+    });
+});
+</script>
+
 </body>
 </html> 
