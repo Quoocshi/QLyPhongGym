@@ -2,7 +2,6 @@ package hahaha.service;
 
 import java.util.List;
 
-import hahaha.model.KhachHang;
 import hahaha.model.NhanVien;
 
 public interface NhanVienService {
