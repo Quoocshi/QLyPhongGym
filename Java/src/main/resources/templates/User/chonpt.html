@@ -53,8 +53,9 @@
         <!-- Thông tin dịch vụ -->
         <div class="service-info">
             <div class="service-detail-card">
-                <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'GymdvPT.png' : 
-                                              dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 'UIT.png'}}" 
+                <img th:src="@{'/images/' + ${dichVu.boMon.maBM == 'BM01' ? 'GymdvPT.png' : 
+                                              dichVu.boMon.maBM == 'BM04' ? 'Cardio.jpg' : 
+                                              dichVu.boMon.maBM == 'BM06' ? 'Crossfit.jpg' : 'UIT.png'}}" 
                      th:alt="${dichVu.tenDV}">
                 <div class="service-detail-content">
                     <h2 th:text="${dichVu.tenDV}"></h2>

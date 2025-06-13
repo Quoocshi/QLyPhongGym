@@ -48,6 +48,23 @@ public void onAuthenticationSuccess(HttpServletRequest request,
     Long accountId = acc.getAccountId();
     String role = acc.getRoleGroup().getNameRoleGroup();
     
+    // Lưu thông tin vào session
+    HttpSession session = request.getSession();
+    session.setAttribute("accountId", accountId);
+    session.setAttribute("username", username);
+    session.setAttribute("role", role);
+    session.setAttribute("account", acc);
+    
+    // Nếu là trainer, lưu thêm maNV
+    if ("TRAINER".equals(role) && acc.getNhanVien() != null) {
+        session.setAttribute("maNV", acc.getNhanVien().getMaNV());
+    }
+    
+    // Nếu là user, lưu thêm maKH
+    if ("USER".equals(role) && acc.getKhachHang() != null) {
+        session.setAttribute("maKH", acc.getKhachHang().getMaKH());
+    }
+    
     String redirectUrl = switch (role) {
         case "ADMIN" -> "/admin/home/" + accountId + "/" + username;
         case "USER" -> "/user/home/" + accountId + "/" + username;
@@ -65,6 +82,13 @@ System.out.println("username = " + username);
 System.out.println("accountId = " + accountId);
 System.out.println("role = " + role);
 System.out.println("redirectUrl = " + redirectUrl);
+System.out.println("Session attributes set:");
+System.out.println("  - accountId: " + session.getAttribute("accountId"));
+System.out.println("  - username: " + session.getAttribute("username"));
+System.out.println("  - role: " + session.getAttribute("role"));
+if ("TRAINER".equals(role)) {
+    System.out.println("  - maNV: " + session.getAttribute("maNV"));
+}
 
     response.sendRedirect(redirectUrl);
 }

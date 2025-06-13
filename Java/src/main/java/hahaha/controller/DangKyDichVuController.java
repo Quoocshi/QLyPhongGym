@@ -95,11 +95,11 @@ public class DangKyDichVuController{
         // Lấy dịch vụ theo bộ môn và filter (nếu có)
         List<DichVu> dichVuList;
         if (thoiHanFilter != null && !thoiHanFilter.isEmpty()) {
-            // Sử dụng method mới: hiển thị tất cả dịch vụ (không filter ra dịch vụ đã đăng ký)
-            dichVuList = dichVuService.getTatCaDichVuTheoBoMonVaThoiHan(maBM, thoiHanFilter);
+            // Chỉ hiển thị dịch vụ mà khách hàng chưa đăng ký
+            dichVuList = dichVuService.getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(maBM, maKH, thoiHanFilter);
         } else {
-            // Sử dụng method mới: hiển thị tất cả dịch vụ (không filter ra dịch vụ đã đăng ký)
-            dichVuList = dichVuService.getTatCaDichVuTheoBoMon(maBM);
+            // Chỉ hiển thị dịch vụ mà khách hàng chưa đăng ký
+            dichVuList = dichVuService.getDichVuTheoBoMonKhachHangChuaDangKy(maBM, maKH);
         }
         
         BoMon boMon = dichVuService.getBoMonById(maBM);
@@ -447,15 +447,26 @@ public class DangKyDichVuController{
                 return "redirect:/thanh-toan/" + maHD;
             } else {
                 System.err.println("❌ Đăng ký thất bại: " + result[3]);
-                redirectAttributes.addFlashAttribute("errorMessage", result[3]);
-                return "redirect:/dich-vu-gym";
+                
+                // Cải thiện thông báo lỗi cho người dùng
+                String errorMsg = result[3];
+                if (errorMsg.contains("đã đăng ký dịch vụ")) {
+                    errorMsg = "⚠️ Bạn đã đăng ký dịch vụ này rồi. Vui lòng chọn dịch vụ khác hoặc kiểm tra lại danh sách dịch vụ của bạn.";
+                } else if (errorMsg.contains("không tìm thấy")) {
+                    errorMsg = "❌ Không tìm thấy thông tin dịch vụ. Vui lòng thử lại.";
+                } else {
+                    errorMsg = "❌ " + errorMsg;
+                }
+                
+                redirectAttributes.addFlashAttribute("errorMessage", errorMsg);
+                return "redirect:/dich-vu-gym/dang-kydv?accountId=" + accountId;
             }
             
         } catch (Exception e) {
             System.err.println("❌ Lỗi trong dangKyDichVuUniversal: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
-            return "redirect:/dich-vu-gym";
+            return "redirect:/dich-vu-gym/dang-kydv?accountId=" + accountId;
         }
     }
     

@@ -3,6 +3,7 @@ package hahaha.config;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,7 +43,7 @@ public class GlobalExceptionHandler {
             return "redirect:/register";
         }
         
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     /**
@@ -69,16 +70,35 @@ public class GlobalExceptionHandler {
             return "redirect:/register";
         }
         
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     /**
-     * Xử lý các exception chung khác
+     * Xử lý lỗi static resource - không redirect để tránh loop
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public String handleNoResourceFoundException(NoResourceFoundException ex,
+                                               HttpServletRequest request) {
+        // Log lỗi nhưng không redirect để tránh loop
+        System.err.println("❌ Static resource not found: " + ex.getMessage());
+        
+        // Trả về error page thay vì redirect
+        return "error/404";
+    }
+
+    /**
+     * Xử lý các exception chung khác (trừ static resource)
      */
     @ExceptionHandler(Exception.class)
     public String handleGenericException(Exception ex, 
                                        RedirectAttributes redirectAttributes,
                                        HttpServletRequest request) {
+        
+        // Bỏ qua các lỗi static resource để tránh redirect loop
+        if (ex instanceof NoResourceFoundException) {
+            return "error/404";
+        }
+        
         // Log lỗi cho developer
         System.err.println("❌ Unexpected error: " + ex.getMessage());
         ex.printStackTrace();
@@ -92,6 +112,6 @@ public class GlobalExceptionHandler {
             return "redirect:/register";
         }
         
-        return "redirect:/";
+        return "redirect:/login";
     }
 } 

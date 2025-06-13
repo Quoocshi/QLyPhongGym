@@ -30,5 +30,14 @@ public interface ChiTietDangKyDichVuRepository extends JpaRepository<ChiTietDang
            "AND ct.ngayKT >= CURRENT_DATE " +
            "ORDER BY ct.ngayBD DESC")
     List<ChiTietDangKyDichVu> findPTCustomersByTrainer(@Param("maNV") String maNV);
+    
+    // Query lấy thông tin PT của khách hàng cụ thể
+    @Query("SELECT ct FROM ChiTietDangKyDichVu ct " +
+           "WHERE ct.hoaDon.khachHang.maKH = :maKH " +
+           "AND ct.dichVu.loaiDV = 'PT' " +
+           "AND ct.hoaDon.trangThai = 'DaThanhToan' " +
+           "AND ct.ngayKT >= CURRENT_DATE " +
+           "ORDER BY ct.ngayBD DESC")
+    List<ChiTietDangKyDichVu> findPTCustomersByCustomer(@Param("maKH") String maKH);
 }
 

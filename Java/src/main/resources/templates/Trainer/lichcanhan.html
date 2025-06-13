@@ -38,38 +38,41 @@
     <div class="main-content">
         <h1>LỊCH DẠY CÁ NHÂN (PERSONAL TRAINING)</h1>
         
-        <!-- Debug Info -->
-        <div style="background: #f0f0f0; padding: 20px; margin: 20px 0; border-radius: 8px;">
-            <h3>🔍 Debug Information:</h3>
-            <p><strong>Account ID:</strong> <span th:text="${accountId}">N/A</span></p>
-            <p><strong>Username:</strong> <span th:text="${username}">N/A</span></p>
-            <p><strong>Trainer:</strong> <span th:text="${trainer != null ? trainer.tenNV + ' (' + trainer.maNV + ')' : 'N/A'}">N/A</span></p>
-            <p><strong>Số khách hàng PT:</strong> <span th:text="${dsPTCustomers != null ? dsPTCustomers.size() : 'N/A'}">N/A</span></p>
-            <p><strong>Số lịch PT:</strong> <span th:text="${dsPTSchedules != null ? dsPTSchedules.size() : 'N/A'}">N/A</span></p>
-            <p><strong>Số ca tập:</strong> <span th:text="${dsCaTap != null ? dsCaTap.size() : 'N/A'}">N/A</span></p>
-            <p><strong>Số khu vực:</strong> <span th:text="${dsKhuVuc != null ? dsKhuVuc.size() : 'N/A'}">N/A</span></p>
-        </div>
-        
         <!-- Error Message -->
         <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 20px; padding: 10px; background: #ffebee; border: 1px solid #e57373; border-radius: 4px;">
             <span th:text="${error}"></span>
+        </div>
+        
+        <!-- Success Message -->
+        <div th:if="${successMessage}" class="success-message" style="color: green; margin-bottom: 20px; padding: 10px; background: #e8f5e8; border: 1px solid #4caf50; border-radius: 4px;">
+            <span th:text="${successMessage}"></span>
         </div>
         
         <!-- PT Customers Panel -->
         <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; padding: 20px;">
             <h2>🏋️‍♂️ Khách Hàng Đã Đăng Ký PT</h2>
             <div th:if="${dsPTCustomers != null and !dsPTCustomers.isEmpty()}">
-                <div th:each="customer : ${dsPTCustomers}" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 10px 0;">
-                    <h4 th:text="${customer.hoaDon.khachHang.hoTen}">Tên khách hàng</h4>
-                    <p th:text="'Dịch vụ: ' + ${customer.dichVu.tenDV}">Dịch vụ</p>
-                    <p th:text="'Email: ' + ${customer.hoaDon.khachHang.email}">Email</p>
-                    <p th:text="'SĐT: ' + ${customer.hoaDon.khachHang.soDienThoai}">SĐT</p>
-                    <p th:text="'Từ: ' + ${#temporals.format(customer.ngayBD, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(customer.ngayKT, 'dd/MM/yyyy')}">Thời hạn</p>
-                    <button style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;" 
-                            th:data-customer-name="${customer.hoaDon.khachHang.hoTen}"
-                            onclick="alert('Sẽ thêm lịch cho: ' + this.getAttribute('data-customer-name'))">
-                        Thêm Lịch Tập
-                    </button>
+                <div th:each="customer : ${dsPTCustomers}" class="customer-card" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h4 th:text="${customer.hoaDon.khachHang.hoTen}" style="margin: 0 0 10px 0; color: #333;">Tên khách hàng</h4>
+                            <p style="margin: 5px 0;" th:text="'Dịch vụ: ' + ${customer.dichVu.tenDV}">Dịch vụ</p>
+                            <p style="margin: 5px 0;" th:text="'Email: ' + ${customer.hoaDon.khachHang.email}">Email</p>
+                            <p style="margin: 5px 0;" th:text="'SĐT: ' + ${customer.hoaDon.khachHang.soDienThoai}">SĐT</p>
+                            <p style="margin: 5px 0;" th:text="'Từ: ' + ${#temporals.format(customer.ngayBD, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(customer.ngayKT, 'dd/MM/yyyy')}">Thời hạn</p>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button class="btn-add-schedule" 
+                                    th:data-customer-id="${customer.hoaDon.khachHang.maKH}"
+                                    th:data-customer-name="${customer.hoaDon.khachHang.hoTen}"
+                                    th:data-start-date="${#temporals.format(customer.ngayBD, 'yyyy-MM-dd')}"
+                                    th:data-end-date="${#temporals.format(customer.ngayKT, 'yyyy-MM-dd')}"
+                                    onclick="openAddScheduleModal(this)"
+                                    style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                                📅 Thêm Lịch Tập
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div th:if="${dsPTCustomers == null or dsPTCustomers.isEmpty()}">
@@ -83,13 +86,33 @@
         <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; padding: 20px;">
             <h2>📅 Lịch PT Hiện Tại</h2>
             <div th:if="${dsPTSchedules != null and !dsPTSchedules.isEmpty()}">
-                <div th:each="schedule : ${dsPTSchedules}" style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 10px 0;">
-                    <p><strong>Mã lịch:</strong> <span th:text="${schedule.maLT}">LT001</span></p>
-                    <p><strong>Khách hàng:</strong> <span th:text="${schedule.khachHang != null ? schedule.khachHang.hoTen : 'N/A'}">N/A</span></p>
-                    <p><strong>Ca tập:</strong> <span th:text="${schedule.caTap != null ? schedule.caTap.tenCa + ' (' + schedule.caTap.moTa + ')' : 'N/A'}">N/A</span></p>
-                    <p><strong>Thứ:</strong> <span th:text="${schedule.thu != null ? schedule.thu : 'N/A'}">N/A</span></p>
-                    <p><strong>Khu vực:</strong> <span th:text="${schedule.khuVuc != null ? schedule.khuVuc.tenKhuVuc : 'Chưa xác định'}">N/A</span></p>
-                    <p><strong>Trạng thái:</strong> <span th:text="${schedule.trangThai != null ? schedule.trangThai : 'N/A'}">N/A</span></p>
+                <div th:each="schedule : ${dsPTSchedules}" class="schedule-card" style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <p style="margin: 5px 0;"><strong>Mã lịch:</strong> <span th:text="${schedule.maLT}">LT001</span></p>
+                            <p style="margin: 5px 0;"><strong>Khách hàng:</strong> <span th:text="${schedule.khachHang != null ? schedule.khachHang.hoTen : 'N/A'}">N/A</span></p>
+                            <p style="margin: 5px 0;"><strong>Ca tập:</strong> <span th:text="${schedule.caTap != null ? schedule.caTap.tenCa + ' (' + schedule.caTap.moTa + ')' : 'N/A'}">N/A</span></p>
+                            <p style="margin: 5px 0;"><strong>Thứ:</strong> <span th:text="${schedule.thu != null ? schedule.thu : 'N/A'}">N/A</span></p>
+                            <p style="margin: 5px 0;"><strong>Khu vực:</strong> <span th:text="${schedule.khuVuc != null ? schedule.khuVuc.tenKhuVuc : 'Chưa xác định'}">N/A</span></p>
+                            <p style="margin: 5px 0;"><strong>Trạng thái:</strong> 
+                                <span th:class="${schedule.trangThai == 'Dang mo' ? 'status-active' : 'status-inactive'}" 
+                                      th:text="${schedule.trangThai != null ? schedule.trangThai : 'N/A'}" 
+                                      style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">N/A</span>
+                            </p>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button onclick="editSchedule(this)" 
+                                    th:data-schedule-id="${schedule.maLT}"
+                                    style="background: #ffc107; color: #212529; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 5px;">
+                                ✏️ Sửa
+                            </button>
+                            <button onclick="deleteSchedule(this)" 
+                                    th:data-schedule-id="${schedule.maLT}"
+                                    style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div th:if="${dsPTSchedules == null or dsPTSchedules.isEmpty()}">
@@ -98,21 +121,327 @@
                 </p>
             </div>
         </div>
-        
-        <!-- Test Button -->
-        <div style="text-align: center; margin: 20px 0;">
-            <button onclick="alert('Button clicked! Page is working.')" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                🧪 Test Button
+
+        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: #333;">🧪 Test Tạo Lịch PT</h3>
+            <button onclick="debugSession()" style="background: #6f42c1; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                Debug Session
             </button>
+            <button onclick="debugPTCustomers()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                Debug Khách Hàng PT
+            </button>
+            <button onclick="testCreatePTSchedule()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Test Tạo Lịch PT
+            </button>
+            <div id="testResult" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
         </div>
     </div>
 </div>
 
+<!-- Add Schedule Modal -->
+<div id="addScheduleModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: none; border-radius: 10px; width: 80%; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">📅 Thêm Lịch Tập PT</h2>
+            <span class="close" onclick="closeAddScheduleModal()" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        </div>
+        
+        <form id="addScheduleForm">
+            <input type="hidden" id="customerIdInput" name="maKH">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Khách hàng:</label>
+                <input type="text" id="customerNameInput" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Thời hạn PT:</label>
+                <input type="text" id="ptPeriodInput" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Chọn ngày tập:</label>
+                <input type="date" id="ngayTapInput" name="ngayTap" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <small style="color: #666; font-size: 12px;">Chọn ngày trong khoảng thời gian PT của khách hàng</small>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ca tập:</label>
+                <select name="caTap" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Chọn ca tập</option>
+                    <option th:each="ca : ${dsCaTap}" th:value="${ca.maCa}" th:text="${ca.tenCa + ' (' + ca.moTa + ')'}">Ca 1</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Khu vực:</label>
+                <select name="maKV" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Chọn khu vực (tùy chọn)</option>
+                    <option th:each="kv : ${dsKhuVuc}" th:value="${kv.maKV}" th:text="${kv.tenKhuVuc}">Khu vực</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeAddScheduleModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                    Hủy
+                </button>
+                <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                    Tạo Lịch
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.customer-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.schedule-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+</style>
+
 <script>
     console.log('🎯 Trang lịch dạy cá nhân đã load thành công!');
-    console.log('Account ID:', /*[[${accountId}]]*/ 'null');
-    console.log('Username:', /*[[${username}]]*/ 'null');
-    console.log('Trainer:', /*[[${trainer}]]*/ 'null');
+    
+    function openAddScheduleModal(button) {
+        const customerId = button.getAttribute('data-customer-id');
+        const customerName = button.getAttribute('data-customer-name');
+        const startDate = button.getAttribute('data-start-date');
+        const endDate = button.getAttribute('data-end-date');
+        
+        document.getElementById('customerIdInput').value = customerId;
+        document.getElementById('customerNameInput').value = customerName;
+        
+        // Hiển thị thời hạn PT
+        const startDateFormatted = formatDateToVietnamese(startDate);
+        const endDateFormatted = formatDateToVietnamese(endDate);
+        document.getElementById('ptPeriodInput').value = `${startDateFormatted} - ${endDateFormatted}`;
+        
+        // Set min và max cho date input
+        document.getElementById('ngayTapInput').min = startDate;
+        document.getElementById('ngayTapInput').max = endDate;
+        
+        document.getElementById('addScheduleModal').style.display = 'block';
+    }
+    
+    function formatDateToVietnamese(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN');
+    }
+    
+    function closeAddScheduleModal() {
+        document.getElementById('addScheduleModal').style.display = 'none';
+        document.getElementById('addScheduleForm').reset();
+    }
+    
+    // Handle form submission
+    document.getElementById('addScheduleForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('accountId', '[[${accountId}]]');
+        
+        // Validate ngày tập
+        const ngayTap = document.getElementById('ngayTapInput').value;
+        const minDate = document.getElementById('ngayTapInput').min;
+        const maxDate = document.getElementById('ngayTapInput').max;
+        
+        if (ngayTap < minDate || ngayTap > maxDate) {
+            alert('Ngày tập phải nằm trong khoảng thời gian PT của khách hàng!');
+            return;
+        }
+        
+        try {
+            // Prepare data for new endpoint
+            const requestData = new URLSearchParams();
+            requestData.append('maNV', '[[${maNV}]]');
+            requestData.append('maKH', formData.get('maKH'));
+            requestData.append('ngayTap', formData.get('ngayTap'));
+            requestData.append('caTap', formData.get('caTap'));
+            requestData.append('maKV', formData.get('maKV') || '');
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            requestData.append('_csrf', csrfToken);
+            
+            const response = await fetch('/trainer/createPTScheduleWithDate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: requestData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Tạo lịch PT thành công! Mã lịch: ' + result.data);
+                closeAddScheduleModal();
+                location.reload(); // Reload to show new schedule
+            } else {
+                alert('Lỗi: ' + result.message);
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra: ' + error.message);
+        }
+    });
+    
+    function editSchedule(button) {
+        const scheduleId = button.getAttribute('data-schedule-id');
+        alert('Chức năng sửa lịch sẽ được phát triển sau. Mã lịch: ' + scheduleId);
+    }
+    
+    function deleteSchedule(button) {
+        const scheduleId = button.getAttribute('data-schedule-id');
+        if (confirm('Bạn có chắc chắn muốn xóa lịch này?')) {
+            alert('Chức năng xóa lịch sẽ được phát triển sau. Mã lịch: ' + scheduleId);
+        }
+    }
+    
+    // Test function to create PT schedule
+    async function testCreatePTSchedule() {
+        const resultDiv = document.getElementById('testResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '⏳ Đang test tạo lịch PT...';
+        resultDiv.style.backgroundColor = '#fff3cd';
+        resultDiv.style.color = '#856404';
+        
+        try {
+            const response = await fetch('/trainer/testCreatePTSchedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `maNV=[[${maNV}]]&maKH=KH003&ngayTap=2025-01-15&caTap=CA01&maKV=KV01`
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                resultDiv.innerHTML = '✅ ' + result.message + ' (Mã lịch: ' + result.data + ')';
+                resultDiv.style.backgroundColor = '#d4edda';
+                resultDiv.style.color = '#155724';
+                
+                // Reload page after 2 seconds
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                resultDiv.innerHTML = '❌ ' + result.message;
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.style.color = '#721c24';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '❌ Lỗi: ' + error.message;
+            resultDiv.style.backgroundColor = '#f8d7da';
+            resultDiv.style.color = '#721c24';
+        }
+    }
+    
+    // Debug function to check PT customers
+    async function debugPTCustomers() {
+        const resultDiv = document.getElementById('testResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '⏳ Đang kiểm tra khách hàng PT...';
+        resultDiv.style.backgroundColor = '#fff3cd';
+        resultDiv.style.color = '#856404';
+        
+        try {
+            const response = await fetch(`/trainer/debug/ptCustomers/[[${maNV}]]`);
+            const result = await response.json();
+            
+            if (result.success) {
+                let html = '📋 Danh sách khách hàng PT:<br>';
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach(customer => {
+                        html += `• ${customer.tenKH} (${customer.maKH}) - ${customer.tenDV}<br>`;
+                        html += `  Thời hạn: ${customer.ngayBD} - ${customer.ngayKT}<br>`;
+                    });
+                } else {
+                    html += 'Không có khách hàng PT nào.';
+                }
+                
+                resultDiv.innerHTML = html;
+                resultDiv.style.backgroundColor = '#d1ecf1';
+                resultDiv.style.color = '#0c5460';
+            } else {
+                resultDiv.innerHTML = '❌ ' + result.message;
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.style.color = '#721c24';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '❌ Lỗi: ' + error.message;
+            resultDiv.style.backgroundColor = '#f8d7da';
+            resultDiv.style.color = '#721c24';
+        }
+    }
+    
+    // Debug function to check session
+    async function debugSession() {
+        const resultDiv = document.getElementById('testResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '⏳ Đang kiểm tra session...';
+        resultDiv.style.backgroundColor = '#fff3cd';
+        resultDiv.style.color = '#856404';
+        
+        try {
+            const response = await fetch('/trainer/debug/session');
+            const result = await response.json();
+            
+            if (result.success) {
+                let html = '🔍 Thông tin Session:<br>';
+                html += `Session ID: ${result.sessionId}<br>`;
+                html += `Is New: ${result.isNew}<br>`;
+                html += 'Attributes:<br>';
+                
+                if (result.attributes && Object.keys(result.attributes).length > 0) {
+                    Object.entries(result.attributes).forEach(([key, value]) => {
+                        html += `  • ${key}: ${value}<br>`;
+                    });
+                } else {
+                    html += '  Không có attributes nào.';
+                }
+                
+                resultDiv.innerHTML = html;
+                resultDiv.style.backgroundColor = '#e2e3e5';
+                resultDiv.style.color = '#383d41';
+            } else {
+                resultDiv.innerHTML = '❌ ' + result.message;
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.style.color = '#721c24';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '❌ Lỗi: ' + error.message;
+            resultDiv.style.backgroundColor = '#f8d7da';
+            resultDiv.style.color = '#721c24';
+        }
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addScheduleModal');
+        if (event.target === modal) {
+            closeAddScheduleModal();
+        }
+    }
 </script>
 </body>
 </html> 

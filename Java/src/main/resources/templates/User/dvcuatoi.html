@@ -331,12 +331,13 @@
             <div th:if="${!#lists.isEmpty(dsDichVuDaDangKy)}" class="services-grid">
                 <div th:each="chiTiet : ${dsDichVuDaDangKy}" class="service-card">
                     <div class="service-image">
-                        <img th:src="@{'/images/' + ${chiTiet.dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
-                                                      chiTiet.dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
-                                                      chiTiet.dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
-                                                      chiTiet.dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
-                                                      chiTiet.dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
-                                                      chiTiet.dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
+                        <img th:src="@{'/images/' + ${chiTiet.dichVu.boMon.maBM == 'BM01' and chiTiet.dichVu.loaiDV.name() == 'PT' ? 'GymdvPT.png' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM01' and chiTiet.dichVu.loaiDV.name() != 'PT' ? 'Gymdv.png' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM02' ? 'Yoga.png' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM03' ? 'Zumba.jpg' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM04' ? 'Cardio.jpg' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM05' ? 'Swim.jpg' : 
+                                                      chiTiet.dichVu.boMon.maBM == 'BM06' ? 'Crossfit.jpg' : 'UIT.png'}}" 
                              th:alt="${chiTiet.dichVu.tenDV}">
                     </div>
                     <div class="service-details">

@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/vnpay/return", "/api/dichvu-validation/**") // VNPay callback và validation API không cần CSRF
+                .ignoringRequestMatchers("/vnpay/return", "/api/dichvu-validation/**", "/trainer/testCreatePTSchedule", "/trainer/debug/**") // VNPay callback, validation API và test endpoints không cần CSRF
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers( "/login","/log&re","/register","/css/**", "/js/**", "/images/**").permitAll()
