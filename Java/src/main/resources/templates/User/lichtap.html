@@ -308,16 +308,20 @@
                     <h3>Chi tiết lịch tập</h3>
                     <div th:if="${danhSachLichTap != null and !danhSachLichTap.isEmpty()}">
                         <div th:each="lichTap : ${danhSachLichTap}" class="detail-item">
-                            <div class="detail-title" th:text="${lichTap.loaiLich == 'PT' ? 'Personal Training' : 'Lớp học: ' + (lichTap.lop != null ? lichTap.lop.tenLop : 'N/A')}"></div>
+                            <div class="detail-title" th:text="${lichTap.loaiLich == 'PT' ? 'Personal Training' : 'Lớp học: ' + (lichTap.tenLop != null ? lichTap.tenLop : 'N/A')}"></div>
                             <div class="detail-info">
                                 <strong>Thời gian:</strong> 
-                                <span th:text="${lichTap.thu != null ? lichTap.thu : 'N/A'}"></span>
+                                <span th:text="${lichTap.thu != null ? (lichTap.thu.contains('/') ? 'Ngày ' + lichTap.thu : 'Thứ ' + lichTap.thu) : 'N/A'}"></span>
                                 - 
-                                <span th:text="${lichTap.caTap != null ? lichTap.caTap.tenCa + ' (' + lichTap.caTap.moTa + ')' : 'N/A'}"></span>
+                                <span th:text="${lichTap.tenCaTap != null ? lichTap.tenCaTap + (lichTap.moTaCaTap != null ? ' (' + lichTap.moTaCaTap + ')' : '') : 'N/A'}"></span>
                             </div>
-                            <div class="detail-info" th:if="${lichTap.nhanVien != null}">
+                            <div class="detail-info" th:if="${lichTap.tenNhanVien != null}">
                                 <strong>Huấn luyện viên:</strong> 
-                                <span th:text="${lichTap.nhanVien.tenNV}"></span>
+                                <span th:text="${lichTap.tenNhanVien}"></span>
+                            </div>
+                            <div class="detail-info" th:if="${lichTap.tenKhuVuc != null}">
+                                <strong>Khu vực:</strong> 
+                                <span th:text="${lichTap.tenKhuVuc}"></span>
                             </div>
                             <div class="detail-info">
                                 <strong>Trạng thái:</strong> 
@@ -353,10 +357,38 @@
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
     
-    // Chuyển đổi dữ liệu thứ từ format "246" thành array [2,4,6]
+    // Chuyển đổi dữ liệu thứ từ format "246" thành array [2,4,6] hoặc kiểm tra ngày cụ thể
     function parseDayString(thuString) {
         if (!thuString) return [];
+        
+        // Kiểm tra xem có phải là ngày cụ thể (dd/MM/yyyy) không
+        if (thuString.includes('/')) {
+            return []; // Sẽ xử lý riêng trong addScheduleItems
+        }
+        
+        // Xử lý format thứ trong tuần "246"
         return thuString.split('').map(d => parseInt(d));
+    }
+    
+    // Kiểm tra xem chuỗi có phải là ngày cụ thể không
+    function isSpecificDate(thuString) {
+        return thuString && thuString.includes('/');
+    }
+    
+    // Chuyển đổi ngày từ dd/MM/yyyy sang Date object
+    function parseVietnameseDate(dateString) {
+        try {
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+                const year = parseInt(parts[2]);
+                return new Date(year, month, day);
+            }
+        } catch (e) {
+            console.error('Error parsing date:', dateString, e);
+        }
+        return null;
     }
     
     // Chuyển đổi thứ từ số sang tên
@@ -433,29 +465,63 @@
     }
     
     function addScheduleItems(dayDiv, dayOfWeek) {
+        const currentDate = new Date(currentYear, currentMonth, parseInt(dayDiv.querySelector('.day-number').textContent));
+        
         scheduleData.forEach(schedule => {
             if (schedule.thu) {
-                const scheduleDays = parseDayString(schedule.thu);
-                // Convert day of week (0=Sunday, 1=Monday, etc.) to Vietnamese format (2=Monday, 3=Tuesday, etc.)
-                const vietnameseDayFormat = dayOfWeek === 0 ? 8 : dayOfWeek + 1;
+                let shouldAddSchedule = false;
                 
-                if (scheduleDays.includes(vietnameseDayFormat)) {
+                // Kiểm tra xem có phải là ngày cụ thể không
+                if (isSpecificDate(schedule.thu)) {
+                    // Xử lý ngày cụ thể (dd/MM/yyyy)
+                    const scheduleDate = parseVietnameseDate(schedule.thu);
+                    if (scheduleDate && 
+                        scheduleDate.getDate() === currentDate.getDate() &&
+                        scheduleDate.getMonth() === currentDate.getMonth() &&
+                        scheduleDate.getFullYear() === currentDate.getFullYear()) {
+                        shouldAddSchedule = true;
+                    }
+                } else {
+                    // Xử lý thứ trong tuần (246)
+                    const scheduleDays = parseDayString(schedule.thu);
+                    // Convert day of week (0=Sunday, 1=Monday, etc.) to Vietnamese format (2=Monday, 3=Tuesday, etc.)
+                    const vietnameseDayFormat = dayOfWeek === 0 ? 8 : dayOfWeek + 1;
+                    
+                    if (scheduleDays.includes(vietnameseDayFormat)) {
+                        shouldAddSchedule = true;
+                    }
+                }
+                
+                if (shouldAddSchedule) {
                     const scheduleItem = document.createElement('div');
                     scheduleItem.className = `schedule-item ${schedule.loaiLich?.toLowerCase() || 'lop'}`;
                     
                     let title = '';
                     if (schedule.loaiLich === 'PT') {
                         title = 'PT';
-                    } else if (schedule.lop) {
-                        title = schedule.lop.tenLop || 'Lớp học';
+                        // Thêm thông tin ngày nếu là ngày cụ thể
+                        if (isSpecificDate(schedule.thu)) {
+                            title += ` (${schedule.thu})`;
+                        }
+                    } else if (schedule.tenLop) {
+                        title = schedule.tenLop || 'Lớp học';
                     }
                     
-                    if (schedule.caTap) {
-                        title += ` - ${schedule.caTap.tenCa}`;
+                    if (schedule.tenCaTap) {
+                        title += ` - ${schedule.tenCaTap}`;
                     }
                     
                     scheduleItem.textContent = title;
-                    scheduleItem.title = `${title}\nHuấn luyện viên: ${schedule.nhanVien?.tenNV || 'N/A'}\nTrạng thái: ${schedule.trangThai || 'N/A'}`;
+                    
+                    // Tooltip với thông tin chi tiết
+                    let tooltipText = `${title}\nHuấn luyện viên: ${schedule.tenNhanVien || 'N/A'}\nTrạng thái: ${schedule.trangThai || 'N/A'}`;
+                    if (isSpecificDate(schedule.thu)) {
+                        tooltipText += `\nNgày: ${schedule.thu}`;
+                    }
+                    if (schedule.tenKhuVuc) {
+                        tooltipText += `\nKhu vực: ${schedule.tenKhuVuc}`;
+                    }
+                    scheduleItem.title = tooltipText;
                     
                     dayDiv.appendChild(scheduleItem);
                 }

@@ -48,7 +48,17 @@ public interface LichTapRepository extends JpaRepository<LichTap, String> {
            "AND lt.trangThai != 'Huy'")
     Long countConflictingSchedules(@Param("maNV") String maNV, @Param("caTap") String caTap, @Param("thu") String thu);
     
+    // Kiểm tra xung đột lịch cho ngày cụ thể
+    @Query("SELECT COUNT(lt) FROM LichTap lt WHERE " +
+           "lt.nhanVien.maNV = :maNV AND lt.caTap.maCa = :caTap AND lt.thu = :ngayTap " +
+           "AND lt.trangThai != 'Huy'")
+    Long countConflictingSchedulesForDate(@Param("maNV") String maNV, @Param("caTap") String caTap, @Param("ngayTap") String ngayTap);
+    
     // Generate next MaLT
     @Query("SELECT MAX(CAST(SUBSTRING(lt.maLT, 3) AS int)) FROM LichTap lt WHERE lt.maLT LIKE 'LT%'")
     Integer findMaxLichTapNumber();
+    
+    // Get last MaLT for debugging
+    @Query("SELECT lt.maLT FROM LichTap lt ORDER BY lt.maLT DESC LIMIT 1")
+    String findLastMaLT();
 } 

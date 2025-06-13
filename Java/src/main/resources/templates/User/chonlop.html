@@ -46,8 +46,9 @@
         <!-- Thông tin dịch vụ -->
         <div class="service-info">
             <div class="service-detail-card">
-                <img th:src="@{'/images/' + ${dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
-                                              dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 'UIT.png'}}" 
+                <img th:src="@{'/images/' + ${dichVu.boMon.maBM == 'BM02' ? 'Yoga.png' : 
+                                              dichVu.boMon.maBM == 'BM03' ? 'Zumba.jpg' : 
+                                              dichVu.boMon.maBM == 'BM05' ? 'Swim.jpg' : 'UIT.png'}}" 
                      th:alt="${dichVu.tenDV}">
                 <div class="service-detail-content">
                     <h2 th:text="${dichVu.tenDV}"></h2>

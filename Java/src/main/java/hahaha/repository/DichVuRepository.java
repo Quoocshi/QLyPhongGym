@@ -15,6 +15,7 @@ public interface DichVuRepository extends JpaRepository<DichVu, String> {
         SELECT ct.dichVu.maDV
         FROM ChiTietDangKyDichVu ct
         WHERE ct.hoaDon.khachHang.maKH = :maKH
+        AND ct.hoaDon.trangThai = 'DaThanhToan'
         )
     """)
     List<DichVu> listDichVuKhachHangChuaDangKy(String maKH);
@@ -26,6 +27,7 @@ public interface DichVuRepository extends JpaRepository<DichVu, String> {
         SELECT ct.dichVu.maDV
         FROM ChiTietDangKyDichVu ct
         WHERE ct.hoaDon.khachHang.maKH = :maKH
+        AND ct.hoaDon.trangThai = 'DaThanhToan'
         )
     """)
     List<DichVu> listDichVuTheoBoMonKhachHangChuaDangKy(String maBM, String maKH);
@@ -38,6 +40,7 @@ public interface DichVuRepository extends JpaRepository<DichVu, String> {
         SELECT ct.dichVu.maDV
         FROM ChiTietDangKyDichVu ct
         WHERE ct.hoaDon.khachHang.maKH = :maKH
+        AND ct.hoaDon.trangThai = 'DaThanhToan'
         )
     AND (
         :thoiHanFilter = '' OR :thoiHanFilter IS NULL OR

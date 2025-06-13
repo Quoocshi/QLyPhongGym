@@ -55,7 +55,7 @@
         </div>
         
         <!-- Hidden form to submit payment data -->
-        <form id="payment-form" action="/dich-vu-gym/thanh-toan" method="post" style="display: none;">
+        <form id="payment-form" th:action="@{/dich-vu-gym/dang-ky-dv-universal}" method="post" style="display: none;">
             <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div id="dsMaDV-inputs">

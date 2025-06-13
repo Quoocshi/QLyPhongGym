@@ -43,6 +43,17 @@ public interface LichTapService {
     List<LichTap> getPTScheduleByTrainer(String maNV);
     
     /**
+     * Tạo lịch tập PT mới với ngày cụ thể
+     * @param maNV Mã trainer
+     * @param maKH Mã khách hàng
+     * @param ngayTap Ngày tập cụ thể (yyyy-MM-dd)
+     * @param caTap Mã ca tập
+     * @param maKV Mã khu vực
+     * @return LichTap được tạo hoặc null nếu thất bại
+     */
+    LichTap createPTScheduleWithDate(String maNV, String maKH, String ngayTap, String caTap, String maKV);
+    
+    /**
      * Tạo lịch tập PT mới
      * @param maNV Mã trainer
      * @param maKH Mã khách hàng

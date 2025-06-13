@@ -524,8 +524,7 @@ function processPayment() {
     // Clear existing inputs
     dsMaDVContainer.innerHTML = '';
     
-    // Luôn sử dụng universal endpoint
-    form.action = '/dich-vu-gym/dang-ky-dv-universal';
+    // Sử dụng action đã được set trong HTML form (không cần thay đổi)
     console.log('🔄 Sử dụng Universal flow (hỗ trợ TuDo + PT + Lop)');
     
     // Chuẩn bị arrays cho service, trainer, class

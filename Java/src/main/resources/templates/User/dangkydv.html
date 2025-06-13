@@ -52,7 +52,7 @@
         </div>
         
         <!-- Hidden form to submit payment data -->
-        <form id="payment-form" action="/dich-vu-gym/thanh-toan" method="post" style="display: none;">
+        <form id="payment-form" th:action="@{/dich-vu-gym/dang-ky-dv-universal}" method="post" style="display: none;">
             <input type="hidden" name="maKH" th:value="${maKH}" id="maKH-input">
             <input type="hidden" name="accountId" th:value="${accountId}" id="accountId-input">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -134,12 +134,38 @@
                      th:data-ma-dv="${dichVu.maDV}"
                      th:data-loai-dv="${dichVu.loaiDV.toString()}">
                     
-                    <img th:src="@{'/images/' + ${dichVu.maDV == 'GYM' ? 'Gymdv.png' : 
-                                                  dichVu.maDV == 'YOGA' ? 'Yoga.png' : 
-                                                  dichVu.maDV == 'ZUMBA' ? 'Zumba.jpg' : 
-                                                  dichVu.maDV == 'CARDIO' ? 'Cardio.jpg' : 
-                                                  dichVu.maDV == 'BƠI' ? 'Swim.jpg' : 
-                                                  dichVu.maDV == 'GYMPT' ? 'GymdvPT.png' : 'UIT.png'}}" 
+                    <!-- Hiển thị ảnh dựa trên maBM và loaiDV -->
+                    <img th:if="${dichVu.boMon.maBM == 'BM01' and dichVu.loaiDV.name() == 'PT'}" 
+                         th:src="@{'/images/GymdvPT.png'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM01' and dichVu.loaiDV.name() != 'PT'}" 
+                         th:src="@{'/images/Gymdv.png'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM02'}" 
+                         th:src="@{'/images/Yoga.png'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM03'}" 
+                         th:src="@{'/images/Zumba.jpg'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM04' and dichVu.loaiDV.name() == 'PT'}" 
+                         th:src="@{'/images/Cardio.jpg'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM04' and dichVu.loaiDV.name() != 'PT'}" 
+                         th:src="@{'/images/Cardio.jpg'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM05'}" 
+                         th:src="@{'/images/Swim.jpg'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM == 'BM06'}" 
+                         th:src="@{'/images/Crossfit.jpg'}" 
+                         th:alt="${dichVu.tenDV}">
+                    <img th:if="${dichVu.boMon.maBM != 'BM01' and 
+                                dichVu.boMon.maBM != 'BM02' and 
+                                dichVu.boMon.maBM != 'BM03' and 
+                                dichVu.boMon.maBM != 'BM04' and 
+                                dichVu.boMon.maBM != 'BM05' and 
+                                dichVu.boMon.maBM != 'BM06'}" 
+                         th:src="@{'/images/UIT.png'}" 
                          th:alt="${dichVu.tenDV}">
                     <div class="service-content">
                         <div class="service-title" th:text="${dichVu.tenDV}"></div>

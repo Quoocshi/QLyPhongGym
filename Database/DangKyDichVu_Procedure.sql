@@ -171,11 +171,11 @@ BEGIN
                             RAISE ex_dich_vu_not_found;
                         END IF;
                         
-                        -- Kiểm tra khách hàng đã đăng ký dịch vụ này chưa
+                        -- Kiểm tra khách hàng đã đăng ký dịch vụ này chưa (chỉ kiểm tra những hóa đơn đã thanh toán)
                         SELECT COUNT(*) INTO v_count
                         FROM CT_DKDV ct
                         JOIN HOADON hd ON ct.MaHD = hd.MaHD
-                        WHERE hd.MaKH = p_ma_kh AND ct.MaDV = v_ma_dv;
+                        WHERE hd.MaKH = p_ma_kh AND ct.MaDV = v_ma_dv AND hd.TrangThai = 'DaThanhToan';
                         
                         IF v_count > 0 THEN
                             p_error_msg := 'Khách hàng đã đăng ký dịch vụ: ' || v_ma_dv;
@@ -580,11 +580,11 @@ BEGIN
         RETURN;
     END IF;
     
-    -- Kiểm tra đã đăng ký chưa
+    -- Kiểm tra đã đăng ký chưa (chỉ kiểm tra những hóa đơn đã thanh toán)
     SELECT COUNT(*) INTO v_count
     FROM CT_DKDV ct
     JOIN HOADON hd ON ct.MaHD = hd.MaHD
-    WHERE hd.MaKH = p_ma_kh AND ct.MaDV = p_ma_dv;
+    WHERE hd.MaKH = p_ma_kh AND ct.MaDV = p_ma_dv AND hd.TrangThai = 'DaThanhToan';
     
     IF v_count > 0 THEN
         p_can_dang_ky := 0;
@@ -698,11 +698,11 @@ BEGIN
         RAISE ex_trainer_khong_phu_hop;
     END IF;
     
-    -- 6. Kiểm tra khách hàng đã đăng ký dịch vụ này chưa
+    -- 6. Kiểm tra khách hàng đã đăng ký dịch vụ này chưa (chỉ kiểm tra những hóa đơn đã thanh toán)
     SELECT COUNT(*) INTO v_count_existing
     FROM CT_DKDV ct
     JOIN HOADON hd ON ct.MaHD = hd.MaHD
-    WHERE hd.MaKH = p_ma_kh AND ct.MaDV = p_ma_dv;
+    WHERE hd.MaKH = p_ma_kh AND ct.MaDV = p_ma_dv AND hd.TrangThai = 'DaThanhToan';
     
     IF v_count_existing > 0 THEN
         RAISE ex_dich_vu_da_dang_ky;
@@ -1056,11 +1056,11 @@ BEGIN
                             RAISE ex_dich_vu_not_found;
                         END IF;
                         
-                        -- Kiểm tra khách hàng đã đăng ký dịch vụ này chưa
+                        -- Kiểm tra khách hàng đã đăng ký dịch vụ này chưa (chỉ kiểm tra những hóa đơn đã thanh toán)
                         SELECT COUNT(*) INTO v_count
                         FROM CT_DKDV ct
                         JOIN HOADON hd ON ct.MaHD = hd.MaHD
-                        WHERE hd.MaKH = p_ma_kh AND ct.MaDV = v_ma_dv;
+                        WHERE hd.MaKH = p_ma_kh AND ct.MaDV = v_ma_dv AND hd.TrangThai = 'DaThanhToan';
                         
                         IF v_count > 0 THEN
                             p_error_msg := 'Khách hàng đã đăng ký dịch vụ: ' || v_ma_dv;
