@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="GYM" uuid="0b7c0ff5-bf5a-49eb-a85a-435ed223e773">
+      <driver-ref>oracle.19</driver-ref>
+      <synchronize>true</synchronize>
+      <auto-commit>false</auto-commit>
+      <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+      <jdbc-url>jdbc:oracle:thin:@localhost:1521:XE</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+      <driver-properties>
+        <property name="oracle.jdbc.timezoneAsRegion" value="false" />
+        <property name="user.timezone" value="Asia/Ho_Chi_Minh" />
+      </driver-properties>
+    </data-source>
+  </component>
+</project>

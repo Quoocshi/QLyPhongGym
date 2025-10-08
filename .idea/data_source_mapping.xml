@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/8ea1395c-7dc7-40b5-8048-c96bf11ecf21/console.sql" value="8ea1395c-7dc7-40b5-8048-c96bf11ecf21" />
+    <file url="file://$PROJECT_DIR$/PostgreDatabase/SampleData.sql" value="8ea1395c-7dc7-40b5-8048-c96bf11ecf21" />
+  </component>
+</project>
