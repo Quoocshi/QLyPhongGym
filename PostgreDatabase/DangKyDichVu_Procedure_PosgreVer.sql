@@ -93,7 +93,6 @@ BEGIN
                     FROM DICHVU WHERE MaDV = v_ma_dv;
 
                     IF v_count = 0 THEN
-                        ROLLBACK;
                         p_result := 'ERROR';
                         p_error_msg := 'Không tìm thấy dịch vụ: ' || v_ma_dv;
                         RETURN;
@@ -104,7 +103,6 @@ BEGIN
                     WHERE hd.MaKH = p_ma_kh AND ct.MaDV = v_ma_dv AND hd.TrangThai = 'DaThanhToan';
 
                     IF v_count > 0 THEN
-                        ROLLBACK;
                         p_result := 'ERROR';
                         p_error_msg := 'Khách hàng đã đăng ký dịch vụ: ' || v_ma_dv;
                         RETURN;
@@ -130,7 +128,6 @@ BEGIN
                             WHERE MaNV = v_trainer_id AND LoaiNV = 'Trainer';
 
                             IF v_count = 0 THEN
-                                ROLLBACK;
                                 p_result := 'ERROR';
                                 p_error_msg := 'Không tìm thấy trainer: ' || v_trainer_id;
                                 RETURN;
@@ -140,7 +137,6 @@ BEGIN
                             WHERE cm.MaNV = v_trainer_id AND cm.MaBM = v_ma_bm;
 
                             IF v_count = 0 THEN
-                                ROLLBACK;
                                 p_result := 'ERROR';
                                 p_error_msg := 'Trainer ' || v_trainer_id || ' không có chuyên môn phù hợp';
                                 RETURN;
@@ -154,7 +150,6 @@ BEGIN
                             ORDER BY nv.MaNV LIMIT 1;
 
                             IF v_ma_nv IS NULL THEN
-                                ROLLBACK;
                                 p_result := 'ERROR';
                                 p_error_msg := 'Không tìm thấy trainer phù hợp cho bộ môn: ' || v_ma_bm;
                                 RETURN;
@@ -168,7 +163,6 @@ BEGIN
 
                             IF v_count = 0 THEN
                                 SELECT COUNT(*) INTO v_count FROM LOP WHERE MaLop = v_class_id;
-                                ROLLBACK;
                                 p_result := 'ERROR';
                                 IF v_count = 0 THEN
                                     p_error_msg := 'Không tìm thấy lớp: ' || v_class_id;
@@ -184,7 +178,6 @@ BEGIN
                             ORDER BY MaLop LIMIT 1;
 
                             IF v_ma_lop IS NULL THEN
-                                ROLLBACK;
                                 p_result := 'ERROR';
                                 p_error_msg := 'Không còn lớp trống cho bộ môn: ' || v_ma_bm;
                                 RETURN;
@@ -194,7 +187,6 @@ BEGIN
                     ELSIF v_loai_dv = 'TuDo' THEN
                         NULL;
                     ELSE
-                        ROLLBACK;
                         p_result := 'ERROR';
                         p_error_msg := 'Loại dịch vụ không hợp lệ: ' || v_loai_dv;
                         RETURN;
@@ -222,7 +214,6 @@ BEGIN
 
         EXCEPTION
             WHEN unique_violation THEN
-                ROLLBACK;
                 v_retry_count := v_retry_count + 1;
                 IF v_retry_count > v_max_retries THEN
                     p_result := 'ERROR';
@@ -231,7 +222,6 @@ BEGIN
                 END IF;
                 PERFORM pg_sleep(0.1);
             WHEN OTHERS THEN
-                ROLLBACK;
                 p_result := 'ERROR';
                 p_error_msg := 'Lỗi hệ thống: ' || SQLERRM;
                 RETURN;
@@ -282,7 +272,6 @@ BEGIN
     p_error_msg := NULL;
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         p_result := 'ERROR';
         p_error_msg := 'Lỗi hệ thống: ' || SQLERRM;
 END;
@@ -490,7 +479,6 @@ BEGIN
     p_error_msg := NULL;
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         p_result := 'ERROR';
         p_error_msg := 'Lỗi hệ thống: ' || SQLERRM;
 END;
@@ -553,7 +541,6 @@ BEGIN
     p_error_msg := NULL;
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         p_result := 'ERROR';
         p_error_msg := 'Lỗi hệ thống: ' || SQLERRM;
 END;

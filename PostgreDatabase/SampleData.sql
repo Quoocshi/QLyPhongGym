@@ -316,13 +316,13 @@ select * from ROLE_GROUP;
 select * from NHANVIEN;
 select * from LOP;
 select * from BOMON;
-select * from DICHVU;
 select * from ROLE_GROUP;
 select * from ACCOUNT;
 select * from HOADON;
 select * from KHACHHANG;
 select * from CT_DKDV;
 SELECT * FROM LICHTAP;
+SELECT * FROM dichvu;
 select * from ct_chuyenmon;
 --Delete all tables
 DO

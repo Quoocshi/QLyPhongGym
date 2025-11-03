@@ -201,18 +201,18 @@ public class DangKyDichVuController {
     // ✅ 8. Gọi procedure universal để đăng ký dịch vụ (TuDo/PT/Lớp)
     @PostMapping("/dang-ky-dv-universal")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> dangKyDichVuUniversal(
-            @RequestParam("maKH") String maKH,
-            @RequestParam("accountId") Long accountId,
-            @RequestParam("dsMaDV") String[] dsMaDV,
-            @RequestParam(value = "dsTrainerId", required = false) String[] dsTrainerId,
-            @RequestParam(value = "dsClassId", required = false) String[] dsClassId) {
-
-        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+    public ResponseEntity<?> dangKyDichVuUniversal(@RequestBody DangKyDichVuRequest request)
+            {
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(request.getAccountId());
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
 
-        String[] result = callUniversalProcedure(maKH, dsMaDV, dsTrainerId, dsClassId);
+        String[] result = callUniversalProcedure(
+                request.getMaKH(),
+                request.getDsMaDV().toArray(new String[0]),
+                request.getDsTrainerId() != null ? request.getDsTrainerId().toArray(new String[0]) : null,
+                request.getDsClassId() != null ? request.getDsClassId().toArray(new String [0]) : null
+        );
         if ("SUCCESS".equals(result[0])) {
             return ResponseEntity.ok(Map.of(
                     "message", "Đăng ký thành công",
