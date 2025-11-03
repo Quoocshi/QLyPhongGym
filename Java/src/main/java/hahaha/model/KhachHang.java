@@ -2,11 +2,13 @@ package hahaha.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "KHACHHANG")
@@ -35,8 +37,9 @@ public class KhachHang {
 
     @Column(name = "REFERRALCODE", unique = true, nullable = false)
     private String referralCode;
-    
+
     @OneToOne(mappedBy = "khachHang")
+    @JsonIgnore
     private Account account;
 
     public String getMaKH() {

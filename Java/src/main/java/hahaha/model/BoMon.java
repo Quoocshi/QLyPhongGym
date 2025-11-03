@@ -2,12 +2,17 @@ package hahaha.model;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "maBM")
 @Entity
 @Table(name = "BOMON")
 public class BoMon {
@@ -17,9 +22,10 @@ public class BoMon {
     private String maBM;
     @Column(name = "TENBM", nullable = false)
     private String tenBM;
-    
 
     @OneToMany(mappedBy = "boMon")
+    @JsonManagedReference
+    @JsonIgnore
     private Set<DichVu> danhSachDichVu;
 
 

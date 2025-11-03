@@ -323,7 +323,7 @@ select * from HOADON;
 select * from KHACHHANG;
 select * from CT_DKDV;
 SELECT * FROM LICHTAP;
-
+select * from ct_chuyenmon;
 --Delete all tables
 DO
 $$
