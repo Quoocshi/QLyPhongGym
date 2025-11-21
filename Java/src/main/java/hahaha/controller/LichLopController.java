@@ -3,7 +3,7 @@ package hahaha.controller;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import hahaha.DTO.LopDTO;
+import hahaha.DTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import hahaha.service.LopService;
 
 @RestController
 @RequestMapping("/api/trainer")
-public class LichLopRestController {
+public class LichLopController {
 
     @Autowired private LopService lopService;
     @Autowired private LichTapService lichTapService;
@@ -41,6 +41,8 @@ public class LichLopRestController {
 
             NhanVien trainer = account.getNhanVien();
             List<Lop> dsLop = lopService.getLopsByTrainerMaNV(trainer.getMaNV());
+
+            // --- map danh sách lớp sang DTO ---
             List<LopDTO> dsLopDto = dsLop.stream().map(l -> {
                 LopDTO dto = new LopDTO();
                 dto.setMaLop(l.getMaLop());
@@ -51,19 +53,36 @@ public class LichLopRestController {
                 dto.setNgayBD(l.getNgayBD().toLocalDate());
                 dto.setNgayKT(l.getNgayKT().toLocalDate());
                 dto.setGhiChu(l.getGhiChu());
-                dto.setBoMon(l.getBoMon());
+
+                // chỉ cần tên bộ môn, không trả toàn bộ danh sách dịch vụ
+                BoMonDTO boMonDTO = new BoMonDTO();
+                boMonDTO.setMaBM(l.getBoMon().getMaBM());
+                boMonDTO.setTenBM(l.getBoMon().getTenBM());
+                dto.setBoMon(boMonDTO);
+
                 return dto;
-            }).collect(Collectors.toList());
+            }).toList();
+
+            // --- map trainer sang DTO ---
+            ChiTietNhanVienDTO trainerDTO = new ChiTietNhanVienDTO();
+            trainerDTO.setMaNV(trainer.getMaNV());
+            trainerDTO.setTenNV(trainer.getTenNV());
+            trainerDTO.setEmail(trainer.getEmail());
+            trainerDTO.setNgaySinh(trainer.getNgaySinh());
+            trainerDTO.setGioiTinh(trainer.getGioiTinh());
+            trainerDTO.setNgayVaoLam(trainer.getNgayVaoLam());
+            trainerDTO.setLoaiNV(trainer.getLoaiNV().toString());
 
             return ResponseEntity.ok(Map.of(
-                    "trainer", trainer,
-                    "dsLop", dsLop
+                    "trainer", trainerDTO,
+                    "dsLop", dsLopDto
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
 
     // --- 2. Lấy lịch PT của trainer ---
     @GetMapping("/lich-canhan")
@@ -103,11 +122,9 @@ public class LichLopRestController {
     // --- 3. Tạo lịch PT ---
     @PostMapping("/tao-lich-pt")
     @PreAuthorize("hasRole('TRAINER')")
-    public ResponseEntity<?> taoLichPT(Authentication authentication,
-                                       @RequestParam String maKH,
-                                       @RequestParam String ngayTap,
-                                       @RequestParam String caTap,
-                                       @RequestParam(required = false) String maKV) {
+    public ResponseEntity<?> taoLichPT(
+            Authentication authentication,
+            @RequestBody TaoLichPTRequest request) {
         try {
             String username = authentication.getName();
             Account account = accountRepository.findAccountByUserName(username);
@@ -117,7 +134,13 @@ public class LichLopRestController {
             }
 
             String maNV = account.getNhanVien().getMaNV();
-            LichTap lichTap = lichTapService.createPTScheduleWithDate(maNV, maKH, ngayTap, caTap, maKV);
+            LichTap lichTap = lichTapService.createPTScheduleWithDate(
+                    maNV,
+                    request.getMaKH(),
+                    request.getNgayTap(),
+                    request.getCaTap(),
+                    request.getMaKV()
+            );
 
             if (lichTap != null) {
                 return ResponseEntity.ok(Map.of(
@@ -129,18 +152,19 @@ public class LichLopRestController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("success", false, "message", "Không thể tạo lịch PT. Kiểm tra lại thông tin."));
             }
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 
+
     // --- 4. Kiểm tra xung đột ---
-    @GetMapping("/kiem-tra-xung-dot")
+    @PostMapping("/kiem-tra-xung-dot")
     @PreAuthorize("hasRole('TRAINER')")
     public ResponseEntity<?> kiemTraXungDot(Authentication authentication,
-                                            @RequestParam String thu,
-                                            @RequestParam String caTap) {
+                                            @RequestBody KiemTraXungDotRequest request) {
         try {
             String username = authentication.getName();
             Account account = accountRepository.findAccountByUserName(username);
@@ -150,7 +174,7 @@ public class LichLopRestController {
             }
 
             String maNV = account.getNhanVien().getMaNV();
-            boolean hasConflict = lichTapService.hasScheduleConflict(maNV, thu, caTap);
+            boolean hasConflict = lichTapService.hasScheduleConflict(maNV, request.getNgay(), request.getCaTap());
 
             return ResponseEntity.ok(Map.of("hasConflict", hasConflict));
         } catch (Exception e) {
@@ -170,7 +194,6 @@ public class LichLopRestController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Không tìm thấy thông tin huấn luyện viên"));
             }
-
             String maNV = account.getNhanVien().getMaNV();
             List<ChiTietDangKyDichVu> ptCustomers = chiTietDangKyDichVuRepository.findPTCustomersByTrainer(maNV);
 
@@ -185,7 +208,6 @@ public class LichLopRestController {
                 data.put("trangThaiHD", pt.getHoaDon().getTrangThai());
                 return data;
             }).collect(Collectors.toList());
-
 
             return ResponseEntity.ok(Map.of("success", true, "data", customerData));
         } catch (Exception e) {

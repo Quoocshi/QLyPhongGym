@@ -1,9 +1,10 @@
 package hahaha.controller;
 
 import hahaha.config.Security.JwtIssuer;
-import hahaha.model.CustomUserDetails;
 import hahaha.model.LoginRequest;
 import hahaha.model.RegisterRequest;
+import hahaha.repository.AccountRepository;
+import hahaha.service.AccountService;
 import hahaha.service.AuthService.RegisterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +32,20 @@ public class AuthController {
 
     private final JwtIssuer jwtIssuer;
 
+    @Autowired
+    private AccountService accountService;
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
         User principal = (User) authentication.getPrincipal();
-//        String userId = principal.getUserId().toString();
+        Long accountId = accountService.getAccountIdByUsername(principal.getUsername());
         List<String> roles = principal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         String token = jwtIssuer.issue(
+                accountId,
                 principal.getUsername(),
                 roles
         );
@@ -58,7 +62,8 @@ public class AuthController {
         Map<String, Object> result = registerService.register(request);
 
         String username = result.get("username").toString();
-        String token = jwtIssuer.issue(username, List.of("USER"));
+        Long accountId = accountService.getAccountIdByUsername(username);
+        String token = jwtIssuer.issue(accountId,username, List.of("USER"));
 
         return ResponseEntity.ok(Map.of(
                 "message", "Đăng ký thành công",

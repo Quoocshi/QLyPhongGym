@@ -41,7 +41,7 @@ public class DichVu {
 
     @ManyToOne()
     @JoinColumn(name = "MABM", referencedColumnName = "MABM")
-    @JsonBackReference
+//    @JsonBackReference
     private BoMon boMon;
 
     public String getMaDV() {

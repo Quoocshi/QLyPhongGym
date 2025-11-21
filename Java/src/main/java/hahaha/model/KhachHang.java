@@ -39,7 +39,7 @@ public class KhachHang {
     private String referralCode;
 
     @OneToOne(mappedBy = "khachHang")
-    @JsonIgnore
+    //@JsonIgnore
     private Account account;
 
     public String getMaKH() {

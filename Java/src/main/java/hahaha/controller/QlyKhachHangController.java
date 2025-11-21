@@ -1,77 +1,151 @@
 package hahaha.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import hahaha.DTO.ChiTietKhachHangDTO;
+import hahaha.DTO.KhachHangDTO;
 import hahaha.model.KhachHang;
 import hahaha.service.KhachHangService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/quan-ly-khach-hang")
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/khach-hang")
 public class QlyKhachHangController {
-    
+
     @Autowired
     private KhachHangService khachHangService;
 
-    @GetMapping("/danh-sach-khach-hang")
+    // 🔹 Lấy danh sách khách hàng
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String hienThiQuanLyKhachHang(Authentication auth, Model model) {
-        List<KhachHang> customers = khachHangService.getAll();
-        model.addAttribute("customers", customers);
-        return getViewByRole(auth, "qlycus");
+    public ResponseEntity<?> getAllCustomers() {
+        try {
+            List<KhachHangDTO> customers = khachHangService.getAll().stream()
+                    .map(kh -> {
+                        KhachHangDTO dto = new KhachHangDTO();
+                        dto.setMaKH(kh.getMaKH());
+                        dto.setHoTen(kh.getHoTen());
+                        return dto;
+                    })
+                    .toList();
+
+            if (customers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi lấy danh sách khách hàng: " + e.getMessage()));
+        }
     }
 
-    @GetMapping("/tim-kiem")
+    // Lấy thông tin chi tiết khách hàng
+    @GetMapping("/{maKH}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String timKiemKhachHang(Authentication auth,
-                                @RequestParam("keyword") String keyword,
-                                Model model) {
-        keyword = keyword.trim().replaceAll("\\s+", " ");
+    public ResponseEntity<?> getCustomerDetails(@PathVariable String maKH) {
+        try {
+            KhachHang kh = khachHangService.findById(maKH);
+            if (kh == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy khách hàng với mã " + maKH));
+            }
 
-        List<KhachHang> customers = khachHangService.searchCustomers(keyword);
-        model.addAttribute("customers", customers);
-        return getViewByRole(auth, "qlycus");
+            ChiTietKhachHangDTO dto = new ChiTietKhachHangDTO();
+            dto.setMaKH(kh.getMaKH());
+            dto.setHoTen(kh.getHoTen());
+            dto.setSoDienThoai(kh.getSoDienThoai());
+            dto.setEmail(kh.getEmail());
+            dto.setDiaChi(kh.getDiaChi());
+            dto.setReferalCode(kh.getReferralCode());
+            dto.setNgaySinh(kh.getNgaySinh());
+            dto.setGioiTinh(kh.getGioiTinh());
+
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi lấy thông tin khách hàng: " + e.getMessage()));
+        }
     }
 
 
-    
 
-    @GetMapping("/cap-nhat-thong-tin-khach-hang/{maKH}")
+    // 🔹 Tìm kiếm khách hàng theo keyword
+    @GetMapping("/tim-kiem/{keyword}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String updateCustomerForm(@PathVariable String maKH, Authentication auth, Model model) {
-        KhachHang customer = khachHangService.findById(maKH);
-        model.addAttribute("customer", customer);
-        return getViewByRole(auth, "update");
-    }
-    
-    @PostMapping("/cap-nhat-thong-tin-khach-hang/{maKH}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String updateCustomer(KhachHang customer) {
-        khachHangService.updateCustomer(customer);
-        return "redirect:/quan-ly-khach-hang/danh-sach-khach-hang";
+    public ResponseEntity<?> searchCustomers(@PathVariable String keyword) {
+        try {
+            keyword = keyword.trim().replaceAll("\\s+", " ");
+            List<ChiTietKhachHangDTO> customers = khachHangService.searchCustomers(keyword).stream()
+                    .map(kh -> {
+                        ChiTietKhachHangDTO dto = new ChiTietKhachHangDTO();
+                        dto.setMaKH(kh.getMaKH());
+                        dto.setHoTen(kh.getHoTen());
+                        dto.setSoDienThoai(kh.getSoDienThoai());
+                        dto.setEmail(kh.getEmail());
+                        dto.setDiaChi(kh.getDiaChi());
+                        dto.setReferalCode(kh.getReferralCode());
+                        dto.setNgaySinh(kh.getNgaySinh());
+                        dto.setGioiTinh(kh.getGioiTinh());
+                        return dto;
+                    })
+                    .toList();
+
+            if (customers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy khách hàng nào phù hợp"));
+            }
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi tìm kiếm: " + e.getMessage()));
+        }
     }
 
-    @PostMapping("/xoa-khach-hang")
+    // 🔹 Cập nhật thông tin khách hàng
+    @PutMapping("/{maKH}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String deleteCustomer(@RequestParam String MaKH) {
-        khachHangService.deleteCustomer(MaKH);
-        return "redirect:/quan-ly-khach-hang/danh-sach-khach-hang";
+    public ResponseEntity<?> updateCustomer(@PathVariable String maKH, @RequestBody KhachHang customer) {
+        try {
+            customer.setMaKH(maKH);
+            boolean result = khachHangService.updateCustomer(customer);
+
+            if (result) {
+                return ResponseEntity.ok(Map.of("message", "Cập nhật thông tin khách hàng thành công"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Không thể cập nhật khách hàng"));
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Không tìm thấy khách hàng với mã " + maKH));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi hệ thống: " + e.getMessage()));
+        }
     }
 
-    // Helper method để check role
-    private String getViewByRole(Authentication auth, String viewName) {
-        boolean isAdmin = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        return isAdmin ? "Admin/Customer/" + viewName : "Staff/Customer/" + viewName;
+    // 🔹 Xóa khách hàng
+    @DeleteMapping("/{maKH}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ResponseEntity<?> deleteCustomer(@PathVariable String maKH) {
+        try {
+            boolean deleted = khachHangService.deleteCustomer(maKH);
+            if (deleted) {
+                return ResponseEntity.ok(Map.of("message", "Xóa khách hàng thành công"));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy khách hàng để xóa"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi xóa khách hàng: " + e.getMessage()));
+        }
     }
 }

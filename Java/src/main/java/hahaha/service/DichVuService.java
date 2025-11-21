@@ -19,11 +19,11 @@ public interface DichVuService {
     // Method mới để filter theo thời hạn
     List<DichVu> getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(String maBM, String maKH, String thoiHanFilter);
     
-    // Methods mới: Hiển thị tất cả dịch vụ theo bộ môn (không filter dịch vụ đã đăng ký)
-    List<DichVu> getTatCaDichVuTheoBoMon(String maBM);
-    List<DichVu> getTatCaDichVuTheoBoMonVaThoiHan(String maBM, String thoiHanFilter);
-    
+//    // Methods mới: Hiển thị tất cả dịch vụ theo bộ môn (không filter dịch vụ đã đăng ký)
+//    List<DichVu> getTatCaDichVuTheoBoMon(String maBM);
+//    List<DichVu> getTatCaDichVuTheoBoMonVaThoiHan(String maBM, String thoiHanFilter);
+
     // Methods missing in controller
-    List<DichVu> getDichVuByBoMon(String maBM);
+//    List<DichVu> getDichVuByBoMon(String maBM);
     BoMon getBoMonById(String maBM);
 } 

@@ -16,10 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtIssuer {
     private final JwtProperties jwtProperties;
-    public String issue(String username, List<String> roles){
+    public String issue(Long accountId ,String username, List<String> roles){
         return JWT.create()
                 .withSubject(username)
                 .withExpiresAt(Date.from(Instant.now().plus(Duration.of(1, ChronoUnit.DAYS))))
+                .withClaim("accountId", accountId)
                 .withClaim("username", username)
                 .withClaim("roles", roles)
                 .sign(Algorithm.HMAC256(jwtProperties.getSecretKey()));

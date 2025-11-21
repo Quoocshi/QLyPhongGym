@@ -1,185 +1,133 @@
 package hahaha.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import hahaha.enums.LoaiNhanVien;
+import hahaha.DTO.ChiTietNhanVienDTO;
+import hahaha.DTO.NhanVienDTO;
+import hahaha.DTO.NhanVienRegisterDTO;
 import hahaha.model.Account;
 import hahaha.model.NhanVien;
 import hahaha.model.RoleGroup;
 import hahaha.repository.AccountRepository;
 import hahaha.repository.RoleGroupRepository;
 import hahaha.service.NhanVienService;
+import hahaha.enums.LoaiNhanVien;
 
-@Controller
-@RequestMapping("/quan-ly-nhan-vien")
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/nhan-vien")
 public class QlyNhanVienController {
-    
+
     @Autowired
     private NhanVienService nhanVienService;
-    
+
     @Autowired
     private AccountRepository accountRepository;
-    
+
     @Autowired
     private RoleGroupRepository roleGroupRepository;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/danh-sach-nhan-vien")
-    @PreAuthorize("hasRole('ADMIN')")
-
-    public String hienThiDanhSachNhanVien(
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "loaiNV", required = false) String loaiNV,
-            Authentication auth,
-            Model model) {
-        List<NhanVien> danhSachNhanVien;
-        danhSachNhanVien = nhanVienService.getAll(); 
-        model.addAttribute("nhanVienList", danhSachNhanVien);
-        return getViewByRole(auth, "qlynv");
-
-    }
-
-    @GetMapping("/tim-kiem")
+    // 🔹 Lấy danh sách nhân viên
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public String timKiemNhanVien(Authentication auth,
-                                @RequestParam("keyword") String keyword,
-                                Model model) {
-        keyword = keyword.trim().replaceAll("\\s+", " ");
-        List<NhanVien> employees = nhanVienService.searchNhanVien(keyword);
-        model.addAttribute("nhanVienList", employees);
-        return getViewByRole(auth, "qlynv");
-    }
-
-
-    @GetMapping("/them-nhan-vien")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String themNhanVienForm(Authentication auth, Model model) {
-        model.addAttribute("nhanVien", new NhanVien());
-        model.addAttribute("nextMaNV", nhanVienService.generateNextMaNV());
-        model.addAttribute("nextMaQL", nhanVienService.generateNextMaQL());
-        model.addAttribute("nextMaPT", nhanVienService.generateNextMaPT());
-        
-        // Thêm danh sách loại nhân viên
-        model.addAttribute("loaiNhanVienList", LoaiNhanVien.values());
-        
-        return getViewByRole(auth, "add");
-    }
-
-    @PostMapping("/them-nhan-vien")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String themNhanVien(NhanVien nhanVien,
-                                @RequestParam("rawPassword") String rawPassword, 
-                                @RequestParam("confirmPassword") String confirmPassword,
-                                RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> getAllNhanVien() {
         try {
+            List<NhanVienDTO> list = nhanVienService.getAll().stream()
+                    .map(nv -> {
+                        NhanVienDTO dto = new NhanVienDTO();
+                        dto.setMaNV(nv.getMaNV());
+                        dto.setHoTen(nv.getTenNV());
+                        return dto;
+                    })
+                    .toList();
 
-            if (!rawPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu và xác nhận mật khẩu không khớp!");
-            return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
-        }
-            // Kiểm tra email đã tồn tại
-            if (accountRepository.existsByEmail(nhanVien.getEmail())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Email đã tồn tại trong hệ thống!");
-                return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
+            if (list.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
-            
-            // Sử dụng email làm username trực tiếp
-            String username = nhanVien.getEmail();
-            
-            // Kiểm tra username đã tồn tại
-            if (accountRepository.findAccountByUserName(username) != null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Email này đã được sử dụng làm tài khoản đăng nhập!");
-                return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
-            }
-            System.out.println("tenNV: " + nhanVien.getTenNV());
-            boolean nv = nhanVienService.createNhanVien(nhanVien);
-            if(!nv){
-                redirectAttributes.addFlashAttribute("errorMessage", "Không thể tạo nhân viên.");
-                return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
-            }
-            // Tạo tài khoản cho nhân viên
-            Account account = new Account();
-            account.setUserName(username);
-            account.setPasswordHash(passwordEncoder.encode(rawPassword));
-            account.setCreatedAt(LocalDateTime.now());
-            account.setUpdatedAt(LocalDateTime.now());
-            account.setStatus("ACTIVE");
-            account.setIsDeleted(0);
-            account.setNhanVien(nhanVien);
 
-            // Gán role group dựa trên loại nhân viên
-            Long roleGroupId = getRoleGroupIdByLoaiNV(nhanVien.getLoaiNV().name());
-            System.out.println("role: " + roleGroupId);
-            RoleGroup roleGroup = roleGroupRepository.findById(roleGroupId).orElse(null);
-            if (roleGroup == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy quyền hạn tương ứng!");
-                return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
-            }
-            account.setRoleGroup(roleGroup);
-                        
-            accountRepository.save(account);
-            System.out.println(">>> Đã tạo tài khoản cho nhân viên:");
-            System.out.println("username = " + account.getUserName());
-            System.out.println("roleGroup = " + account.getRoleGroup().getNameRoleGroup());
-            System.out.println("MaNV = " + account.getNhanVien().getMaNV());
-            
-            redirectAttributes.addFlashAttribute("successMessage", "Thêm nhân viên và tạo tài khoản thành công!");
+            return ResponseEntity.ok(list);
         } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi lấy danh sách nhân viên: " + e.getMessage()));
         }
-        
-        return "redirect:/quan-ly-nhan-vien/danh-sach-nhan-vien";
     }
 
-    @GetMapping("/cap-nhat-nhan-vien/{maNV}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String capNhatNhanVienForm(@PathVariable String maNV, Authentication auth, Model model) {
-        NhanVien nhanVien = nhanVienService.findById(maNV);
-        if (nhanVien == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy nhân viên!");
-            return "redirect:/quan-ly-nhan-vien/danh-sach-nhan-vien";
-        }
-        
-        model.addAttribute("nhanVien", nhanVien);
-        model.addAttribute("loaiNhanVienList", LoaiNhanVien.values());
-        
-        return getViewByRole(auth, "update");
-    }
-    
-    @PostMapping("/cap-nhat-nhan-vien")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String capNhatNhanVien(NhanVien nhanVienUpdate, RedirectAttributes redirectAttributes) {
+    // 🔹 Xem chi tiết nhân viên
+    @GetMapping("/{maNV}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ResponseEntity<?> getChiTietNhanVien(@PathVariable String maNV) {
         try {
-            NhanVien nhanVien = nhanVienService.findById(nhanVienUpdate.getMaNV());
+            NhanVien nv = nhanVienService.findById(maNV);
+            if (nv == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy nhân viên với mã " + maNV));
+            }
+
+            ChiTietNhanVienDTO dto = new ChiTietNhanVienDTO();
+            dto.setMaNV(nv.getMaNV());
+            dto.setTenNV(nv.getTenNV());
+            dto.setEmail(nv.getEmail());
+            dto.setNgaySinh(nv.getNgaySinh());
+            dto.setGioiTinh(nv.getGioiTinh());
+            dto.setNgayVaoLam(nv.getNgayVaoLam());
+            dto.setLoaiNV(nv.getLoaiNV() != null ? nv.getLoaiNV().name() : null);
+
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi lấy chi tiết nhân viên: " + e.getMessage()));
+        }
+    }
+
+
+    // 🔹 Thêm nhân viên
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> addNhanVien(@RequestBody NhanVienRegisterDTO dto) {
+        try {
+            // Tạo NhanVien và Account từ DTO
+            NhanVien nhanVien = nhanVienService.createFromDTO(dto);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Thêm nhân viên thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    // 🔹 Cập nhật nhân viên
+    @PutMapping("/{maNV}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateNhanVien(@PathVariable String maNV,
+                                            @RequestBody NhanVien nhanVienUpdate) {
+        try {
+            NhanVien nhanVien = nhanVienService.findById(maNV);
             if (nhanVien == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy nhân viên!");
-                return "redirect:/quan-ly-nhan-vien/danh-sach-nhan-vien";
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy nhân viên"));
             }
-            
-            // Kiểm tra email đã tồn tại cho nhân viên khác
-            if (accountRepository.existsByEmail(nhanVienUpdate.getEmail()) && !nhanVien.getEmail().equals(nhanVienUpdate.getEmail())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Email đã tồn tại trong hệ thống!");
-                return "redirect:/quan-ly-nhan-vien/cap-nhat-nhan-vien/" + nhanVienUpdate.getMaNV();
+
+            if (accountRepository.existsByEmail(nhanVienUpdate.getEmail())
+                    && !nhanVien.getEmail().equals(nhanVienUpdate.getEmail())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Email đã tồn tại trong hệ thống"));
             }
-            
+
             // Cập nhật thông tin nhân viên
             nhanVien.setTenNV(nhanVienUpdate.getTenNV());
             nhanVien.setNgaySinh(nhanVienUpdate.getNgaySinh());
@@ -187,82 +135,59 @@ public class QlyNhanVienController {
             nhanVien.setEmail(nhanVienUpdate.getEmail());
             nhanVien.setNgayVaoLam(nhanVienUpdate.getNgayVaoLam());
             nhanVien.setLoaiNV(nhanVienUpdate.getLoaiNV());
-            
-            Boolean result = nhanVienService.updateNhanVien(nhanVien);
-            
-            // Cập nhật account (username và role) theo thông tin nhân viên mới
-            Account account = accountRepository.findByNhanVien_MaNV(nhanVienUpdate.getMaNV());
+            nhanVienService.updateNhanVien(nhanVien);
+
+            // Cập nhật account
+            Account account = accountRepository.findByNhanVien_MaNV(maNV);
             if (account != null) {
-                // Cập nhật username nếu email thay đổi
-                if (!nhanVien.getEmail().equals(nhanVienUpdate.getEmail())) {
-                    // Kiểm tra email/username mới đã tồn tại chưa
-                    if (accountRepository.findAccountByUserName(nhanVienUpdate.getEmail()) != null) {
-                        redirectAttributes.addFlashAttribute("errorMessage", "Email này đã được sử dụng làm tài khoản đăng nhập!");
-                        return "redirect:/quan-ly-nhan-vien/cap-nhat-nhan-vien/" + nhanVienUpdate.getMaNV();
-                    }
-                    account.setUserName(nhanVienUpdate.getEmail());
-                }
-                
-                // Cập nhật role
+                account.setUserName(nhanVienUpdate.getEmail());
                 Long roleGroupId = getRoleGroupIdByLoaiNV(nhanVienUpdate.getLoaiNV().name());
                 RoleGroup roleGroup = roleGroupRepository.findById(roleGroupId).orElse(null);
-                if (roleGroup == null) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy quyền hạn tương ứng!");
-                    return "redirect:/quan-ly-nhan-vien/them-nhan-vien";
+                if (roleGroup != null) {
+                    account.setRoleGroup(roleGroup);
                 }
-                account.setRoleGroup(roleGroup);
                 account.setUpdatedAt(LocalDateTime.now());
                 accountRepository.save(account);
             }
-            
-            if (result) {
-                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật nhân viên và quyền hạn thành công!");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật nhân viên!");
-            }
+
+            return ResponseEntity.ok(Map.of("message", "Cập nhật nhân viên thành công"));
         } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Có lỗi xảy ra khi cập nhật nhân viên", "message", e.getMessage()));
         }
-        return "redirect:/quan-ly-nhan-vien/danh-sach-nhan-vien";
     }
 
-    @PostMapping("/xoa-nhan-vien")
+    // 🔹 Xóa nhân viên
+    @DeleteMapping("/{maNV}")
     @PreAuthorize("hasRole('ADMIN')")
-    public String xoaNhanVien(@RequestParam String maNV, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> deleteNhanVien(@PathVariable String maNV) {
         try {
             Boolean result = nhanVienService.deleteNhanVien(maNV);
             if (result) {
-                redirectAttributes.addFlashAttribute("successMessage", "Xóa nhân viên thành công!");
+                return ResponseEntity.ok(Map.of("message", "Xóa nhân viên thành công"));
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa nhân viên này!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy nhân viên để xóa"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            if (e.getMessage().contains("foreign key") || e.getMessage().contains("constraint")) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa nhân viên này vì đã có dữ liệu liên quan!");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi xóa nhân viên: " + e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null && (msg.contains("foreign key") || msg.contains("constraint"))) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "Không thể xóa nhân viên này vì đã có dữ liệu liên quan"));
             }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Có lỗi xảy ra khi xóa nhân viên", "message", msg));
         }
-        
-        return "redirect:/quan-ly-nhan-vien/danh-sach-nhan-vien";
     }
 
-    // Helper method để check role
-    private String getViewByRole(Authentication auth, String viewName) {
-        boolean isAdmin = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        return isAdmin ? "Admin/NhanVien/" + viewName : "Staff/NhanVien/" + viewName;
-    }
-    
-    // Helper method để lấy role group ID dựa trên loại nhân viên
+    // Helper method để lấy role group ID
     private Long getRoleGroupIdByLoaiNV(String loaiNV) {
         return switch (loaiNV) {
-            case "QuanLy" -> 1L; // ADMIN role
-            case "LeTan" -> 2L;  // STAFF role
-            case "Trainer" -> 4L; // TRAINER role
-            case "PhongTap" -> 2L; // STAFF role
-            default -> 2L; // Default to STAFF
+            case "QuanLy" -> 1L; // ADMIN
+            case "LeTan" -> 2L;  // STAFF
+            case "Trainer" -> 4L; // TRAINER
+            case "PhongTap" -> 2L; // STAFF
+            default -> 2L;
         };
     }
-} 
+}

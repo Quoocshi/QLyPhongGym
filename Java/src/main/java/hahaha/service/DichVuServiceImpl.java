@@ -63,38 +63,48 @@ public class DichVuServiceImpl implements DichVuService {
     public Boolean updateDichVu(DichVu dichVu) {
         try {
             jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
-                try (CallableStatement cs = connection.prepareCall("{call PROCEDURE_UPDATE_DICHVU(?, ?, ?, ?, ?, ?, ?)}")) {
+                try (CallableStatement cs = connection.prepareCall(
+                        "CALL procedure_update_dichvu(?, ?, ?, ?, ?, ?, ?)")) {
+
                     cs.setString(1, dichVu.getMaDV());
                     cs.setString(2, dichVu.getTenDV());
                     cs.setString(3, dichVu.getLoaiDV().toString());
+
                     if (dichVu.getThoiHan() != null) {
                         cs.setInt(4, dichVu.getThoiHan());
                     } else {
                         cs.setNull(4, java.sql.Types.INTEGER);
                     }
-                    cs.setDouble(5, dichVu.getDonGia());
+
+                    if (dichVu.getDonGia() != null) {
+                        cs.setDouble(5, dichVu.getDonGia());
+                    } else {
+                        cs.setNull(5, java.sql.Types.NUMERIC);
+                    }
+
                     cs.setString(6, dichVu.getBoMon().getMaBM());
-                    cs.setInt(7, dichVu.getVersion());  // Truyền version hiện tại
+                    cs.setInt(7, dichVu.getVersion());
+
                     cs.execute();
                 }
                 return null;
             });
             return true;
-        }  catch (DataAccessException dae) {
+        } catch (DataAccessException dae) {
             Throwable rootCause = dae.getRootCause();
-            if (rootCause instanceof SQLException sqlEx && sqlEx.getErrorCode() == 20002) {
-                throw new RuntimeException(sqlEx.getMessage().replaceAll("ORA-\\d+:\\s*", "")
-                                                            .replaceAll("\\s+at\\s+\"[^\"]+\", line \\d+(?: at line \\d+)?", "").trim());
+            if (rootCause instanceof SQLException sqlEx) {
+                String msg = sqlEx.getMessage();
+                if (msg != null && msg.contains("Xung đột phiên bản dịch vụ")) {
+                    throw new RuntimeException(msg);
+                } else {
+                    throw new RuntimeException(msg, dae);
+                }
             } else {
-                String cleanMessage = rootCause.getMessage()
-                .replaceAll("ORA-\\d+:\\s*", "")
-                .replaceAll("\\s+at\\s+(\"[^\"]+\",\\s*)?line\\s+\\d+(?:\\s+at\\s+line\\s+\\d+)?", "")
-                .trim();
-                throw new RuntimeException(cleanMessage, dae);
-
+                throw new RuntimeException(dae);
             }
         }
     }
+
 
 
     @Autowired
@@ -157,21 +167,21 @@ public class DichVuServiceImpl implements DichVuService {
     public List<DichVu> getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(String maBM, String maKH, String thoiHanFilter) {
         return dichVuRepository.listDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(maBM, maKH, thoiHanFilter);
     }
-
-    @Override
-    public List<DichVu> getTatCaDichVuTheoBoMon(String maBM) {
-        return dichVuRepository.listTatCaDichVuTheoBoMon(maBM);
-    }
-
-    @Override
-    public List<DichVu> getTatCaDichVuTheoBoMonVaThoiHan(String maBM, String thoiHanFilter) {
-        return dichVuRepository.listTatCaDichVuTheoBoMonVaThoiHan(maBM, thoiHanFilter);
-    }
-
-    @Override
-    public List<DichVu> getDichVuByBoMon(String maBM) {
-        return dichVuRepository.findByBoMon_MaBM(maBM);
-    }
+//
+//    @Override
+//    public List<DichVu> getTatCaDichVuTheoBoMon(String maBM) {
+//        return dichVuRepository.listTatCaDichVuTheoBoMon(maBM);
+//    }
+//
+//    @Override
+//    public List<DichVu> getTatCaDichVuTheoBoMonVaThoiHan(String maBM, String thoiHanFilter) {
+//        return dichVuRepository.listTatCaDichVuTheoBoMonVaThoiHan(maBM, thoiHanFilter);
+//    }
+//
+//    @Override
+//    public List<DichVu> getDichVuByBoMon(String maBM) {
+//        return dichVuRepository.findByBoMon_MaBM(maBM);
+//    }
 
     @Override
     public BoMon getBoMonById(String maBM) {

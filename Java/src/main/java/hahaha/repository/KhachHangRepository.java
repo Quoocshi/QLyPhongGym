@@ -26,14 +26,20 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, String> {
     @Query("SELECT k FROM KhachHang k JOIN k.account a WHERE a.isDeleted = 0")
     List<KhachHang> findAllWithActiveAccount();
 
-    KhachHang findByMaKH(String maKH);
+    @Query("SELECT kh FROM KhachHang kh JOIN kh.account a " +
+            "WHERE kh.maKH = :maKH AND a.isDeleted = 0")
+    KhachHang findByMaKHAndAccountNotDeleted(@Param("maKH") String maKH);
 
-    @Query("SELECT kh FROM KhachHang kh WHERE " +
-       "LOWER(kh.maKH) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-       "LOWER(kh.hoTen) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-        "LOWER(kh.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +              
-        "kh.soDienThoai LIKE CONCAT('%', :keyword, '%')")
+
+    @Query("SELECT kh FROM KhachHang kh JOIN kh.account a " +
+            "WHERE a.isDeleted = 0 AND (" +
+            "LOWER(kh.maKH) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(kh.hoTen) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(kh.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "kh.soDienThoai LIKE CONCAT('%', :keyword, '%')" +
+            ")")
     List<KhachHang> searchByKeyword(@Param("keyword") String keyword);
+
 
     // Thêm method kiểm tra số điện thoại trùng lặp
     KhachHang findBySoDienThoai(String soDienThoai);

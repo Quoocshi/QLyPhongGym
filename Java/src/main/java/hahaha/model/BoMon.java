@@ -24,8 +24,8 @@ public class BoMon {
     private String tenBM;
 
     @OneToMany(mappedBy = "boMon")
-    @JsonManagedReference
-    @JsonIgnore
+//    @JsonManagedReference
+//    @JsonIgnore
     private Set<DichVu> danhSachDichVu;
 
 

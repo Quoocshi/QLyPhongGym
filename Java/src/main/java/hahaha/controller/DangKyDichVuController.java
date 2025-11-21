@@ -6,8 +6,11 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import hahaha.DTO.BoMonDTO;
+import hahaha.DTO.DichVuDTO;
+import hahaha.DTO.ChiTietKhachHangDTO;
+import hahaha.DTO.LopDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,22 +40,41 @@ public class DangKyDichVuController {
     @GetMapping("/dang-kydv")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> hienThiDanhSachBoMon(Authentication authentication) {
-        // Lấy username từ JWT token
         String username = authentication.getName();
-
-        // Tìm khách hàng theo username
         Account acc = accountRepository.findAccountByUserName(username);
-        Long accountId = acc.getAccountId();
-        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(acc.getAccountId());
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Không tìm thấy khách hàng"));
 
         List<BoMon> dsBoMon = dichVuService.getAllBoMon();
 
+        List<BoMonDTO> boMonDTOs = dsBoMon.stream().map(b -> {
+            BoMonDTO dto = new BoMonDTO();
+            dto.setMaBM(b.getMaBM());
+            dto.setTenBM(b.getTenBM());
+            dto.setDanhSachDichVu(
+                    b.getDanhSachDichVu().stream().map(d -> {
+                        DichVuDTO ddto = new DichVuDTO();
+                        ddto.setMaDV(d.getMaDV());
+                        ddto.setTenDV(d.getTenDV());
+                        ddto.setLoaiDV(d.getLoaiDV().name());
+                        ddto.setThoiHan(d.getThoiHan());
+                        ddto.setDonGia(d.getDonGia());
+                        return ddto;
+                    }).toList()
+            );
+            return dto;
+        }).toList();
+
+        ChiTietKhachHangDTO khDTO = new ChiTietKhachHangDTO();
+        khDTO.setMaKH(khachHang.getMaKH());
+        khDTO.setHoTen(khachHang.getHoTen());
+        khDTO.setEmail(khachHang.getEmail());
+
         return ResponseEntity.ok(Map.of(
-                "khachHang", khachHang,
-                "dsBoMon", dsBoMon
+                "khachHang", khDTO,
+                "dsBoMon", boMonDTOs
         ));
     }
 
@@ -62,10 +84,11 @@ public class DangKyDichVuController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> hienThiDichVuTheoBoMon(
             @RequestParam("maBM") String maBM,
-            @RequestParam("accountId") Long accountId,
-            @RequestParam(value = "thoiHanFilter", required = false) String thoiHanFilter) {
+            @RequestParam(value = "thoiHanFilter", required = false) String thoiHanFilter,
+            Authentication authentication) {
 
-        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(user.getAccountId());
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
 
@@ -73,9 +96,24 @@ public class DangKyDichVuController {
                 ? dichVuService.getDichVuTheoBoMonVaThoiHanKhachHangChuaDangKy(maBM, khachHang.getMaKH(), thoiHanFilter)
                 : dichVuService.getDichVuTheoBoMonKhachHangChuaDangKy(maBM, khachHang.getMaKH());
 
+        List<DichVuDTO> dichVuDTOs = dichVuList.stream().map(d -> {
+            DichVuDTO dto = new DichVuDTO();
+            dto.setMaDV(d.getMaDV());
+            dto.setTenDV(d.getTenDV());
+            dto.setLoaiDV(d.getLoaiDV().name());
+            dto.setThoiHan(d.getThoiHan());
+            dto.setDonGia(d.getDonGia());
+            return dto;
+        }).toList();
+
+        BoMon boMon = dichVuService.getBoMonById(maBM);
+        BoMonDTO boMonDTO = new BoMonDTO();
+        boMonDTO.setMaBM(boMon.getMaBM());
+        boMonDTO.setTenBM(boMon.getTenBM());
+        boMonDTO.setDanhSachDichVu(dichVuDTOs);
+
         return ResponseEntity.ok(Map.of(
-                "boMon", dichVuService.getBoMonById(maBM),
-                "dichVuList", dichVuList
+                "boMon", boMonDTO
         ));
     }
 
@@ -128,32 +166,42 @@ public class DangKyDichVuController {
     // ✅ 5. Chọn lớp cho dịch vụ loại "Lớp"
     @GetMapping("/chonlop")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> hienThiChonLop(
-            @RequestParam("maDV") String maDV,
-            @RequestParam("accountId") Long accountId) {
+    public ResponseEntity<?> hienThiChonLop(@RequestParam("maDV") String maDV,
+                                            Authentication authentication) {
 
-        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
-        if (khachHang == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
-
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(user.getAccountId());
         DichVu dichVu = dichVuRepository.findById(maDV).orElse(null);
-        if (dichVu == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy dịch vụ"));
-
-        if (dichVu.getLoaiDV() != LoaiDichVu.Lop)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Dịch vụ này không phải loại lớp"));
+        if (dichVu == null || dichVu.getLoaiDV() != LoaiDichVu.Lop)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Dịch vụ không hợp lệ"));
 
         List<Lop> dsLopChuaDay = lopService.getLopChuaDayByBoMon(dichVu.getBoMon().getMaBM());
-        if (dichVu.getThoiHan() != null) {
+        if (dichVu.getThoiHan() != null)
             dsLopChuaDay = dsLopChuaDay.stream()
                     .filter(l -> lopService.getThoiHanLop(l) <= dichVu.getThoiHan())
-                    .collect(Collectors.toList());
-        }
+                    .toList();
+
+        List<LopDTO> lopDTOs = dsLopChuaDay.stream().map(l -> {
+            LopDTO dto = new LopDTO();
+            dto.setMaLop(l.getMaLop());
+            dto.setTenLop(l.getTenLop());
+            dto.setMoTa(l.getMoTa());
+            dto.setSlToiDa(l.getSlToiDa());
+            dto.setTinhTrangLop(l.getTinhTrangLop().name());
+            dto.setGhiChu(l.getGhiChu());
+            return dto;
+        }).toList();
+
+        DichVuDTO dichVuDTO = new DichVuDTO();
+        dichVuDTO.setMaDV(dichVu.getMaDV());
+        dichVuDTO.setTenDV(dichVu.getTenDV());
+        dichVuDTO.setLoaiDV(dichVu.getLoaiDV().name());
+        dichVuDTO.setThoiHan(dichVu.getThoiHan());
+        dichVuDTO.setDonGia(dichVu.getDonGia());
 
         return ResponseEntity.ok(Map.of(
-                "dichVu", dichVu,
-                "dsLopChuaDay", dsLopChuaDay
+                "dichVu", dichVuDTO,
+                "dsLopChuaDay", lopDTOs
         ));
     }
 
@@ -162,8 +210,10 @@ public class DangKyDichVuController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> hienThiChonPT(
             @RequestParam("maDV") String maDV,
-            @RequestParam("accountId") Long accountId) {
+           Authentication authentication) {
 
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        Long accountId = user.getAccountId();
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
@@ -186,19 +236,27 @@ public class DangKyDichVuController {
     // ✅ 7. Danh sách dịch vụ đã đăng ký
     @GetMapping("/dich-vu-cua-toi")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> hienThiDichVuCuaToi(@RequestParam("accountId") Long accountId) {
+    public ResponseEntity<?> hienThiDichVuCuaToi(Authentication authentication) {
+
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        Long accountId = user.getAccountId();
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
 
+        ChiTietKhachHangDTO khDTO = new ChiTietKhachHangDTO();
+        khDTO.setMaKH(khachHang.getMaKH());
+        khDTO.setHoTen(khachHang.getHoTen());
+        khDTO.setEmail(khachHang.getEmail());
+
         List<ChiTietDangKyDichVu> ds = chiTietDangKyDichVuRepository.findByKhachHang_MaKH_DaThanhToan(khachHang.getMaKH());
         return ResponseEntity.ok(Map.of(
-                "khachHang", khachHang,
+                "khachHang", khDTO,
                 "dichVuDaDangKy", ds
         ));
     }
 
-    // ✅ 8. Gọi procedure universal để đăng ký dịch vụ (TuDo/PT/Lớp)
+    //8. Gọi procedure để đăng ký dịch vụ (TuDo/PT/Lớp)
     @PostMapping("/dang-ky-dv-universal")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> dangKyDichVuUniversal(@RequestBody DangKyDichVuRequest request)

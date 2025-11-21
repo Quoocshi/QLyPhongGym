@@ -44,7 +44,7 @@ public class Account {
 
     @OneToOne(optional = true)
     @JoinColumn(name = "MaKH", referencedColumnName = "MaKH", unique = true)
-    @JsonIgnore
+    //@JsonIgnore
     private KhachHang khachHang;
 
     @OneToOne(optional = true)

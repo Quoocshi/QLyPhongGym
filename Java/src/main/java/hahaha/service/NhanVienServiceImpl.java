@@ -1,15 +1,22 @@
 package hahaha.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import hahaha.DTO.NhanVienRegisterDTO;
+import hahaha.enums.LoaiNhanVien;
+import hahaha.model.RoleGroup;
+import hahaha.repository.RoleGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hahaha.model.Account;
 import hahaha.model.NhanVien;
 import hahaha.repository.AccountRepository;
 import hahaha.repository.NhanVienRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NhanVienServiceImpl implements NhanVienService {
@@ -18,6 +25,12 @@ public class NhanVienServiceImpl implements NhanVienService {
     
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    private RoleGroupRepository roleGroupRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public String generateNextMaNV() {
@@ -134,4 +147,55 @@ public class NhanVienServiceImpl implements NhanVienService {
     public List<NhanVien> getTrainersByBoMon(String maBM) {
         return nhanVienRepository.findTrainersByBoMon(maBM);
     }
+
+    @Override
+    @Transactional
+    public NhanVien createFromDTO(NhanVienRegisterDTO dto) {
+        // Kiểm tra email/username đã tồn tại
+        if (accountRepository.findAccountByUserName(dto.getUsername()) != null ||
+                nhanVienRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Email hoặc username đã tồn tại");
+        }
+
+        // 1️⃣ Tạo NhanVien
+        NhanVien nhanVien = new NhanVien();
+        nhanVien.setMaNV(generateNextMaNV());
+        nhanVien.setTenNV(dto.getTenNV());
+        nhanVien.setNgaySinh(dto.getNgaySinh());
+        nhanVien.setGioiTinh(dto.getGioiTinh());
+        nhanVien.setEmail(dto.getEmail());
+        nhanVien.setNgayVaoLam(dto.getNgayVaoLam());
+        nhanVien.setLoaiNV(dto.getLoaiNV());
+        nhanVienRepository.save(nhanVien);
+
+        // 2️⃣ Tạo Account
+        Account account = new Account();
+        account.setUserName(dto.getUsername());
+        account.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setStatus("ACTIVE");
+        account.setIsDeleted(0);
+        account.setNhanVien(nhanVien);
+
+        // 3️⃣ Gán role theo loại nhân viên
+        Long roleGroupId = getRoleGroupIdByLoaiNV(dto.getLoaiNV());
+        RoleGroup roleGroup = roleGroupRepository.findById(roleGroupId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy role group"));
+        account.setRoleGroup(roleGroup);
+
+        accountRepository.save(account);
+
+        return nhanVien;
+    }
+    private Long getRoleGroupIdByLoaiNV(LoaiNhanVien loaiNV) {
+        return switch (loaiNV) {
+            case QuanLy -> 1L;
+            case LeTan -> 2L;
+            case Trainer -> 4L;
+            //case PhongTap -> 2L;
+            default -> 2L;
+        };
+    }
+
 }

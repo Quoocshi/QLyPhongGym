@@ -1,31 +1,18 @@
 package hahaha.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.sql.Connection;
-import java.sql.CallableStatement;
-import java.sql.Types;
 
-import hahaha.model.PaymentRes;
+import hahaha.service.MomoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import hahaha.config.VNPayConfig;
 import hahaha.model.HoaDon;
-import hahaha.model.ChiTietDangKyDichVu;
-import hahaha.model.Lop;
 import hahaha.service.HoaDonService;
-import hahaha.repository.ChiTietDangKyDichVuRepository;
-import hahaha.repository.NhanVienRepository;
-import hahaha.repository.LopRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
+
 @RestController
 @RequestMapping("/api/momo")
 public class MomoController {
@@ -40,21 +27,26 @@ public class MomoController {
     @PostMapping("/pay/{maHD}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createPayment(@PathVariable String maHD) {
-
         HoaDon hoaDon = hoaDonService.timMaHD(maHD);
         if (hoaDon == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Không tìm thấy hóa đơn: " + maHD));
         }
 
-        long amount = (long) hoaDon.getTongTien(); // MoMo không nhân 100
+        double amountDouble = hoaDon.getTongTien();
+        String amount = String.valueOf((long) amountDouble);
+        String paymentUrl = momoService.createPaymentRequest(String.valueOf(amount));
 
-        String momoResponse = momoService.createPaymentRequest(String.valueOf(amount));
+        // Kiểm tra nếu có lỗi
+        if (paymentUrl.startsWith("ERROR:")) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", paymentUrl.substring(6)));
+        }
 
         return ResponseEntity.ok(Map.of(
                 "maHD", maHD,
                 "amount", amount,
-                "momoResponse", momoResponse
+                "paymentUrl", paymentUrl
         ));
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
-    private Long userId;
+    private Long accountId;
     private String username;
     private String password;
     private List<GrantedAuthority> authorities;
