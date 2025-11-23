@@ -104,13 +104,29 @@ public class LichLopController {
             List<CaTap> dsCaTap = caTapRepository.findAll();
             List<KhuVuc> dsKhuVuc = khuVucRepository.findAll();
 
+            List<LichTapPTDTO> dsPTSchedulesDTO = dsPTSchedules.stream()
+                    .map(LichTapPTDTO::new)
+                    .toList();
+
+            List<KhuVucDTO> dsKhuVucDTO = dsKhuVuc.stream()
+                    .map(KhuVucDTO::new)
+                    .toList();
+
+            List<KhachHangDTO> dsPTCustomersDTO = dsPTCustomers.stream()
+                    .map(pt -> {
+                        KhachHang kh = pt.getHoaDon().getKhachHang();
+                        return new KhachHangDTO(kh.getMaKH(), kh.getHoTen());
+                    })
+                    .toList();
+
+
             return ResponseEntity.ok(Map.of(
                     "trainer", trainer,
                     "maNV", maNV,
-                    "dsPTCustomers", dsPTCustomers,
-                    "dsPTSchedules", dsPTSchedules,
+                    "dsPTCustomers", dsPTCustomersDTO,
+                    "dsPTSchedules", dsPTSchedulesDTO,
                     "dsCaTap", dsCaTap,
-                    "dsKhuVuc", dsKhuVuc
+                    "dsKhuVuc", dsKhuVucDTO
             ));
 
         } catch (Exception e) {

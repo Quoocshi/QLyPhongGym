@@ -324,6 +324,8 @@ select * from CT_DKDV;
 SELECT * FROM LICHTAP;
 SELECT * FROM dichvu;
 select * from ct_chuyenmon;
+select * from khuvuc;
+select * from ct_dkdv;
 --Delete all tables
 DO
 $$
