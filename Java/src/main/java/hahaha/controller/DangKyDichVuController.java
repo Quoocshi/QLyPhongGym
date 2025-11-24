@@ -7,10 +7,7 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
-import hahaha.DTO.BoMonDTO;
-import hahaha.DTO.DichVuDTO;
-import hahaha.DTO.ChiTietKhachHangDTO;
-import hahaha.DTO.LopDTO;
+import hahaha.DTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -249,10 +246,22 @@ public class DangKyDichVuController {
         khDTO.setHoTen(khachHang.getHoTen());
         khDTO.setEmail(khachHang.getEmail());
 
-        List<ChiTietDangKyDichVu> ds = chiTietDangKyDichVuRepository.findByKhachHang_MaKH_DaThanhToan(khachHang.getMaKH());
+        List<ChiTietDangKyDichVu> ds =
+                chiTietDangKyDichVuRepository.findByKhachHang_MaKH_DaThanhToan(khachHang.getMaKH());
+
+        List<ChiTietDichVuDTO> dsDTO = ds.stream().map(ct -> {
+            ChiTietDichVuDTO dto = new ChiTietDichVuDTO();
+            dto.setMaDV(ct.getDichVu().getMaDV());
+            dto.setTenDichVu(ct.getDichVu().getTenDV());
+            dto.setNgayBD(ct.getNgayBD());
+            dto.setNgayKT(ct.getNgayKT());
+            dto.setGiaTien(ct.getDichVu().getDonGia());
+            return dto;
+        }).toList();
+
         return ResponseEntity.ok(Map.of(
                 "khachHang", khDTO,
-                "dichVuDaDangKy", ds
+                "dichVuDaDangKy", dsDTO
         ));
     }
 
