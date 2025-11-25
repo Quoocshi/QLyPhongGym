@@ -31,7 +31,12 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // Public routes (login, register, static resources, etc.)
-                        .requestMatchers("/api/auth/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/api/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui-custom.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/webjars/**").permitAll()
 
                         // Role-based access
                         .requestMatchers("/api/autocomplete/**").hasAnyRole("ADMIN", "STAFF", "USER", "TRAINER")
