@@ -1,11 +1,14 @@
 package hahaha.controller;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import hahaha.config.Security.JwtIssuer;
+import hahaha.model.Account;
 import hahaha.model.LoginRequest;
 import hahaha.model.RegisterRequest;
 import hahaha.repository.AccountRepository;
 import hahaha.service.AccountService;
 import hahaha.service.AuthService.RegisterService;
+import hahaha.service.GoogleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,11 @@ public class AuthController {
     @Autowired
     private RegisterService registerService;
 
-    private final JwtIssuer jwtIssuer;
+    @Autowired
+    private JwtIssuer jwtIssuer;
+
+    @Autowired
+    private GoogleService googleService;
 
     @Autowired
     private AccountService accountService;
@@ -71,6 +78,52 @@ public class AuthController {
         ));
 
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> loginWithGoogle(@RequestBody Map<String, String> body) {
+        try {
+            String idToken = body.get("idToken");
+            if (idToken == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Thiếu idToken"));
+            }
+
+            // Xác thực token Google
+            GoogleIdToken.Payload payload = googleService.verifyIdToken(idToken);
+            if (payload == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "ID Token không hợp lệ"));
+            }
+
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+
+            // Kiểm tra user đã tồn tại chưa
+            Account acc = accountService.findByEmail(email);
+
+            if (acc == null) {
+                // Nếu chưa có → tự động đăng ký tài khoản bằng email Google
+                acc = accountService.registerGoogleUser(email, name);
+            }
+
+            Long accountId = acc.getAccountId();
+            List<String> roles = List.of(acc.getRoleGroup().getNameRoleGroup());
+
+            String token = jwtIssuer.issue(
+                    accountId,
+                    acc.getUserName(),
+                    roles
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Đăng nhập bằng Google thành công",
+                    "email", email,
+                    "access_token", token
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
 }
 

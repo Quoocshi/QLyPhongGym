@@ -28,27 +28,35 @@ public class MomoController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createPayment(@PathVariable String maHD) {
         HoaDon hoaDon = hoaDonService.timMaHD(maHD);
+
         if (hoaDon == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Không tìm thấy hóa đơn: " + maHD));
         }
 
+        boolean thanhToanThanhCong = hoaDonService.thanhToan(maHD);
+
         double amountDouble = hoaDon.getTongTien();
         String amount = String.valueOf((long) amountDouble);
-        String paymentUrl = momoService.createPaymentRequest(String.valueOf(amount));
 
-        // Kiểm tra nếu có lỗi
-        if (paymentUrl.startsWith("ERROR:")) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", paymentUrl.substring(6)));
-        }
+        //String paymentUrl = momoService.createPaymentRequest(String.valueOf(amount));
+
+        // Kiểm tra nếu MoMo trả về lỗi
+        //if (paymentUrl.startsWith("ERROR:")) {
+        //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        //            .body(Map.of("error", paymentUrl.substring(6)));
+        //}
 
         return ResponseEntity.ok(Map.of(
                 "maHD", maHD,
                 "amount", amount,
-                "paymentUrl", paymentUrl
+                //"paymentUrl", paymentUrl,
+                "thanhToan", thanhToanThanhCong ? "Thanh toán thành công"
+                                                : "Thanh toán không thành công"
         ));
     }
+
+
 
     // -------------------- CALLBACK --------------------
     @GetMapping("/return")
