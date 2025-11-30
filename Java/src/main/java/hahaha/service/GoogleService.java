@@ -13,7 +13,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class GoogleService {
 
-    // Thay CLIENT_ID thật của bạn
     private static final String CLIENT_ID = "399696688602-sn7nflbtp9omc6uvh032ssegtfdq0laq.apps.googleusercontent.com";
 
     public GoogleIdToken.Payload verifyIdToken(String idTokenString) throws Exception {

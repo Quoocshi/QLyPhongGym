@@ -1,5 +1,6 @@
 package hahaha.controller;
 
+import hahaha.DTO.HoaDonDTO;
 import hahaha.model.HoaDon;
 import hahaha.service.HoaDonService;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/thanh-toan")
@@ -25,8 +28,22 @@ public class ThanhToanController {
                         .body("Không tìm thấy hóa đơn: " + maHD);
             }
 
-            // Trả luôn hóa đơn, bên trong có dsChiTiet
-            return ResponseEntity.ok(hoaDon);
+            String hoTen = hoaDon.getKhachHang().getHoTen();
+
+            // Tạo DTO
+            HoaDonDTO hoaDonDTO = new HoaDonDTO(
+                    hoaDon.getMaHD(),
+                    hoaDon.getTongTien(),
+                    hoaDon.getNgayLap(),
+                    hoaDon.getTrangThai(),
+                    hoaDon.getNgayTT()
+            );
+
+            // Trả về Map gồm hoTen và hoaDonDTO
+            return ResponseEntity.ok(Map.of(
+                    "hoTen", hoTen,
+                    "hoaDon", hoaDonDTO
+            ));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,6 +51,7 @@ public class ThanhToanController {
                     .body("Có lỗi xảy ra khi lấy thông tin hóa đơn: " + e.getMessage());
         }
     }
+
 
     // @PostMapping("/{maHD}")
     // @PreAuthorize("hasRole('USER')")
