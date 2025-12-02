@@ -1,4 +1,4 @@
-package hahaha.service;
+package hahaha.service.AuthService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;

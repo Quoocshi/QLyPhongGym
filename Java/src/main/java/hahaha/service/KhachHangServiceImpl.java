@@ -84,7 +84,7 @@ public class KhachHangServiceImpl implements KhachHangService{
 
     @Override
     public KhachHang findById(String maKH) {
-        return khachHangRepository.findByMaKH(maKH);
+        return khachHangRepository.findByMaKHAndAccountNotDeleted(maKH);
     }
 
     @Override

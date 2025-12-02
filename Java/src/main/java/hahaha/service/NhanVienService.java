@@ -2,6 +2,7 @@ package hahaha.service;
 
 import java.util.List;
 
+import hahaha.DTO.NhanVienRegisterDTO;
 import hahaha.model.NhanVien;
 
 public interface NhanVienService {
@@ -15,4 +16,6 @@ public interface NhanVienService {
     Boolean deleteNhanVien(String maNV);
     List<NhanVien> searchNhanVien(String keyword);
     List<NhanVien> getTrainersByBoMon(String maBM);
+    NhanVien createFromDTO(NhanVienRegisterDTO dto);
+
 }

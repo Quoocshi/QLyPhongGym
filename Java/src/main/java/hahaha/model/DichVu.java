@@ -1,5 +1,8 @@
 package hahaha.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import hahaha.enums.LoaiDichVu;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "maDV")
 @Entity
 @Table(name = "DICHVU")
 public class DichVu {
@@ -37,6 +41,7 @@ public class DichVu {
 
     @ManyToOne()
     @JoinColumn(name = "MABM", referencedColumnName = "MABM")
+//    @JsonBackReference
     private BoMon boMon;
 
     public String getMaDV() {

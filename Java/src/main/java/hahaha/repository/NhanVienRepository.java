@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 import hahaha.model.NhanVien;
 
 public interface NhanVienRepository extends JpaRepository<NhanVien,String> {
-    
+    boolean existsByEmail(String email);
+
     @Query("SELECT n FROM NhanVien n JOIN Account a ON a.nhanVien.maNV = n.maNV WHERE a.isDeleted = 0")
     List<NhanVien> findAllActive();
     

@@ -17,7 +17,6 @@ public class DemoApplication implements CommandLineRunner {
     private RoleGroupRepository roleGroupRepository;
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
-        
     }
 
     @Override

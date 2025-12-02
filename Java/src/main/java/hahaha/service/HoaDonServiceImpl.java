@@ -81,33 +81,32 @@ public class HoaDonServiceImpl implements HoaDonService {
     }
 
     @Override
-    public void thanhToan(String maHD) {
+    public boolean thanhToan(String maHD) {
         try (Connection connection = dataSource.getConnection()) {
             String sql = "{call proc_thanh_toan_hoa_don(?, ?, ?)}";
-            
+
             try (CallableStatement stmt = connection.prepareCall(sql)) {
-                // Set input parameter
-                stmt.setString(1, maHD);  // p_ma_hd
-                
-                // Register output parameters
-                stmt.registerOutParameter(2, Types.VARCHAR);  // p_result
-                stmt.registerOutParameter(3, Types.VARCHAR);  // p_error_msg
-                
-                // Execute procedure
+                // Input
+                stmt.setString(1, maHD);
+
+                // Output
+                stmt.registerOutParameter(2, Types.VARCHAR); // p_result
+                stmt.registerOutParameter(3, Types.VARCHAR); // p_error_msg
+
                 stmt.execute();
-                
-                // Get results
+
                 String result = stmt.getString(2);
-                String errorMsg = stmt.getString(3);
-                
-                if (!"SUCCESS".equals(result)) {
-                    throw new RuntimeException("Lỗi thanh toán: " + errorMsg);
-                }
+
+                // Trả về true nếu thành công, false nếu thất bại
+                return "SUCCESS".equalsIgnoreCase(result);
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi kết nối database: " + e.getMessage(), e);
+            // Lỗi kết nối là thất bại
+            return false;
         }
     }
+
 
     @Override
     public String generateNextMaHD(){

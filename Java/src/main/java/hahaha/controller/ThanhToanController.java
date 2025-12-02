@@ -1,38 +1,57 @@
 package hahaha.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import hahaha.DTO.HoaDonDTO;
 import hahaha.model.HoaDon;
 import hahaha.service.HoaDonService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/thanh-toan")
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/thanh-toan")
+@RequiredArgsConstructor
 public class ThanhToanController {
 
-    @Autowired
-    private HoaDonService hoaDonService;
+    private final HoaDonService hoaDonService;
 
     @GetMapping("/{maHD}")
     @PreAuthorize("hasRole('USER')")
-    public String hienThiThanhToan(@PathVariable String maHD, Model model) {
+    public ResponseEntity<?> hienThiThanhToan(@PathVariable String maHD) {
         try {
             HoaDon hoaDon = hoaDonService.timMaHD(maHD);
-            model.addAttribute("hoaDon", hoaDon);
-            model.addAttribute("dsChiTiet", hoaDon.getDsChiTiet());
-            return "User/thanhtoan"; 
+            if (hoaDon == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Không tìm thấy hóa đơn: " + maHD);
+            }
+
+            String hoTen = hoaDon.getKhachHang().getHoTen();
+
+            // Tạo DTO
+            HoaDonDTO hoaDonDTO = new HoaDonDTO(
+                    hoaDon.getMaHD(),
+                    hoaDon.getTongTien(),
+                    hoaDon.getNgayLap(),
+                    hoaDon.getTrangThai(),
+                    hoaDon.getNgayTT()
+            );
+
+            // Trả về Map gồm hoTen và hoaDonDTO
+            return ResponseEntity.ok(Map.of(
+                    "hoTen", hoTen,
+                    "hoaDon", hoaDonDTO
+            ));
+
         } catch (Exception e) {
-            // Nếu không tìm thấy hóa đơn, redirect về trang đăng ký dịch vụ
-            model.addAttribute("error", "Không tìm thấy hóa đơn: " + maHD);
-            return "redirect:/dich-vu-gym/dang-kydv";
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Có lỗi xảy ra khi lấy thông tin hóa đơn: " + e.getMessage());
         }
     }
+
 
     // @PostMapping("/{maHD}")
     // @PreAuthorize("hasRole('USER')")

@@ -7,7 +7,7 @@ import hahaha.model.KhachHang;
 public interface HoaDonService {
     HoaDon createHoaDon(KhachHang khachHang, String dsMaDVString);
     HoaDon timMaHD(String maHD);
-    void thanhToan(String maHD);
+    boolean thanhToan(String maHD);
     String generateNextMaHD();
     
     // Methods missing in controller
