@@ -78,4 +78,19 @@ public interface LichTapService {
      * @return Mã lịch tập mới
      */
     String generateNextMaLT();
+    
+    /**
+     * Dừng lịch tập PT (cập nhật trạng thái thành 'Tam dung' và lưu ngày dừng)
+     * @param maLT Mã lịch tập
+     * @param ngayDung Ngày dừng lịch
+     * @return LichTap đã cập nhật hoặc null nếu thất bại
+     */
+    LichTap dungLichTap(String maLT, String ngayDung);
+    
+    /**
+     * Hủy lịch tập PT (cập nhật trạng thái thành 'Huy')
+     * @param maLT Mã lịch tập
+     * @return LichTap đã cập nhật hoặc null nếu thất bại
+     */
+    LichTap huyLichTap(String maLT);
 } 

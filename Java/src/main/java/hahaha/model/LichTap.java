@@ -22,7 +22,7 @@ public class LichTap {
     private String thu; // Thứ trong tuần (VD: "246" = Thứ 2, 4, 6)
     
     @Column(name = "TrangThai", length = 20)
-    private String trangThai; // 'Sap dien ra', 'Hoan thanh', 'Huy', 'Hoan'
+    private String trangThai; // 'Dang mo', 'Tam dung', 'Huy'
     
     @ManyToOne
     @JoinColumn(name = "Ca", referencedColumnName = "MaCa")
