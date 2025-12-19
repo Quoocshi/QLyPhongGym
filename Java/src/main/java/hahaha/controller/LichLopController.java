@@ -111,6 +111,11 @@ public class LichLopController {
             List<KhuVucDTO> dsKhuVucDTO = dsKhuVuc.stream()
                     .map(KhuVucDTO::new)
                     .toList();
+            
+            // Convert CaTap entity to DTO to avoid serialization issues
+            List<CaTapDTO> dsCaTapDTO = dsCaTap.stream()
+                    .map(CaTapDTO::new)
+                    .toList();
 
             List<KhachHangDTO> dsPTCustomersDTO = dsPTCustomers.stream()
                     .map(pt -> {
@@ -118,14 +123,17 @@ public class LichLopController {
                         return new KhachHangDTO(kh.getMaKH(), kh.getHoTen());
                     })
                     .toList();
+            
+            // Convert NhanVien entity to DTO to avoid circular reference
+            NhanVienDTO trainerDTO = new NhanVienDTO(trainer);
 
 
             return ResponseEntity.ok(Map.of(
-                    "trainer", trainer,
+                    "trainer", trainerDTO,
                     "maNV", maNV,
                     "dsPTCustomers", dsPTCustomersDTO,
                     "dsPTSchedules", dsPTSchedulesDTO,
-                    "dsCaTap", dsCaTap,
+                    "dsCaTap", dsCaTapDTO,
                     "dsKhuVuc", dsKhuVucDTO
             ));
 
@@ -226,6 +234,57 @@ public class LichLopController {
             }).collect(Collectors.toList());
 
             return ResponseEntity.ok(Map.of("success", true, "data", customerData));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    // --- 6. Dừng lịch tập PT ---
+    @PutMapping("/dung-lich-pt/{maLT}")
+    @PreAuthorize("hasRole('TRAINER')")
+    public ResponseEntity<?> dungLichPT(@PathVariable String maLT) {
+        try {
+            // Lấy ngày hiện tại
+            String ngayDung = java.time.LocalDate.now().toString();
+            
+            LichTap lichTap = lichTapService.dungLichTap(maLT, ngayDung);
+            
+            if (lichTap != null) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Dừng lịch tập thành công!",
+                    "lichTap", lichTap
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "Không thể dừng lịch tập. Kiểm tra lại thông tin."));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    // --- 7. Hủy lịch tập PT ---
+    @PutMapping("/huy-lich-pt/{maLT}")
+    @PreAuthorize("hasRole('TRAINER')")
+    public ResponseEntity<?> huyLichPT(@PathVariable String maLT) {
+        try {
+            LichTap lichTap = lichTapService.huyLichTap(maLT);
+            
+            if (lichTap != null) {
+                // Trả về thông tin cơ bản thay vì entity để tránh lỗi serialize
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Hủy lịch tập thành công!",
+                    "maLT", lichTap.getMaLT(),
+                    "trangThai", lichTap.getTrangThai() != null ? lichTap.getTrangThai() : "Huy"
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "Không thể hủy lịch tập. Kiểm tra lại thông tin."));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", e.getMessage()));
