@@ -6,8 +6,13 @@ import java.util.Optional;
 
 import hahaha.DTO.NhanVienRegisterDTO;
 import hahaha.enums.LoaiNhanVien;
+import hahaha.model.ChuyenMon;
 import hahaha.model.RoleGroup;
+import hahaha.repository.ChuyenMonRepository;
 import hahaha.repository.RoleGroupRepository;
+import hahaha.repository.ChuyenMonRepository;
+import hahaha.repository.BoMonRepository;
+import hahaha.model.BoMon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,12 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class NhanVienServiceImpl implements NhanVienService {
     @Autowired
     NhanVienRepository nhanVienRepository;
-    
+
     @Autowired
     AccountRepository accountRepository;
 
     @Autowired
     private RoleGroupRepository roleGroupRepository;
+
+    @Autowired
+    private ChuyenMonRepository chuyenMonRepository;
+
+    @Autowired
+    private BoMonRepository boMonRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -89,11 +100,10 @@ public class NhanVienServiceImpl implements NhanVienService {
     }
 
     @Override
-    public List<NhanVien> searchNhanVien(String keyword){
+    public List<NhanVien> searchNhanVien(String keyword) {
         keyword = keyword.trim().replaceAll("\\s+", " ");
         return nhanVienRepository.searchActiveEmployeesByKeyword(keyword);
     }
-
 
     @Override
     public NhanVien findById(String maNV) {
@@ -158,8 +168,16 @@ public class NhanVienServiceImpl implements NhanVienService {
         }
 
         // 1️⃣ Tạo NhanVien
+        // 1️⃣ Tạo NhanVien
         NhanVien nhanVien = new NhanVien();
-        nhanVien.setMaNV(generateNextMaNV());
+        if (dto.getLoaiNV() == LoaiNhanVien.Trainer) {
+            nhanVien.setMaNV(generateNextMaPT());
+        } else if (dto.getLoaiNV() == LoaiNhanVien.QuanLy) {
+            nhanVien.setMaNV(generateNextMaQL());
+        } else {
+            nhanVien.setMaNV(generateNextMaNV());
+        }
+
         nhanVien.setTenNV(dto.getTenNV());
         nhanVien.setNgaySinh(dto.getNgaySinh());
         nhanVien.setGioiTinh(dto.getGioiTinh());
@@ -186,14 +204,29 @@ public class NhanVienServiceImpl implements NhanVienService {
 
         accountRepository.save(account);
 
+        if (dto.getLoaiNV() == LoaiNhanVien.Trainer && dto.getMaBM() != null && !dto.getMaBM().isEmpty()) {
+            ChuyenMon chuyenMon = new ChuyenMon();
+            chuyenMon.setMaNV(nhanVien.getMaNV());
+            chuyenMon.setMaBM(dto.getMaBM());
+
+            BoMon boMon = boMonRepository.findById(dto.getMaBM()).orElse(null);
+            if (boMon != null) {
+                chuyenMon.setGhiChu("HLV " + boMon.getTenBM());
+            } else {
+                chuyenMon.setGhiChu("HLV");
+            }
+            chuyenMonRepository.save(chuyenMon);
+        }
+
         return nhanVien;
     }
+
     private Long getRoleGroupIdByLoaiNV(LoaiNhanVien loaiNV) {
         return switch (loaiNV) {
             case QuanLy -> 1L;
             case LeTan -> 2L;
             case Trainer -> 4L;
-            //case PhongTap -> 2L;
+            // case PhongTap -> 2L;
             default -> 2L;
         };
     }

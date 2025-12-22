@@ -24,18 +24,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-@RequiredArgsConstructor   // dùng constructor injection thay cho @Autowired
+@RequiredArgsConstructor // dùng constructor injection thay cho @Autowired
 public class UserController {
 
     private final AccountRepository accountRepository;
     private final KhachHangRepository khachHangRepository;
     private final LichTapService lichTapService;
+    private final hahaha.repository.ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
 
     @GetMapping("/home")
     public ResponseEntity<?> getHomeInfo(Authentication authentication) {
         String username = authentication.getName();
         Account acc = accountRepository.findAccountByUserName(username);
-        Long id =  acc.getAccountId();
+        Long id = acc.getAccountId();
         if (acc == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Không tìm thấy account với id = " + id);
@@ -55,7 +56,7 @@ public class UserController {
     public ResponseEntity<?> getLichTap(Authentication authentication) {
         try {
             Account acc = accountRepository.findAccountByUserName(authentication.getName());
-            Long id  = acc.getAccountId();
+            Long id = acc.getAccountId();
             if (acc == null || acc.getKhachHang() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Không tìm thấy tài khoản hoặc khách hàng tương ứng");
@@ -69,14 +70,46 @@ public class UserController {
             List<LichTapDTO> danhSachLichTapDTO = new ArrayList<>();
             if (danhSachLichTap != null) {
                 for (LichTap lichTap : danhSachLichTap) {
-                    danhSachLichTapDTO.add(new LichTapDTO(lichTap));
+                    LichTapDTO dto = new LichTapDTO(lichTap);
+
+                    // For PT schedules, populate ngayBD and ngayKT from the customer's PT package
+                    if ("PT".equals(lichTap.getLoaiLich()) && lichTap.getKhachHang() != null) {
+                        // Get the PT package dates for this customer
+                        java.util.List<hahaha.model.ChiTietDangKyDichVu> ptPackages = chiTietDangKyDichVuRepository
+                                .findPTCustomersByCustomer(lichTap.getKhachHang().getMaKH());
+                        if (ptPackages != null && !ptPackages.isEmpty()) {
+                            // Find the earliest start date and latest end date
+                            LocalDate earliestStart = null;
+                            LocalDate latestEnd = null;
+                            for (hahaha.model.ChiTietDangKyDichVu pt : ptPackages) {
+                                if (pt.getNgayBD() != null) {
+                                    LocalDate startDate = pt.getNgayBD().toLocalDate();
+                                    if (earliestStart == null || startDate.isBefore(earliestStart)) {
+                                        earliestStart = startDate;
+                                    }
+                                }
+                                if (pt.getNgayKT() != null) {
+                                    LocalDate endDate = pt.getNgayKT().toLocalDate();
+                                    if (latestEnd == null || endDate.isAfter(latestEnd)) {
+                                        latestEnd = endDate;
+                                    }
+                                }
+                            }
+                            if (earliestStart != null && latestEnd != null) {
+                                dto.setNgayBD(earliestStart.toString());
+                                dto.setNgayKT(latestEnd.toString());
+                            }
+                        }
+                    }
+
+                    danhSachLichTapDTO.add(dto);
                 }
             }
 
             Map<String, Object> res = new HashMap<>();
             res.put("accountId", id);
             res.put("username", acc.getUserName());
-            //res.put("khachHang", new ChiTietKhachHangDTO(khachHang));
+            // res.put("khachHang", new ChiTietKhachHangDTO(khachHang));
             res.put("danhSachLichTap", danhSachLichTapDTO);
 
             return ResponseEntity.ok(res);
@@ -110,8 +143,7 @@ public class UserController {
     @PutMapping("/taikhoan")
     public ResponseEntity<?> updateTaiKhoan(
             @RequestBody UpdateTaiKhoanRequest request,
-            Authentication authentication
-            ) {
+            Authentication authentication) {
 
         try {
             Account acc = accountRepository.findAccountByUserName(authentication.getName());

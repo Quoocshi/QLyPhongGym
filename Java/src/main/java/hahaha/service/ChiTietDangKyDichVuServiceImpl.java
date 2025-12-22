@@ -21,10 +21,10 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
 
     @Autowired
     private LopRepository lopRepository;
-    
+
     @Autowired
     private ChiTietDangKyDichVuRepository chiTietRepository;
-    
+
     @Autowired
     private NhanVienRepository nhanVienRepository;
 
@@ -40,7 +40,7 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
         ct.setDichVu(dv);
         ct.setHoaDon(hd);
         ct.setNgayBD(LocalDateTime.now());
-        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? (dv.getThoiHan() - 1) : 29));
 
         if (!dv.getLoaiDV().equals(LoaiDichVu.TuDo)) {
             String maBM = dv.getBoMon().getMaBM();
@@ -50,7 +50,7 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
                 ct.setNhanVien(lop.getNhanVien());
             }
         }
-        
+
         // Lưu vào database
         return chiTietRepository.save(ct);
     }
@@ -62,30 +62,30 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
         ct.setDichVu(dv);
         ct.setHoaDon(hd);
         ct.setNgayBD(LocalDateTime.now());
-        
+
         // Nếu có lớp được chọn cụ thể
         if (maLop != null && !maLop.trim().isEmpty()) {
             Lop lopDaChon = lopRepository.findById(maLop).orElse(null);
             if (lopDaChon != null) {
                 ct.setLop(lopDaChon);
                 ct.setNhanVien(lopDaChon.getNhanVien());
-                
+
                 // Sử dụng thời hạn của lớp thay vì dịch vụ
                 if (lopDaChon.getNgayBD() != null && lopDaChon.getNgayKT() != null) {
                     ct.setNgayBD(lopDaChon.getNgayBD());
                     ct.setNgayKT(lopDaChon.getNgayKT());
                 } else {
                     // Fallback về thời hạn dịch vụ nếu lớp không có ngày
-                    ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+                    ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? (dv.getThoiHan() - 1) : 29));
                 }
             } else {
                 // Lớp không tồn tại, fallback về logic cũ
-                ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
+                ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? (dv.getThoiHan() - 1) : 29));
             }
         } else {
             // Không có lớp được chọn, sử dụng logic cũ
-            ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
-            
+            ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? (dv.getThoiHan() - 1) : 29));
+
             if (!dv.getLoaiDV().equals(LoaiDichVu.TuDo)) {
                 String maBM = dv.getBoMon().getMaBM();
                 Lop lop = lopRepository.findFirstByBoMon_MaBMAndTinhTrangLop(maBM, TinhTrangLop.ChuaDay);
@@ -95,7 +95,7 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
                 }
             }
         }
-        
+
         // Lưu vào database
         return chiTietRepository.save(ct);
     }
@@ -107,8 +107,8 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
         ct.setDichVu(dv);
         ct.setHoaDon(hd);
         ct.setNgayBD(LocalDateTime.now());
-        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? dv.getThoiHan() : 30));
-        
+        ct.setNgayKT(LocalDateTime.now().plusDays(dv.getThoiHan() != null ? (dv.getThoiHan() - 1) : 29));
+
         // Gán trainer được chọn
         if (maNV != null && !maNV.isEmpty()) {
             NhanVien trainer = nhanVienRepository.findById(maNV).orElse(null);
@@ -117,7 +117,7 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
                 System.out.println("Đã gán trainer: " + trainer.getTenNV() + " cho dịch vụ PT");
             }
         }
-        
+
         // Lưu vào database
         return chiTietRepository.save(ct);
     }
