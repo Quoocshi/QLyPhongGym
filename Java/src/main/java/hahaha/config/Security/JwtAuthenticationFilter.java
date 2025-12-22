@@ -3,11 +3,17 @@ package hahaha.config.Security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import hahaha.model.Account;
 import hahaha.model.CustomUserDetails;
+import hahaha.model.KhachHang;
+import hahaha.model.NhanVien;
+import hahaha.repository.AccountRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,6 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtProperties = jwtProperties;
     }
 
+    @Autowired
+    private AccountRepository accountRepository;
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -58,8 +66,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
+            Account account = accountRepository.findByAccountId(accountId);
+            NhanVien nhanVien = null;
+            KhachHang khachHang = null;
+            if (account != null) {
+                nhanVien = account.getNhanVien();
+                khachHang = account.getKhachHang();
+
+                if (nhanVien != null) {
+                    nhanVien.getMaNV();
+                }
+                if (khachHang != null) {
+                    khachHang.getMaKH();
+                }
+            }
+
             //Tạo CustomUserDetails, không cần giữ lại roles string nữa
-            CustomUserDetails userDetails = new CustomUserDetails(accountId, username, null, authorities);
+            CustomUserDetails userDetails = new CustomUserDetails(accountId, username, null, nhanVien, khachHang, authorities);
 
             //Tạo Authentication object
             UsernamePasswordAuthenticationToken authentication =
