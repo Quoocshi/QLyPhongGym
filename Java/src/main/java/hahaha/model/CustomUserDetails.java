@@ -9,13 +9,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private Long accountId;
     private String username;
     private String password;
+    private NhanVien nhanVien;
+    private KhachHang khachHang;
     private List<GrantedAuthority> authorities;
 
     // Các method mặc định của UserDetails

@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -37,6 +39,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/webjars/**").permitAll()
+                        .requestMatchers("/ws-chat/**").permitAll()
 
                         // Role-based access
                         .requestMatchers("/api/autocomplete/**").hasAnyRole("ADMIN", "STAFF", "USER", "TRAINER")
@@ -76,6 +79,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
         config.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowCredentials(true);
 
         var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();

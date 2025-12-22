@@ -14,6 +14,7 @@ import jakarta.validation.constraints.*;
 @Entity
 @Table(name = "NHANVIEN")
 public class NhanVien {
+
     @Id
     @Column(name = "MaNV", length = 10)
     @NotBlank(message = "Mã nhân viên không được để trống")
