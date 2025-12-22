@@ -34,7 +34,7 @@ public class NhanVien {
 
     @Column(name = "GIOITINH")
     @NotBlank(message = "Giới tính không được để trống")
-    @Pattern(regexp = "^(Nam|Nữ)$", message = "Giới tính phải là Nam hoặc Nữ")
+    @Pattern(regexp = "^(Nam|Nữ|Nu|Khác|Khac)$", message = "Giới tính phải là Nam, Nữ hoặc Khác")
     private String gioiTinh;
 
     @Column(name = "EMAIL", nullable = false)
@@ -109,4 +109,3 @@ public class NhanVien {
         this.loaiNV = loaiNV;
     }
 }
-

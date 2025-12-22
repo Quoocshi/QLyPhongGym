@@ -12,6 +12,8 @@ public class ChiTietDichVuDTO {
     private LocalDateTime ngayKT;
     private Double giaTien;
 
-
+    // Expanded details
+    private String maNV;
+    private String tenNV;
+    private String tenLop;
 }
-

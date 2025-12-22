@@ -24,15 +24,28 @@ import hahaha.service.*;
 @RequestMapping("api/dich-vu-gym")
 public class DangKyDichVuController {
 
-    @Autowired private DichVuRepository dichVuRepository;
-    @Autowired private KhachHangRepository khachHangRepository;
-    @Autowired private HoaDonService hoaDonService;
-    @Autowired private DichVuService dichVuService;
-    @Autowired private ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
-    @Autowired private LopService lopService;
-    @Autowired private NhanVienService nhanVienService;
-    @Autowired private javax.sql.DataSource dataSource;
-    @Autowired private AccountRepository accountRepository;
+    @Autowired
+    private DichVuRepository dichVuRepository;
+    @Autowired
+    private KhachHangRepository khachHangRepository;
+    @Autowired
+    private HoaDonService hoaDonService;
+    @Autowired
+    private DichVuService dichVuService;
+    @Autowired
+    private ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
+    @Autowired
+    private LopService lopService;
+    @Autowired
+    private NhanVienService nhanVienService;
+    @Autowired
+    private LichTapRepository lichTapRepository;
+
+    @Autowired
+    private javax.sql.DataSource dataSource;
+    @Autowired
+    private AccountRepository accountRepository;
+
     // ✅ 1. Lấy danh sách bộ môn
     @GetMapping("/dang-kydv")
     @PreAuthorize("hasRole('USER')")
@@ -59,8 +72,7 @@ public class DangKyDichVuController {
                         ddto.setThoiHan(d.getThoiHan());
                         ddto.setDonGia(d.getDonGia());
                         return ddto;
-                    }).toList()
-            );
+                    }).toList());
             return dto;
         }).toList();
 
@@ -71,10 +83,8 @@ public class DangKyDichVuController {
 
         return ResponseEntity.ok(Map.of(
                 "khachHang", khDTO,
-                "dsBoMon", boMonDTOs
-        ));
+                "dsBoMon", boMonDTOs));
     }
-
 
     // ✅ 2. Lấy danh sách dịch vụ theo bộ môn
     @GetMapping("/dich-vu-theo-bo-mon")
@@ -110,61 +120,62 @@ public class DangKyDichVuController {
         boMonDTO.setDanhSachDichVu(dichVuDTOs);
 
         return ResponseEntity.ok(Map.of(
-                "boMon", boMonDTO
-        ));
+                "boMon", boMonDTO));
     }
 
-//    // ✅ 3. Thêm dịch vụ vào giỏ hàng (mock)
-//    @PostMapping("/them-gio-hang")
-//    @PreAuthorize("hasRole('USER')")
-//    public ResponseEntity<?> themDichVuVaoGioHang(
-//            @RequestParam("accountId") Long accountId,
-//            @RequestParam("maDV") String maDV,
-//            Authentication authentication) {
-//
-//        KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
-//        if (khachHang == null)
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
-//
-//        return ResponseEntity.ok(Map.of(
-//                "message", "Đã thêm dịch vụ vào giỏ hàng!",
-//                "maDV", maDV,
-//                "username", authentication.getName()
-//        ));
-//    }
+    // // ✅ 3. Thêm dịch vụ vào giỏ hàng (mock)
+    // @PostMapping("/them-gio-hang")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<?> themDichVuVaoGioHang(
+    // @RequestParam("accountId") Long accountId,
+    // @RequestParam("maDV") String maDV,
+    // Authentication authentication) {
+    //
+    // KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+    // if (khachHang == null)
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error",
+    // "Không tìm thấy khách hàng"));
+    //
+    // return ResponseEntity.ok(Map.of(
+    // "message", "Đã thêm dịch vụ vào giỏ hàng!",
+    // "maDV", maDV,
+    // "username", authentication.getName()
+    // ));
+    // }
 
-//    // ✅ 4. Xử lý thanh toán
-//    @PostMapping("/tao-hoa-don")
-//    @PreAuthorize("hasRole('USER')")
-//    public ResponseEntity<?> xuLyThanhToan(
-//            @RequestParam("accountId") Long accountId,
-//            @RequestParam("dichvu") String[] dichVuCodes,
-//            @RequestParam("tongtien") Double tongTien) {
-//        try {
-//            KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
-//            if (khachHang == null)
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
-//
-//            HoaDon hoaDon = hoaDonService.taoHoaDon(khachHang.getMaKH(), tongTien);
-//            for (String maDV : dichVuCodes)
-//                hoaDonService.themChiTietHoaDon(hoaDon.getMaHD(), maDV);
-//
-//            return ResponseEntity.ok(Map.of(
-//                    "message", "Tạo hóa đơn thành công",
-//                    "maHD", hoaDon.getMaHD(),
-//                    "tongTien", tongTien
-//            ));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(Map.of("error", e.getMessage()));
-//        }
-//    }
+    // // ✅ 4. Xử lý thanh toán
+    // @PostMapping("/tao-hoa-don")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<?> xuLyThanhToan(
+    // @RequestParam("accountId") Long accountId,
+    // @RequestParam("dichvu") String[] dichVuCodes,
+    // @RequestParam("tongtien") Double tongTien) {
+    // try {
+    // KhachHang khachHang = khachHangRepository.findByAccount_AccountId(accountId);
+    // if (khachHang == null)
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error",
+    // "Không tìm thấy khách hàng"));
+    //
+    // HoaDon hoaDon = hoaDonService.taoHoaDon(khachHang.getMaKH(), tongTien);
+    // for (String maDV : dichVuCodes)
+    // hoaDonService.themChiTietHoaDon(hoaDon.getMaHD(), maDV);
+    //
+    // return ResponseEntity.ok(Map.of(
+    // "message", "Tạo hóa đơn thành công",
+    // "maHD", hoaDon.getMaHD(),
+    // "tongTien", tongTien
+    // ));
+    // } catch (Exception e) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body(Map.of("error", e.getMessage()));
+    // }
+    // }
 
     // ✅ 5. Chọn lớp cho dịch vụ loại "Lớp"
     @GetMapping("/chonlop")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> hienThiChonLop(@RequestParam("maDV") String maDV,
-                                            Authentication authentication) {
+            Authentication authentication) {
 
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(user.getAccountId());
@@ -186,6 +197,40 @@ public class DangKyDichVuController {
             dto.setSlToiDa(l.getSlToiDa());
             dto.setTinhTrangLop(l.getTinhTrangLop().name());
             dto.setGhiChu(l.getGhiChu());
+            dto.setNgayBD(l.getNgayBD().toLocalDate());
+            dto.setNgayKT(l.getNgayKT().toLocalDate());
+
+            // 1. Populate Instructor Name
+            if (l.getNhanVien() != null) {
+                dto.setTenGV(l.getNhanVien().getTenNV());
+            }
+
+            // 2. Fetch Schedule and Room from LichTap
+            List<LichTap> lichTaps = lichTapRepository.findByLop_MaLop(l.getMaLop());
+            if (lichTaps != null && !lichTaps.isEmpty()) {
+                // Get Room from the first schedule entry (assuming class always in same room)
+                if (lichTaps.get(0).getKhuVuc() != null) {
+                    dto.setPhong(lichTaps.get(0).getKhuVuc().getTenKhuVuc());
+                }
+
+                // Format Schedule string: "Mon-Wed-Fri (18:00-19:30)"
+                // Simplified logic: Append distinct Thu + Ca
+                StringBuilder lichHocStr = new StringBuilder();
+                for (LichTap lt : lichTaps) {
+                    if (lt.getThu() != null) {
+                        lichHocStr.append(lt.getThu()).append(" ");
+                    }
+                    if (lt.getCaTap() != null) {
+                        lichHocStr.append("(").append(lt.getCaTap().getTenCa()).append(") ");
+                    }
+                }
+                // Clean up string
+                String finalLich = lichHocStr.toString().trim().replace("  ", " ");
+                // Simple dedup logic if needed, but for now just raw concatenation is better
+                // than nothing
+                dto.setLichHoc(finalLich);
+            }
+
             return dto;
         }).toList();
 
@@ -198,8 +243,7 @@ public class DangKyDichVuController {
 
         return ResponseEntity.ok(Map.of(
                 "dichVu", dichVuDTO,
-                "dsLopChuaDay", lopDTOs
-        ));
+                "dsLopChuaDay", lopDTOs));
     }
 
     // ✅ 6. Chọn PT cho dịch vụ loại "PT"
@@ -207,7 +251,7 @@ public class DangKyDichVuController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> hienThiChonPT(
             @RequestParam("maDV") String maDV,
-           Authentication authentication) {
+            Authentication authentication) {
 
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         Long accountId = user.getAccountId();
@@ -226,8 +270,7 @@ public class DangKyDichVuController {
         List<NhanVien> dsTrainer = nhanVienService.getTrainersByBoMon(dichVu.getBoMon().getMaBM());
         return ResponseEntity.ok(Map.of(
                 "dichVu", dichVu,
-                "dsTrainer", dsTrainer
-        ));
+                "dsTrainer", dsTrainer));
     }
 
     // ✅ 7. Danh sách dịch vụ đã đăng ký
@@ -246,30 +289,59 @@ public class DangKyDichVuController {
         khDTO.setHoTen(khachHang.getHoTen());
         khDTO.setEmail(khachHang.getEmail());
 
-        List<ChiTietDangKyDichVu> ds =
-                chiTietDangKyDichVuRepository.findByKhachHang_MaKH_DaThanhToan(khachHang.getMaKH());
+        List<ChiTietDangKyDichVu> ds = chiTietDangKyDichVuRepository
+                .findByKhachHang_MaKH_DaThanhToan(khachHang.getMaKH());
 
         List<ChiTietDichVuDTO> dsDTO = ds.stream().map(ct -> {
             ChiTietDichVuDTO dto = new ChiTietDichVuDTO();
             dto.setMaDV(ct.getDichVu().getMaDV());
             dto.setTenDichVu(ct.getDichVu().getTenDV());
-            dto.setNgayBD(ct.getNgayBD());
-            dto.setNgayKT(ct.getNgayKT());
+            // Date Logic
+            if (ct.getLop() != null) {
+                // Class: Use Class dates
+                dto.setNgayBD(ct.getLop().getNgayBD());
+                dto.setNgayKT(ct.getLop().getNgayKT());
+            } else {
+                // Service / PT: Use Registration Date + Duration
+                if (ct.getHoaDon() != null && ct.getHoaDon().getNgayLap() != null) {
+                    dto.setNgayBD(ct.getHoaDon().getNgayLap());
+                    if (ct.getDichVu().getThoiHan() != null) {
+                        dto.setNgayKT(ct.getHoaDon().getNgayLap().plusDays(ct.getDichVu().getThoiHan() - 1));
+                    } else {
+                        dto.setNgayKT(ct.getNgayKT()); // Fallback
+                    }
+                } else {
+                    dto.setNgayBD(ct.getNgayBD());
+                    dto.setNgayKT(ct.getNgayKT());
+                }
+            }
             dto.setGiaTien(ct.getDichVu().getDonGia());
+
+            // Populate Instructor/PT info
+            if (ct.getNhanVien() != null) {
+                // Personal Trainer case
+                dto.setMaNV(ct.getNhanVien().getMaNV());
+                dto.setTenNV(ct.getNhanVien().getTenNV());
+            } else if (ct.getLop() != null) {
+                // Class case
+                dto.setTenLop(ct.getLop().getTenLop());
+                if (ct.getLop().getNhanVien() != null) {
+                    dto.setMaNV(ct.getLop().getNhanVien().getMaNV());
+                    dto.setTenNV(ct.getLop().getNhanVien().getTenNV());
+                }
+            }
             return dto;
         }).toList();
 
         return ResponseEntity.ok(Map.of(
                 "khachHang", khDTO,
-                "dichVuDaDangKy", dsDTO
-        ));
+                "dichVuDaDangKy", dsDTO));
     }
 
-    //8. Gọi procedure để đăng ký dịch vụ (TuDo/PT/Lớp)
+    // 8. Gọi procedure để đăng ký dịch vụ (TuDo/PT/Lớp)
     @PostMapping("/dang-ky-dv-universal")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> dangKyDichVuUniversal(@RequestBody DangKyDichVuRequest request)
-            {
+    public ResponseEntity<?> dangKyDichVuUniversal(@RequestBody DangKyDichVuRequest request) {
         KhachHang khachHang = khachHangRepository.findByAccount_AccountId(request.getAccountId());
         if (khachHang == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy khách hàng"));
@@ -278,27 +350,24 @@ public class DangKyDichVuController {
                 request.getMaKH(),
                 request.getDsMaDV().toArray(new String[0]),
                 request.getDsTrainerId() != null ? request.getDsTrainerId().toArray(new String[0]) : null,
-                request.getDsClassId() != null ? request.getDsClassId().toArray(new String [0]) : null
-        );
+                request.getDsClassId() != null ? request.getDsClassId().toArray(new String[0]) : null);
         if ("SUCCESS".equals(result[0])) {
             return ResponseEntity.ok(Map.of(
                     "message", "Đăng ký thành công",
                     "maHD", result[1],
-                    "tongTien", result[2]
-            ));
+                    "tongTien", result[2]));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "error", result[3]
-            ));
+                    "error", result[3]));
         }
     }
 
     // --- Private helper: gọi procedure ---
     private String[] callUniversalProcedure(String maKH, String[] dsMaDV,
-                                            String[] dsTrainerId, String[] dsClassId) {
+            String[] dsTrainerId, String[] dsClassId) {
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall(
-                     "{call proc_dang_ky_dich_vu_universal(?, ?, ?, ?, ?, ?, ?, ?)}")) {
+                CallableStatement statement = connection.prepareCall(
+                        "{call proc_dang_ky_dich_vu_universal(?, ?, ?, ?, ?, ?, ?, ?)}")) {
 
             String listMaDV = String.join(",", dsMaDV);
             String listTrainer = dsTrainerId != null ? String.join(",", dsTrainerId) : "";
@@ -320,14 +389,14 @@ public class DangKyDichVuController {
             String result = statement.getString(7);
             String errorMsg = statement.getString(8);
 
-            return new String[]{
+            return new String[] {
                     result,
                     maHD,
                     tongTien != null ? tongTien.toString() : "0",
                     errorMsg
             };
         } catch (Exception e) {
-            return new String[]{"ERROR", null, "0", e.getMessage()};
+            return new String[] { "ERROR", null, "0", e.getMessage() };
         }
     }
 }

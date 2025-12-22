@@ -20,12 +20,18 @@ import hahaha.service.LopService;
 @RequestMapping("/api/trainer")
 public class LichLopController {
 
-    @Autowired private LopService lopService;
-    @Autowired private LichTapService lichTapService;
-    @Autowired private AccountRepository accountRepository;
-    @Autowired private CaTapRepository caTapRepository;
-    @Autowired private KhuVucRepository khuVucRepository;
-    @Autowired private ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
+    @Autowired
+    private LopService lopService;
+    @Autowired
+    private LichTapService lichTapService;
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private CaTapRepository caTapRepository;
+    @Autowired
+    private KhuVucRepository khuVucRepository;
+    @Autowired
+    private ChiTietDangKyDichVuRepository chiTietDangKyDichVuRepository;
 
     // --- 1. Lấy danh sách lớp của trainer ---
     @GetMapping("/lich-lop")
@@ -75,14 +81,12 @@ public class LichLopController {
 
             return ResponseEntity.ok(Map.of(
                     "trainer", trainerDTO,
-                    "dsLop", dsLopDto
-            ));
+                    "dsLop", dsLopDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
     }
-
 
     // --- 2. Lấy lịch PT của trainer ---
     @GetMapping("/lich-canhan")
@@ -111,7 +115,7 @@ public class LichLopController {
             List<KhuVucDTO> dsKhuVucDTO = dsKhuVuc.stream()
                     .map(KhuVucDTO::new)
                     .toList();
-            
+
             // Convert CaTap entity to DTO to avoid serialization issues
             List<CaTapDTO> dsCaTapDTO = dsCaTap.stream()
                     .map(CaTapDTO::new)
@@ -123,10 +127,9 @@ public class LichLopController {
                         return new KhachHangDTO(kh.getMaKH(), kh.getHoTen());
                     })
                     .toList();
-            
+
             // Convert NhanVien entity to DTO to avoid circular reference
             NhanVienDTO trainerDTO = new NhanVienDTO(trainer);
-
 
             return ResponseEntity.ok(Map.of(
                     "trainer", trainerDTO,
@@ -134,8 +137,7 @@ public class LichLopController {
                     "dsPTCustomers", dsPTCustomersDTO,
                     "dsPTSchedules", dsPTSchedulesDTO,
                     "dsCaTap", dsCaTapDTO,
-                    "dsKhuVuc", dsKhuVucDTO
-            ));
+                    "dsKhuVuc", dsKhuVucDTO));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -158,20 +160,33 @@ public class LichLopController {
             }
 
             String maNV = account.getNhanVien().getMaNV();
-            LichTap lichTap = lichTapService.createPTScheduleWithDate(
-                    maNV,
-                    request.getMaKH(),
-                    request.getNgayTap(),
-                    request.getCaTap(),
-                    request.getMaKV()
-            );
+
+            LichTap lichTap;
+            // Use new multi-day method if thuTap is provided
+            if (request.getThuTap() != null && !request.getThuTap().isEmpty()) {
+                String ngayBatDau = request.getNgayBatDau() != null ? request.getNgayBatDau() : request.getNgayTap();
+                lichTap = lichTapService.createPTScheduleMultipleDays(
+                        maNV,
+                        request.getMaKH(),
+                        ngayBatDau,
+                        request.getThuTap(),
+                        request.getCaTap(),
+                        request.getMaKV());
+            } else {
+                // Fallback to old single-day method for backward compatibility
+                lichTap = lichTapService.createPTScheduleWithDate(
+                        maNV,
+                        request.getMaKH(),
+                        request.getNgayTap(),
+                        request.getCaTap(),
+                        request.getMaKV());
+            }
 
             if (lichTap != null) {
                 return ResponseEntity.ok(Map.of(
                         "success", true,
                         "message", "Tạo lịch PT thành công!",
-                        "maLT", lichTap.getMaLT()
-                ));
+                        "maLT", lichTap.getMaLT()));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("success", false, "message", "Không thể tạo lịch PT. Kiểm tra lại thông tin."));
@@ -183,12 +198,11 @@ public class LichLopController {
         }
     }
 
-
     // --- 4. Kiểm tra xung đột ---
     @PostMapping("/kiem-tra-xung-dot")
     @PreAuthorize("hasRole('TRAINER')")
     public ResponseEntity<?> kiemTraXungDot(Authentication authentication,
-                                            @RequestBody KiemTraXungDotRequest request) {
+            @RequestBody KiemTraXungDotRequest request) {
         try {
             String username = authentication.getName();
             Account account = accountRepository.findAccountByUserName(username);
@@ -247,15 +261,14 @@ public class LichLopController {
         try {
             // Lấy ngày hiện tại
             String ngayDung = java.time.LocalDate.now().toString();
-            
+
             LichTap lichTap = lichTapService.dungLichTap(maLT, ngayDung);
-            
+
             if (lichTap != null) {
                 return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Dừng lịch tập thành công!",
-                    "lichTap", lichTap
-                ));
+                        "success", true,
+                        "message", "Dừng lịch tập thành công!",
+                        "lichTap", lichTap));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("success", false, "message", "Không thể dừng lịch tập. Kiểm tra lại thông tin."));
@@ -272,19 +285,57 @@ public class LichLopController {
     public ResponseEntity<?> huyLichPT(@PathVariable String maLT) {
         try {
             LichTap lichTap = lichTapService.huyLichTap(maLT);
-            
+
             if (lichTap != null) {
                 // Trả về thông tin cơ bản thay vì entity để tránh lỗi serialize
                 return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Hủy lịch tập thành công!",
-                    "maLT", lichTap.getMaLT(),
-                    "trangThai", lichTap.getTrangThai() != null ? lichTap.getTrangThai() : "Huy"
-                ));
+                        "success", true,
+                        "message", "Hủy lịch tập thành công!",
+                        "maLT", lichTap.getMaLT(),
+                        "trangThai", lichTap.getTrangThai() != null ? lichTap.getTrangThai() : "Huy"));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("success", false, "message", "Không thể hủy lịch tập. Kiểm tra lại thông tin."));
             }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    // --- 8. Tạo lịch lớp ---
+    @PostMapping("/tao-lich-lop")
+    @PreAuthorize("hasRole('TRAINER')")
+    public ResponseEntity<?> taoLichLop(
+            Authentication authentication,
+            @RequestBody TaoLichLopRequest request) {
+        try {
+            String username = authentication.getName();
+            Account account = accountRepository.findAccountByUserName(username);
+            if (account == null || account.getNhanVien() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Không tìm thấy thông tin huấn luyện viên"));
+            }
+
+            String maNV = account.getNhanVien().getMaNV();
+            LichTap lichTap = lichTapService.createClassSchedule(
+                    maNV,
+                    request.getMaLop(),
+                    request.getNgayTap(),
+                    request.getCaTap(),
+                    request.getMaKV());
+
+            if (lichTap != null) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Tạo lịch Lớp thành công!",
+                        "maLT", lichTap.getMaLT()));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message",
+                                "Không thể tạo lịch Lớp. Có thể do trùng lịch hoặc thông tin không hợp lệ."));
+            }
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", e.getMessage()));

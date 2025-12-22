@@ -17,6 +17,10 @@ public class LichTapDTO {
     private String tenLop;
     private String tenKhuVuc;
 
+    // Date range fields for filtering (from Lop entity)
+    private String ngayBD; // Start date
+    private String ngayKT; // End date
+
     public LichTapDTO(LichTap lichTap) {
         this.maLT = lichTap.getMaLT();
         this.loaiLich = lichTap.getLoaiLich();
@@ -34,6 +38,14 @@ public class LichTapDTO {
 
         if (lichTap.getLop() != null) {
             this.tenLop = lichTap.getLop().getTenLop();
+
+            // Populate date range from Lop entity
+            if (lichTap.getLop().getNgayBD() != null) {
+                this.ngayBD = lichTap.getLop().getNgayBD().toString();
+            }
+            if (lichTap.getLop().getNgayKT() != null) {
+                this.ngayKT = lichTap.getLop().getNgayKT().toString();
+            }
         }
 
         if (lichTap.getKhuVuc() != null) {
