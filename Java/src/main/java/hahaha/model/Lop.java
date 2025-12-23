@@ -42,11 +42,11 @@ public class Lop {
     private String ghiChu;
 
     @OneToOne(optional = true)
-    @JoinColumn(name = "MaBM", referencedColumnName = "MaBM", unique = true)
+    @JoinColumn(name = "MaBM", referencedColumnName = "MaBM")
     private BoMon boMon;
-    
+
     @OneToOne(optional = true)
-    @JoinColumn(name = "MaNV", referencedColumnName = "MaNV", unique = true)
+    @JoinColumn(name = "MaNV", referencedColumnName = "MaNV")
     private NhanVien nhanVien;
 
     public String getMaLop() {

@@ -46,12 +46,7 @@ public class QlyNhanVienController {
     public ResponseEntity<?> getAllNhanVien() {
         try {
             List<NhanVienDTO> list = nhanVienService.getAll().stream()
-                    .map(nv -> {
-                        NhanVienDTO dto = new NhanVienDTO();
-                        dto.setMaNV(nv.getMaNV());
-                        dto.setHoTen(nv.getTenNV());
-                        return dto;
-                    })
+                    .map(nv -> new NhanVienDTO(nv))
                     .toList();
 
             if (list.isEmpty()) {
@@ -92,7 +87,6 @@ public class QlyNhanVienController {
         }
     }
 
-
     // 🔹 Thêm nhân viên
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -109,12 +103,11 @@ public class QlyNhanVienController {
         }
     }
 
-
     // 🔹 Cập nhật nhân viên
     @PutMapping("/{maNV}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateNhanVien(@PathVariable String maNV,
-                                            @RequestBody NhanVien nhanVienUpdate) {
+            @RequestBody NhanVien nhanVienUpdate) {
         try {
             NhanVien nhanVien = nhanVienService.findById(maNV);
             if (nhanVien == null) {
@@ -184,7 +177,7 @@ public class QlyNhanVienController {
     private Long getRoleGroupIdByLoaiNV(String loaiNV) {
         return switch (loaiNV) {
             case "QuanLy" -> 1L; // ADMIN
-            case "LeTan" -> 2L;  // STAFF
+            case "LeTan" -> 2L; // STAFF
             case "Trainer" -> 4L; // TRAINER
             case "PhongTap" -> 2L; // STAFF
             default -> 2L;

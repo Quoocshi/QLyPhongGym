@@ -119,5 +119,13 @@ public interface LichTapService {
      */
     LichTap createClassSchedule(String maNV, String maLop, String ngayTap, String caTap, String maKV);
 
+    /**
+     * Lấy lịch lớp của trainer
+     * 
+     * @param maNV Mã nhân viên trainer
+     * @return Danh sách lịch tập lớp
+     */
+    List<LichTap> getClassSchedulesByTrainer(String maNV);
+
     LichTap huyLichTap(String maLT);
 }

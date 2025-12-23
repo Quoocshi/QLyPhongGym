@@ -585,7 +585,7 @@ public class LichTapServiceImpl implements LichTapService {
     @Override
     public LichTap createClassSchedule(String maNV, String maLop, String ngayTap, String caTap, String maKV) {
         try {
-            System.out.println("=== TẠO LỊCH LỚP ===");
+            System.out.println("=== TẠO LỊCH LỚP (LEGACY - 1 NGÀY) ===");
             System.out.println("Trainer: " + maNV);
             System.out.println("Lớp: " + maLop);
             System.out.println("Ngày tập: " + ngayTap);
@@ -624,7 +624,7 @@ public class LichTapServiceImpl implements LichTapService {
             }
             lichTap.setNhanVien(trainer);
 
-            // Set Lớp (Thay vì Khách hàng)
+            // Set Lớp
             hahaha.model.Lop lop = lopRepository.findById(maLop).orElse(null);
             if (lop == null) {
                 System.out.println("❌ Không tìm thấy lớp: " + maLop);
@@ -654,5 +654,87 @@ public class LichTapServiceImpl implements LichTapService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    // NEW: Create class schedule with multiple days
+    public LichTap createClassScheduleMultipleDays(String maNV, String maLop, String thuString, String caTap,
+            String maKV) {
+        try {
+            System.out.println("=== TẠO LỊCH LỚP VỚI NHIỀU NGÀY ===");
+            System.out.println("Trainer: " + maNV);
+            System.out.println("Lớp: " + maLop);
+            System.out.println("Các ngày tập: " + thuString);
+            System.out.println("Ca tập: " + caTap);
+
+            // Kiểm tra xung đột lịch cho từng ngày
+            for (char c : thuString.toCharArray()) {
+                String dayStr = String.valueOf(c);
+                if (dayStr.equals("C")) {
+                    // Skip 'C', we'll check 'CN' as a whole
+                    continue;
+                }
+                String thuToCheck = dayStr.equals("N") ? "CN" : dayStr;
+                if (hasScheduleConflict(maNV, thuToCheck, caTap)) {
+                    System.out.println(
+                            "❌ Xung đột lịch: Trainer " + maNV + " đã có lịch vào " + thuToCheck + " ca " + caTap);
+                    return null;
+                }
+            }
+
+            // Tạo một lịch tập duy nhất với tất cả các ngày
+            LichTap lichTap = new LichTap();
+            lichTap.setMaLT(generateNextMaLTWithLogging());
+            lichTap.setLoaiLich("Lop");
+            lichTap.setThu(thuString); // Lưu tất cả các ngày (VD: "246CN")
+            lichTap.setTrangThai("Dang mo");
+
+            // Set trainer
+            NhanVien trainer = nhanVienRepository.findById(maNV).orElse(null);
+            if (trainer == null) {
+                System.out.println("❌ Không tìm thấy trainer: " + maNV);
+                return null;
+            }
+            lichTap.setNhanVien(trainer);
+
+            // Set Lớp
+            hahaha.model.Lop lop = lopRepository.findById(maLop).orElse(null);
+            if (lop == null) {
+                System.out.println("❌ Không tìm thấy lớp: " + maLop);
+                return null;
+            }
+            lichTap.setLop(lop);
+
+            // Set ca tập
+            CaTap ca = caTapRepository.findById(caTap).orElse(null);
+            if (ca == null) {
+                System.out.println("❌ Không tìm thấy ca tập: " + caTap);
+                return null;
+            }
+            lichTap.setCaTap(ca);
+
+            // Set khu vực
+            if (maKV != null && !maKV.isEmpty()) {
+                KhuVuc khuVuc = khuVucRepository.findById(maKV).orElse(null);
+                if (khuVuc != null) {
+                    lichTap.setKhuVuc(khuVuc);
+                }
+            }
+
+            // Lưu vào database
+            LichTap savedLichTap = lichTapRepository.save(lichTap);
+            System.out.println("✅ Đã tạo lịch Lớp với các ngày: " + thuString);
+
+            return savedLichTap;
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi tạo lịch Lớp nhiều ngày: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public List<LichTap> getClassSchedulesByTrainer(String maNV) {
+        return lichTapRepository.findClassScheduleByTrainer(maNV);
     }
 }
