@@ -9,7 +9,7 @@ import hahaha.model.BoMon;
 import hahaha.service.BoMonService;
 
 @RestController
-@RequestMapping("api/quan-ly-bo-mon")
+@RequestMapping("/api/quan-ly-bo-mon")
 public class QLyBoMonController {
 
     @Autowired

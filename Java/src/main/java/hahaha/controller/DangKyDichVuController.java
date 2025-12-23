@@ -21,7 +21,7 @@ import hahaha.repository.*;
 import hahaha.service.*;
 
 @RestController
-@RequestMapping("api/dich-vu-gym")
+@RequestMapping("/api/dich-vu-gym")
 public class DangKyDichVuController {
 
     @Autowired
@@ -283,9 +283,12 @@ public class DangKyDichVuController {
                     .body(Map.of("error", "Dịch vụ này không phải loại PT"));
 
         List<NhanVien> dsTrainer = nhanVienService.getTrainersByBoMon(dichVu.getBoMon().getMaBM());
+        List<NhanVienDTO> dsTrainerDTO = dsTrainer.stream()
+                .map(NhanVienDTO::new)
+                .toList();
         return ResponseEntity.ok(Map.of(
                 "dichVu", dichVu,
-                "dsTrainer", dsTrainer));
+                "dsTrainer", dsTrainerDTO));
     }
 
     // ✅ 7. Danh sách dịch vụ đã đăng ký
