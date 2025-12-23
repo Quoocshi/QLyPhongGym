@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public class ChiTietDichVuDTO {
     private String maDV;
     private String tenDichVu;
+    private String loaiDichVu;
+    private Integer thoiHan;
     private LocalDateTime ngayBD;
     private LocalDateTime ngayKT;
     private Double giaTien;

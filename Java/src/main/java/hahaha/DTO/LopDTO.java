@@ -14,10 +14,10 @@ public class LopDTO {
     private int slToiDa;
     private String tinhTrangLop;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayBD;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayKT;
     private String ghiChu;
     private Object boMon;

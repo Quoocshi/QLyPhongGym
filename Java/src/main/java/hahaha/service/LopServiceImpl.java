@@ -14,6 +14,7 @@ import hahaha.model.Lop;
 import hahaha.repository.LichTapRepository;
 import hahaha.repository.LopRepository;
 import hahaha.repository.BoMonRepository;
+import hahaha.repository.NhanVienRepository;
 import hahaha.DTO.LopDTO;
 
 @Service
@@ -27,6 +28,9 @@ public class LopServiceImpl implements LopService {
 
     @Autowired
     private BoMonRepository boMonRepository;
+
+    @Autowired
+    private NhanVienRepository nhanVienRepository;
 
     @Override
     public List<Lop> getLopsByTrainerMaNV(String maNV) {
@@ -235,6 +239,12 @@ public class LopServiceImpl implements LopService {
 
     @Override
     public Lop createLop(LopDTO dto) {
+        System.out.println("🔍 DEBUG - createLop called with DTO:");
+        System.out.println("   tenLop: " + dto.getTenLop());
+        System.out.println("   maBM: " + dto.getMaBM());
+        System.out.println("   maNV: " + dto.getMaNV());
+        System.out.println("   thoiHan: " + dto.getThoiHan());
+
         Lop lop = new Lop();
 
         // 1. Generate ID
@@ -254,7 +264,7 @@ public class LopServiceImpl implements LopService {
 
             // Calculate NgayKT
             if (dto.getThoiHan() != null) {
-                lop.setNgayKT(lop.getNgayBD().plusDays(dto.getThoiHan() - 1));
+                lop.setNgayKT(lop.getNgayBD().plusDays(dto.getThoiHan()));
             }
         }
 
@@ -263,6 +273,26 @@ public class LopServiceImpl implements LopService {
             boMonRepository.findById(dto.getMaBM()).ifPresent(lop::setBoMon);
         }
 
-        return lopRepository.save(lop);
+        // 5. Trainer (NhanVien)
+        if (dto.getMaNV() != null && !dto.getMaNV().trim().isEmpty()) {
+            System.out.println("🔍 DEBUG - Đang tìm trainer với maNV: " + dto.getMaNV());
+            hahaha.model.NhanVien trainer = nhanVienRepository.findById(dto.getMaNV()).orElse(null);
+            if (trainer != null) {
+                System.out.println("🔍 DEBUG - Tìm thấy trainer: " + trainer.getTenNV());
+                lop.setNhanVien(trainer);
+            } else {
+                System.out.println("❌ DEBUG - KHÔNG tìm thấy trainer với mã: " + dto.getMaNV());
+                throw new RuntimeException("Không tìm thấy trainer với mã: " + dto.getMaNV());
+            }
+        } else {
+            System.out.println("⚠️ DEBUG - maNV null hoặc empty!");
+        }
+
+        Lop savedLop = lopRepository.save(lop);
+        System.out.println("✅ DEBUG - Lớp đã lưu với maLop: " + savedLop.getMaLop());
+        System.out.println(
+                "   NhanVien: " + (savedLop.getNhanVien() != null ? savedLop.getNhanVien().getMaNV() : "null"));
+
+        return savedLop;
     }
 }
