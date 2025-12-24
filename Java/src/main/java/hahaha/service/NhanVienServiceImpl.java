@@ -231,4 +231,9 @@ public class NhanVienServiceImpl implements NhanVienService {
         };
     }
 
+    @Override
+    public List<ChuyenMon> findChuyenMonByMaNV(String maNV) {
+        return chuyenMonRepository.findByMaNV(maNV);
+    }
+
 }

@@ -46,7 +46,18 @@ public class QlyNhanVienController {
     public ResponseEntity<?> getAllNhanVien() {
         try {
             List<NhanVienDTO> list = nhanVienService.getAll().stream()
-                    .map(nv -> new NhanVienDTO(nv))
+                    .map(nv -> {
+                        NhanVienDTO dto = new NhanVienDTO(nv);
+                        // For trainers, get their maBM from ChuyenMon table
+                        if (nv.getLoaiNV() == LoaiNhanVien.Trainer) {
+                            // Query ChuyenMon to find the trainer's specialization
+                            nhanVienService.findChuyenMonByMaNV(nv.getMaNV())
+                                    .stream()
+                                    .findFirst()
+                                    .ifPresent(cm -> dto.setMaBM(cm.getMaBM()));
+                        }
+                        return dto;
+                    })
                     .toList();
 
             if (list.isEmpty()) {
