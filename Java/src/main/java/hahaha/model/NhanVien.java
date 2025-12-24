@@ -1,14 +1,10 @@
 package hahaha.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import hahaha.enums.LoaiNhanVien;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
@@ -52,6 +48,9 @@ public class NhanVien {
     @Column(name = "LOAINV", length = 10)
     @NotNull(message = "Loại nhân viên không được để trống")
     private LoaiNhanVien loaiNV;
+
+    @OneToMany(mappedBy = "nhanVien", fetch = FetchType.LAZY)
+    private List<ChuyenMon> dsChuyenMon;
 
     public String getMaNV() {
         return maNV;
@@ -107,5 +106,13 @@ public class NhanVien {
 
     public void setLoaiNV(LoaiNhanVien loaiNV) {
         this.loaiNV = loaiNV;
+    }
+
+    public List<ChuyenMon> getDsChuyenMon() {
+        return dsChuyenMon;
+    }
+
+    public void setDsChuyenMon(List<ChuyenMon> dsChuyenMon) {
+        this.dsChuyenMon = dsChuyenMon;
     }
 }

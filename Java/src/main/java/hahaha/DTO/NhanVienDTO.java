@@ -24,9 +24,15 @@ public class NhanVienDTO {
     public NhanVienDTO(NhanVien nv) {
         this.maNV = nv.getMaNV();
         this.hoTen = nv.getTenNV();
-        this.tenNV = nv.getTenNV();
+        this.tenNV = nv.getTenNV(); // keep for backward compatibility
         this.email = nv.getEmail();
         this.loaiNV = nv.getLoaiNV() != null ? nv.getLoaiNV().name() : null;
-        // maBM will be set separately from ChuyenMon table
+
+        // Get maBM from first ChuyenMon if exists
+        if (nv.getDsChuyenMon() != null && !nv.getDsChuyenMon().isEmpty()) {
+            this.maBM = nv.getDsChuyenMon().get(0).getMaBM();
+        } else {
+            this.maBM = null;
+        }
     }
 }
