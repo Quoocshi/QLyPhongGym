@@ -24,9 +24,13 @@ public class NhanVienDTO {
     public NhanVienDTO(NhanVien nv) {
         this.maNV = nv.getMaNV();
         this.hoTen = nv.getTenNV();
-        this.tenNV = nv.getTenNV();
+        this.tenNV = nv.getTenNV(); // keep for backward compatibility
         this.email = nv.getEmail();
         this.loaiNV = nv.getLoaiNV() != null ? nv.getLoaiNV().name() : null;
-        // maBM will be set separately from ChuyenMon table
+
+        // Note: maBM would need to be fetched from CT_CHUYENMON table separately
+        // For now, leaving it as null since NhanVien doesn't have this relationship
+        // mapped
+        this.maBM = null;
     }
 }

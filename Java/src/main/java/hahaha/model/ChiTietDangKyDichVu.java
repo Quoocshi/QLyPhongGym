@@ -1,4 +1,5 @@
 package hahaha.model;
+
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -18,9 +19,12 @@ public class ChiTietDangKyDichVu {
 
     @Column(name = "NGAYBD")
     private LocalDateTime ngayBD;
-    
+
     @Column(name = "NGAYKT")
     private LocalDateTime ngayKT;
+
+    @Column(name = "DA_HUY")
+    private Integer daHuy = 0;
 
     @OneToOne
     @JoinColumn(name = "MaHD")
@@ -93,5 +97,13 @@ public class ChiTietDangKyDichVu {
     public void setNhanVien(NhanVien nhanVien) {
         this.nhanVien = nhanVien;
     }
-    
+
+    public Integer getDaHuy() {
+        return daHuy;
+    }
+
+    public void setDaHuy(Integer daHuy) {
+        this.daHuy = daHuy;
+    }
+
 }
