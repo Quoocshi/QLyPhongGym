@@ -42,6 +42,9 @@ public class DangKyDichVuController {
     private LichTapRepository lichTapRepository;
 
     @Autowired
+    private ChiTietDangKyDichVuService chiTietDangKyDichVuService;
+
+    @Autowired
     private javax.sql.DataSource dataSource;
     @Autowired
     private AccountRepository accountRepository;
@@ -312,6 +315,7 @@ public class DangKyDichVuController {
 
         List<ChiTietDichVuDTO> dsDTO = ds.stream().map(ct -> {
             ChiTietDichVuDTO dto = new ChiTietDichVuDTO();
+            dto.setMaCTDK(ct.getMaCTDK());
             dto.setMaDV(ct.getDichVu().getMaDV());
             dto.setTenDichVu(ct.getDichVu().getTenDV());
             // Date Logic
@@ -415,6 +419,26 @@ public class DangKyDichVuController {
             };
         } catch (Exception e) {
             return new String[] { "ERROR", null, "0", e.getMessage() };
+        }
+    }
+
+    // ✅ 9. Hủy dịch vụ đã đăng ký
+    @PostMapping("/huy-dich-vu")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> huyDichVu(@RequestParam("maCTDK") String maCTDK, Authentication authentication) {
+        try {
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+            KhachHang khachHang = khachHangRepository.findByAccount_AccountId(user.getAccountId());
+            if (khachHang == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy khách hàng"));
+
+            chiTietDangKyDichVuService.huyDichVu(maCTDK, khachHang.getMaKH());
+
+            return ResponseEntity.ok(Map.of("message", "Hủy dịch vụ thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }

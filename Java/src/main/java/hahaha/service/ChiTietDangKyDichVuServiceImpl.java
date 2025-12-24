@@ -121,4 +121,25 @@ public class ChiTietDangKyDichVuServiceImpl implements ChiTietDangKyDichVuServic
         // Lưu vào database
         return chiTietRepository.save(ct);
     }
+
+    @Override
+    public void huyDichVu(String maCTDK, String maKH) throws Exception {
+        // Tìm chi tiết đăng ký
+        ChiTietDangKyDichVu ct = chiTietRepository.findById(maCTDK)
+                .orElseThrow(() -> new Exception("Không tìm thấy dịch vụ"));
+
+        // Kiểm tra quyền hủy - chỉ khách hàng sở hữu mới được hủy
+        if (ct.getHoaDon() == null || ct.getHoaDon().getKhachHang() == null ||
+                !ct.getHoaDon().getKhachHang().getMaKH().equals(maKH)) {
+            throw new Exception("Bạn không có quyền hủy dịch vụ này");
+        }
+
+        // Kiểm tra đã hủy chưa
+        if (ct.getDaHuy() != null && ct.getDaHuy() == 1) {
+            throw new Exception("Dịch vụ này đã được hủy trước đó");
+        }
+
+        // Hủy dịch vụ
+        chiTietRepository.cancelService(maCTDK);
+    }
 }

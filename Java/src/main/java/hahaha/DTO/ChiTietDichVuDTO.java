@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ChiTietDichVuDTO {
+    private String maCTDK;
     private String maDV;
     private String tenDichVu;
     private String loaiDichVu;

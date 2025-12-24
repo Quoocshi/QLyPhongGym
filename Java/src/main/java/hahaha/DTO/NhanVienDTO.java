@@ -28,11 +28,9 @@ public class NhanVienDTO {
         this.email = nv.getEmail();
         this.loaiNV = nv.getLoaiNV() != null ? nv.getLoaiNV().name() : null;
 
-        // Get maBM from first ChuyenMon if exists
-        if (nv.getDsChuyenMon() != null && !nv.getDsChuyenMon().isEmpty()) {
-            this.maBM = nv.getDsChuyenMon().get(0).getMaBM();
-        } else {
-            this.maBM = null;
-        }
+        // Note: maBM would need to be fetched from CT_CHUYENMON table separately
+        // For now, leaving it as null since NhanVien doesn't have this relationship
+        // mapped
+        this.maBM = null;
     }
 }
