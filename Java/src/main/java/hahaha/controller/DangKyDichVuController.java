@@ -187,10 +187,25 @@ public class DangKyDichVuController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Dịch vụ không hợp lệ"));
 
         List<Lop> dsLopChuaDay = lopService.getLopChuaDayByBoMon(dichVu.getBoMon().getMaBM());
-        if (dichVu.getThoiHan() != null)
+        System.out.println("🔍 DEBUG - chonlop endpoint:");
+        System.out.println("   maDV: " + maDV);
+        System.out.println("   tenDV: " + dichVu.getTenDV());
+        System.out.println("   maBM: " + dichVu.getBoMon().getMaBM());
+        System.out.println("   thoiHanDV: " + dichVu.getThoiHan());
+        System.out.println("   Số lớp ChuaDay tìm thấy: " + dsLopChuaDay.size());
+
+        if (dichVu.getThoiHan() != null) {
+            for (Lop l : dsLopChuaDay) {
+                int thoiHanLop = lopService.getThoiHanLop(l);
+                System.out.println("   - Lớp " + l.getMaLop() + " (" + l.getTenLop() + "): thoiHan=" + thoiHanLop +
+                        " days, " + (thoiHanLop <= dichVu.getThoiHan() ? "✅ PASS" : "❌ FILTERED"));
+            }
+
             dsLopChuaDay = dsLopChuaDay.stream()
                     .filter(l -> lopService.getThoiHanLop(l) <= dichVu.getThoiHan())
                     .toList();
+            System.out.println("   Sau khi lọc theo thời hạn: " + dsLopChuaDay.size() + " lớp");
+        }
 
         List<LopDTO> lopDTOs = dsLopChuaDay.stream().map(l -> {
             LopDTO dto = new LopDTO();

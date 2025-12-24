@@ -9,6 +9,8 @@ public class ChiTietDichVuDTO {
     private String maCTDK;
     private String maDV;
     private String tenDichVu;
+    private String loaiDichVu;
+    private Integer thoiHan;
     private LocalDateTime ngayBD;
     private LocalDateTime ngayKT;
     private Double giaTien;

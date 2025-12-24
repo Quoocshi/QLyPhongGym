@@ -46,7 +46,8 @@ public class LichLopController {
             }
 
             NhanVien trainer = account.getNhanVien();
-            List<Lop> dsLop = lopService.getLopsByTrainerMaNV(trainer.getMaNV());
+            String maNV = trainer.getMaNV();
+            List<Lop> dsLop = lopService.getLopsByTrainerMaNV(maNV);
 
             // --- map danh sách lớp sang DTO ---
             List<LopDTO> dsLopDto = dsLop.stream().map(l -> {
@@ -69,6 +70,24 @@ public class LichLopController {
                 return dto;
             }).toList();
 
+            // --- THÊM: Lấy lịch tập lớp của trainer ---
+            List<LichTap> dsLichLop = lichTapService.getClassSchedulesByTrainer(maNV);
+            List<LichTapLopDTO> dsLichLopDTO = dsLichLop.stream()
+                    .map(LichTapLopDTO::new)
+                    .toList();
+
+            // --- Lấy danh sách ca tập và khu vực ---
+            List<CaTap> dsCaTap = caTapRepository.findAll();
+            List<KhuVuc> dsKhuVuc = khuVucRepository.findAll();
+
+            List<CaTapDTO> dsCaTapDTO = dsCaTap.stream()
+                    .map(CaTapDTO::new)
+                    .toList();
+
+            List<KhuVucDTO> dsKhuVucDTO = dsKhuVuc.stream()
+                    .map(KhuVucDTO::new)
+                    .toList();
+
             // --- map trainer sang DTO ---
             ChiTietNhanVienDTO trainerDTO = new ChiTietNhanVienDTO();
             trainerDTO.setMaNV(trainer.getMaNV());
@@ -81,7 +100,10 @@ public class LichLopController {
 
             return ResponseEntity.ok(Map.of(
                     "trainer", trainerDTO,
-                    "dsLop", dsLopDto));
+                    "dsLop", dsLopDto,
+                    "dsLichLop", dsLichLopDTO,
+                    "dsCaTap", dsCaTapDTO,
+                    "dsKhuVuc", dsKhuVucDTO));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
@@ -318,12 +340,26 @@ public class LichLopController {
             }
 
             String maNV = account.getNhanVien().getMaNV();
-            LichTap lichTap = lichTapService.createClassSchedule(
-                    maNV,
-                    request.getMaLop(),
-                    request.getNgayTap(),
-                    request.getCaTap(),
-                    request.getMaKV());
+
+            // Check if thuTap is provided (multiple days)
+            LichTap lichTap;
+            if (request.getThuTap() != null && !request.getThuTap().isEmpty()) {
+                // Use new multi-day method
+                lichTap = ((hahaha.service.LichTapServiceImpl) lichTapService).createClassScheduleMultipleDays(
+                        maNV,
+                        request.getMaLop(),
+                        request.getThuTap(),
+                        request.getCaTap(),
+                        request.getMaKV());
+            } else {
+                // Fallback to single-day method
+                lichTap = lichTapService.createClassSchedule(
+                        maNV,
+                        request.getMaLop(),
+                        request.getNgayTap(),
+                        request.getCaTap(),
+                        request.getMaKV());
+            }
 
             if (lichTap != null) {
                 return ResponseEntity.ok(Map.of(
@@ -336,6 +372,29 @@ public class LichLopController {
                                 "Không thể tạo lịch Lớp. Có thể do trùng lịch hoặc thông tin không hợp lệ."));
             }
 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    // --- 9. Hủy lịch lớp ---
+    @PutMapping("/huy-lich-lop/{maLT}")
+    @PreAuthorize("hasRole('TRAINER')")
+    public ResponseEntity<?> huyLichLop(@PathVariable String maLT) {
+        try {
+            LichTap lichTap = lichTapService.huyLichTap(maLT);
+
+            if (lichTap != null) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Hủy lịch Lớp thành công!",
+                        "maLT", lichTap.getMaLT(),
+                        "trangThai", lichTap.getTrangThai() != null ? lichTap.getTrangThai() : "Huy"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "Không thể hủy lịch Lớp. Kiểm tra lại thông tin."));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", e.getMessage()));
