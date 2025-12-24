@@ -47,9 +47,15 @@ public class QlyNhanVienController {
         try {
             List<NhanVienDTO> list = nhanVienService.getAll().stream()
                     .map(nv -> {
-                        NhanVienDTO dto = new NhanVienDTO();
-                        dto.setMaNV(nv.getMaNV());
-                        dto.setHoTen(nv.getTenNV());
+                        NhanVienDTO dto = new NhanVienDTO(nv);
+                        // For trainers, get their maBM from ChuyenMon table
+                        if (nv.getLoaiNV() == LoaiNhanVien.Trainer) {
+                            // Query ChuyenMon to find the trainer's specialization
+                            nhanVienService.findChuyenMonByMaNV(nv.getMaNV())
+                                    .stream()
+                                    .findFirst()
+                                    .ifPresent(cm -> dto.setMaBM(cm.getMaBM()));
+                        }
                         return dto;
                     })
                     .toList();
@@ -92,7 +98,6 @@ public class QlyNhanVienController {
         }
     }
 
-
     // 🔹 Thêm nhân viên
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -109,12 +114,11 @@ public class QlyNhanVienController {
         }
     }
 
-
     // 🔹 Cập nhật nhân viên
     @PutMapping("/{maNV}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateNhanVien(@PathVariable String maNV,
-                                            @RequestBody NhanVien nhanVienUpdate) {
+            @RequestBody NhanVien nhanVienUpdate) {
         try {
             NhanVien nhanVien = nhanVienService.findById(maNV);
             if (nhanVien == null) {
@@ -184,7 +188,7 @@ public class QlyNhanVienController {
     private Long getRoleGroupIdByLoaiNV(String loaiNV) {
         return switch (loaiNV) {
             case "QuanLy" -> 1L; // ADMIN
-            case "LeTan" -> 2L;  // STAFF
+            case "LeTan" -> 2L; // STAFF
             case "Trainer" -> 4L; // TRAINER
             case "PhongTap" -> 2L; // STAFF
             default -> 2L;
